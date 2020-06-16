@@ -1,4 +1,4 @@
-package world.bentobox.example.panels;
+package world.bentobox.visit.panels;
 
 
 import org.bukkit.Material;
@@ -7,13 +7,13 @@ import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
 import world.bentobox.bentobox.api.user.User;
-import world.bentobox.example.ExampleAddon;
+import world.bentobox.visit.VisitAddon;
 
 
 /**
  * This class shows how to set up easy panel by using BentoBox PanelBuilder API
  */
-public class ExamplePanel
+public class VisitPanel
 {
 	// ---------------------------------------------------------------------
 	// Section: Variables
@@ -22,7 +22,7 @@ public class ExamplePanel
 	/**
 	 * This variable allows to access addon object.
 	 */
-	private ExampleAddon addon;
+	private VisitAddon addon;
 
 	/**
 	 * This variable holds user who opens panel. Without it panel cannot be opened.
@@ -37,9 +37,9 @@ public class ExamplePanel
 	/**
 	 * This is internal constructor. It is used internally in current class to avoid
 	 * creating objects everywhere.
-	 * @param addon ExampleAddon object.
+	 * @param addon VisitAddon object.
 	 */
-	private ExamplePanel(ExampleAddon addon, User user)
+	private VisitPanel(VisitAddon addon, User user)
 	{
 		this.addon = addon;
 		this.user = user;
@@ -49,12 +49,12 @@ public class ExamplePanel
 	/**
 	 * This method is used to open UserPanel outside this class. It will be much easier
 	 * to open panel with single method call then initializing new object.
-	 * @param addon Example Addon object
+	 * @param addon VisitAddon object
 	 * @param user User who opens panel
 	 */
-	public static void openPanel(ExampleAddon addon, User user)
+	public static void openPanel(VisitAddon addon, User user)
 	{
-		new ExamplePanel(addon, user).build();
+		new VisitPanel(addon, user).build();
 	}
 
 

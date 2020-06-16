@@ -1,4 +1,4 @@
-package world.bentobox.example.configs;
+package world.bentobox.visit.configs;
 
 
 import java.util.HashSet;
@@ -19,8 +19,8 @@ import world.bentobox.bentobox.api.configuration.StoreAt;
  * To specify location for config object to be stored, you should use @StoreAt(filename="{config file name}", path="{Path to your addon}")
  * To save comments in config file you should use @ConfigComment("{message}") that adds any message you want to be in file.
  */
-@StoreAt(filename="config.yml", path="addons/Example")
-@ConfigComment("ExampleAddon Configuration [version]")
+@StoreAt(filename="config.yml", path="addons/Visit")
+@ConfigComment("VisitAddon Configuration [version]")
 @ConfigComment("This config file is dynamic and saved when the server is shutdown.")
 @ConfigComment("")
 public class Settings implements ConfigObject

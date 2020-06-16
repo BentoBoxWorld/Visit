@@ -1,0 +1,7 @@
+protection:
+  flags:
+    ALLOW_VISITS_FLAG:
+      description:
+        - "&5&o Toggle if island can"
+        - "&5&o visited by anyone."
+      name: "Visit protection"

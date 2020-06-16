@@ -5,31 +5,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>world.bentobox</groupId>
-    <artifactId>${TEMPLATE}</artifactId>
+    <artifactId>visit</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>${TEMPLATE}</name>
+    <name>Visit</name>
 
-    <description>This is simple addon for BentoBox plugin.</description>
+    <description>This is simple addon for BentoBox plugin that allows to visit other player islands.</description>
 
-    <url>https://github.com/BONNePlayground/${TEMPLATE}</url>
+    <url>https://github.com/BentoBoxWorld/Visit</url>
     <inceptionYear>2020</inceptionYear>
 
     <scm>
-        <connection>scm:git:https://github.com/BONNePlayground/${TEMPLATE}.git</connection>
-        <developerConnection>scm:git:git@github.com:BONNePlayground/${TEMPLATE}.git</developerConnection>
-        <url>https://github.com/BONNePlayground/${TEMPLATE}</url>
+        <connection>scm:git:https://github.com/BentoBoxWorld/Visit.git</connection>
+        <developerConnection>scm:git:git@github.com:BentoBoxWorld/Visit.git</developerConnection>
+        <url>https://github.com/BentoBoxWorld/Visit</url>
     </scm>
 
     <ciManagement>
         <system>jenkins</system>
-        <url>http://ci.codemc.oi/job/BONNePlayground/job/${TEMPLATE}</url>
+        <url>http://ci.codemc.oi/job/BentoBoxWorld/job/Visit</url>
     </ciManagement>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/BONNePlayground/${TEMPLATE}/issues</url>
+        <url>https://github.com/BentoBoxWorld/Visit/issues</url>
     </issueManagement>
 
     <distributionManagement>

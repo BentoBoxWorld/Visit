@@ -1,4 +1,4 @@
-package world.bentobox.example.commands.admin;
+package world.bentobox.visit.commands.player;
 
 
 import java.util.List;
@@ -6,22 +6,22 @@ import java.util.Optional;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.user.User;
-import world.bentobox.example.ExampleAddon;
+import world.bentobox.visit.VisitAddon;
 
 
 /**
- * This class process /{gamemode_admin_command} example command call.
+ * This class process /{player_command} visit command call.
  */
-public class ExampleAdminCommand extends CompositeCommand
+public class VisitPlayerCommand extends CompositeCommand
 {
 	/**
-	 * This is simple constructor for initializing /{gamemode_admin_command} example command.
-	 * @param addon Our Example addon.
+	 * This is simple constructor for initializing /{player_command} example command.
+	 * @param addon Our Visit addon.
 	 * @param parentCommand Parent Command where we hook our command into.
 	 */
-	public ExampleAdminCommand(ExampleAddon addon, CompositeCommand parentCommand)
+	public VisitPlayerCommand(VisitAddon addon, CompositeCommand parentCommand)
 	{
-		super(addon, parentCommand, "example");
+		super(addon, parentCommand, "visit");
 	}
 
 
