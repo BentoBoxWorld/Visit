@@ -1,8 +1,12 @@
 package world.bentobox.visit.events;
 
 
+import org.bukkit.event.Cancellable;
+
+import java.util.UUID;
+
 import world.bentobox.bentobox.api.events.BentoBoxEvent;
-import world.bentobox.visit.VisitAddon;
+import world.bentobox.bentobox.database.objects.Island;
 
 
 /**
@@ -10,21 +14,26 @@ import world.bentobox.visit.VisitAddon;
  * map. It will allow to access this event outside BentoBox environment by catching
  * BentoBoxEvent and checking if its name equals VisitEvent.
  */
-public class VisitEvent extends BentoBoxEvent
+public class VisitEvent extends BentoBoxEvent implements Cancellable
 {
 	// ---------------------------------------------------------------------
 	// Section: Variables
 	// ---------------------------------------------------------------------
 
 	/**
-	 * Variable that shows if addon is enabled
+	 * Variable that shows if visiting is cancelled.
 	 */
-	private boolean enabled;
+	private boolean cancelled;
 
 	/**
-	 * String that contains return message of current event.
+	 * Variable that stores island that will be visited.
 	 */
-	private String returnMessage;
+	private Island island;
+
+	/**
+	 * Variable that stores player who wants to visit an island.
+	 */
+	private UUID player;
 
 
 	// ---------------------------------------------------------------------
@@ -33,15 +42,15 @@ public class VisitEvent extends BentoBoxEvent
 
 
 	/**
-	 * Constructor ExampleAddonEvent creates a new ExampleAddonEvent instance.
+	 * Constructor VisitEvent creates a new VisitEvent instance.
 	 *
-	 * @param addon of type ExampleAddon
-	 * @param returnMessage of type String
+	 * @param player of type UUID
+	 * @param island of type Island
 	 */
-	public VisitEvent(VisitAddon addon, String returnMessage)
+	public VisitEvent(UUID player, Island island)
 	{
-		this.enabled = addon.isEnabled();
-		this.returnMessage = returnMessage;
+		this.player = player;
+		this.island = island;
 	}
 
 
@@ -51,32 +60,66 @@ public class VisitEvent extends BentoBoxEvent
 
 
 	/**
-	 * This method returns the returnMessage value.
-	 * @return the value of returnMessage.
+	 * This method returns the cancelled value.
+	 * @return the value of cancelled.
 	 */
-	public String getReturnMessage()
+	@Override
+	public boolean isCancelled()
 	{
-		return this.returnMessage;
+		return this.cancelled;
 	}
 
 
 	/**
-	 * This method sets the returnMessage value.
-	 * @param returnMessage the returnMessage new value.
+	 * This method sets the cancelled value.
+	 * @param cancelled the cancelled new value.
 	 *
 	 */
-	public void setReturnMessage(String returnMessage)
+	@Override
+	public void setCancelled(boolean cancelled)
 	{
-		this.returnMessage = returnMessage;
+		this.cancelled = cancelled;
 	}
 
 
 	/**
-	 * This method returns if addon is enabled or not.
-	 * @return true if addon is enabled, otherwise false.
+	 * This method returns the island value.
+	 * @return the value of island.
 	 */
-	public boolean isEnabled()
+	public Island getIsland()
 	{
-		return this.enabled;
+		return island;
+	}
+
+
+	/**
+	 * This method sets the island value.
+	 * @param island the island new value.
+	 *
+	 */
+	public void setIsland(Island island)
+	{
+		this.island = island;
+	}
+
+
+	/**
+	 * This method returns the player value.
+	 * @return the value of player.
+	 */
+	public UUID getPlayer()
+	{
+		return player;
+	}
+
+
+	/**
+	 * This method sets the player value.
+	 * @param player the player new value.
+	 *
+	 */
+	public void setPlayer(UUID player)
+	{
+		this.player = player;
 	}
 }
