@@ -159,7 +159,7 @@ public class VisitAddon extends Addon
 		});
 
 		// After we added all GameModes into flags, we need to register these flags into BentoBox.
-
+		ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
 		this.registerFlag(ALLOW_VISITS_FLAG);
 
 		// BentoBox does not manage money, but it provides VaultHook that does it.
