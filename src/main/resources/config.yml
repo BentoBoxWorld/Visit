@@ -5,4 +5,14 @@
 disabled-gamemodes: []
 #- SkyGrid
 
-
+default-settings:
+  # Allows to define default payment for visiting the island.
+  # Setting 0 or less will mean that default value is free.
+  # Payment goes to island owner.
+  payment: 0
+  # Allows to set if players can visit other islands while
+  # all members are offline
+  offline: true
+  # Allows to set if default visit flag value is set as
+  # enabled (true) or disabled (false).
+  enabled: false

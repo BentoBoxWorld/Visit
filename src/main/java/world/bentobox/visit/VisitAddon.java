@@ -10,6 +10,7 @@ import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.hooks.VaultHook;
+import world.bentobox.visit.commands.admin.VisitSettingsCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
 
@@ -135,6 +136,9 @@ public class VisitAddon extends Addon
 				// want to integrate our Visit Command into these commands.
 				// It provides ability to call command with GameMode command f.e. "/island visit"
 
+				gameModeAddon.getAdminCommand().ifPresent(
+					adminCommand -> new VisitSettingsCommand(this, adminCommand));
+
 				// Of course we should check if these commands exists, as it is possible to
 				// create GameMode without them.
 
@@ -204,7 +208,7 @@ public class VisitAddon extends Addon
 	 * return null, if Vault is not present.
 	 * @return {@code VaultHook} if it is present, {@code null} otherwise.
 	 */
-	public VaultHook getVaulHook()
+	public VaultHook getVaultHook()
 	{
 		return this.vaultHook.orElse(null);
 	}

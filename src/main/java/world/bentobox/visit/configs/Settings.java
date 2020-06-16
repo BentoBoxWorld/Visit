@@ -45,6 +45,25 @@ public class Settings implements ConfigObject
 	@ConfigEntry(path = "disabled-gamemodes")
 	private Set<String> disabledGameModes = new HashSet<>();
 
+	@ConfigComment("")
+	@ConfigComment("Allows to define default payment for visiting the island.")
+	@ConfigComment("Setting 0 or less will mean that default value is free.")
+	@ConfigComment("Payment goes to island owner.")
+	@ConfigEntry(path = "default-settings.payment")
+	private double defaultVisitingPayment = 0.0;
+
+	@ConfigComment("")
+	@ConfigComment("Allows to set if players can visit other islands while")
+	@ConfigComment("all members are offline.")
+	@ConfigEntry(path = "default-settings.offline")
+	private boolean defaultVisitingOffline = true;
+
+	@ConfigComment("")
+	@ConfigComment("Allows to set if default visit flag value is set as")
+	@ConfigComment("enabled (true) or disabled (false).")
+	@ConfigEntry(path = "default-settings.enabled")
+	private boolean defaultVisitingEnabled = false;
+
 
 	// ---------------------------------------------------------------------
 	// Section: Getters and Setters
@@ -57,7 +76,7 @@ public class Settings implements ConfigObject
 	 */
 	public Set<String> getDisabledGameModes()
 	{
-		return disabledGameModes;
+		return this.disabledGameModes;
 	}
 
 
@@ -69,5 +88,68 @@ public class Settings implements ConfigObject
 	public void setDisabledGameModes(Set<String> disabledGameModes)
 	{
 		this.disabledGameModes = disabledGameModes;
+	}
+
+
+	/**
+	 * This method returns the defaultVisitingPayment value.
+	 * @return the value of defaultVisitingPayment.
+	 */
+	public double getDefaultVisitingPayment()
+	{
+		return this.defaultVisitingPayment;
+	}
+
+
+	/**
+	 * This method sets the defaultVisitingPayment value.
+	 * @param defaultVisitingPayment the defaultVisitingPayment new value.
+	 *
+	 */
+	public void setDefaultVisitingPayment(double defaultVisitingPayment)
+	{
+		this.defaultVisitingPayment = defaultVisitingPayment;
+	}
+
+
+	/**
+	 * This method returns the defaultVisitingOffline value.
+	 * @return the value of defaultVisitingOffline.
+	 */
+	public boolean isDefaultVisitingOffline()
+	{
+		return this.defaultVisitingOffline;
+	}
+
+
+	/**
+	 * This method sets the defaultVisitingOffline value.
+	 * @param defaultVisitingOffline the defaultVisitingOffline new value.
+	 *
+	 */
+	public void setDefaultVisitingOffline(boolean defaultVisitingOffline)
+	{
+		this.defaultVisitingOffline = defaultVisitingOffline;
+	}
+
+
+	/**
+	 * This method returns the defaultVisitingEnabled value.
+	 * @return the value of defaultVisitingEnabled.
+	 */
+	public boolean isDefaultVisitingEnabled()
+	{
+		return this.defaultVisitingEnabled;
+	}
+
+
+	/**
+	 * This method sets the defaultVisitingEnabled value.
+	 * @param defaultVisitingEnabled the defaultVisitingEnabled new value.
+	 *
+	 */
+	public void setDefaultVisitingEnabled(boolean defaultVisitingEnabled)
+	{
+		this.defaultVisitingEnabled = defaultVisitingEnabled;
 	}
 }

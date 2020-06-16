@@ -10,18 +10,18 @@ import world.bentobox.visit.VisitAddon;
 
 
 /**
- * This class process /{player_command} visit command call.
+ * This class manages {@code /{player_command} visit configure} command call.
  */
-public class VisitPlayerCommand extends CompositeCommand
+public class VisitConfigureCommand extends CompositeCommand
 {
 	/**
-	 * This is simple constructor for initializing /{player_command} visit command.
+	 * This is simple constructor for initializing /{player_command} visit configure command.
 	 * @param addon Our Visit addon.
 	 * @param parentCommand Parent Command where we hook our command into.
 	 */
-	public VisitPlayerCommand(VisitAddon addon, CompositeCommand parentCommand)
+	public VisitConfigureCommand(VisitAddon addon, CompositeCommand parentCommand)
 	{
-		super(addon, parentCommand, "visit");
+		super(addon, parentCommand, "configure");
 	}
 
 
@@ -40,10 +40,8 @@ public class VisitPlayerCommand extends CompositeCommand
 	public void setup()
 	{
 		this.setPermission("visit");
-		this.setParametersHelp("visit.commands.player.main.parameters");
-		this.setDescription("visit.commands.player.main.description");
-
-		new VisitConfigureCommand(this.getAddon(), this);
+		this.setParametersHelp("visit.commands.player.configure.parameters");
+		this.setDescription("visit.commands.player.configure.description");
 
 		this.setOnlyPlayer(true);
 	}

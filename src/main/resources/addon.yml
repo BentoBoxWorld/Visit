@@ -22,4 +22,10 @@ authors:
 softdepend: []
 
 # List of addon permissions
-permissions: []
+permissions:
+  bskyblock.admin.visit:
+    description: Access to '/bsb visit [player]' command
+    default: op
+  bskyblock.visit:
+    description: Access to '/island visit [player]' command
+    default: true
