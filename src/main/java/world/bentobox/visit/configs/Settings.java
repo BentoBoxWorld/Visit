@@ -1,6 +1,7 @@
 package world.bentobox.visit.configs;
 
 
+import org.bukkit.Material;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +51,12 @@ public class Settings implements ConfigObject
 	@ConfigComment("Works only if there is more then 1 GameMode Addon.")
 	@ConfigEntry(path = "show-gamemode-header")
 	private boolean showGameModeHeader = true;
+
+	@ConfigComment("")
+	@ConfigComment("Allows to change icon in the GUI for island selection.")
+	@ConfigComment("PLAYER_HEAD will be transformed to island owner head.")
+	@ConfigEntry(path = "island-icon")
+	private Material islandIcon = Material.PLAYER_HEAD;
 
 	@ConfigComment("")
 	@ConfigComment("Allows to define default payment for visiting the island.")
@@ -178,5 +185,26 @@ public class Settings implements ConfigObject
 	public void setShowGameModeHeader(boolean showGameModeHeader)
 	{
 		this.showGameModeHeader = showGameModeHeader;
+	}
+
+
+	/**
+	 * This method returns the islandIcon value.
+	 * @return the value of islandIcon.
+	 */
+	public Material getIslandIcon()
+	{
+		return this.islandIcon;
+	}
+
+
+	/**
+	 * This method sets the islandIcon value.
+	 * @param islandIcon the islandIcon new value.
+	 *
+	 */
+	public void setIslandIcon(Material islandIcon)
+	{
+		this.islandIcon = islandIcon;
 	}
 }

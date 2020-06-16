@@ -9,6 +9,10 @@ disabled-gamemodes: []
 # Works only if there is more then 1 GameMode Addon.
 show-gamemode-header: true
 
+# Allows to change icon in the GUI for island selection.
+# PLAYER_HEAD will be transformed to island owner head.
+island-icon: PLAYER_HEAD
+
 default-settings:
   # Allows to define default payment for visiting the island.
   # Setting 0 or less will mean that default value is free.
