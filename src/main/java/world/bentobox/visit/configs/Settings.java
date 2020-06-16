@@ -46,6 +46,12 @@ public class Settings implements ConfigObject
 	private Set<String> disabledGameModes = new HashSet<>();
 
 	@ConfigComment("")
+	@ConfigComment("Adds Tabbed header for Visit GUI that allows to switch between GameModes.")
+	@ConfigComment("Works only if there is more then 1 GameMode Addon.")
+	@ConfigEntry(path = "show-gamemode-header")
+	private boolean showGameModeHeader = true;
+
+	@ConfigComment("")
 	@ConfigComment("Allows to define default payment for visiting the island.")
 	@ConfigComment("Setting 0 or less will mean that default value is free.")
 	@ConfigComment("Payment goes to island owner.")
@@ -151,5 +157,26 @@ public class Settings implements ConfigObject
 	public void setDefaultVisitingEnabled(boolean defaultVisitingEnabled)
 	{
 		this.defaultVisitingEnabled = defaultVisitingEnabled;
+	}
+
+
+	/**
+	 * This method returns the showGameModeHeader value.
+	 * @return the value of showGameModeHeader.
+	 */
+	public boolean isShowGameModeHeader()
+	{
+		return this.showGameModeHeader;
+	}
+
+
+	/**
+	 * This method sets the showGameModeHeader value.
+	 * @param showGameModeHeader the showGameModeHeader new value.
+	 *
+	 */
+	public void setShowGameModeHeader(boolean showGameModeHeader)
+	{
+		this.showGameModeHeader = showGameModeHeader;
 	}
 }
