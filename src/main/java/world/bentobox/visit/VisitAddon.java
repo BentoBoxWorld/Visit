@@ -13,6 +13,7 @@ import world.bentobox.bentobox.hooks.VaultHook;
 import world.bentobox.visit.commands.admin.VisitSettingsCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
+import world.bentobox.visit.managers.VisitAddonManager;
 
 
 /**
@@ -28,6 +29,11 @@ public class VisitAddon extends Addon
 	 * Settings object contains
 	 */
 	private Settings settings;
+
+	/**
+	 * Stores addon manager.
+	 */
+	private VisitAddonManager addonManager;
 
 	/**
 	 * Local variable that stores if vaultHook is present.
@@ -117,6 +123,8 @@ public class VisitAddon extends Addon
 			return;
 		}
 
+		this.addonManager = new VisitAddonManager(this);
+
 		// If your addon wants to hook into other GameModes, f.e. use flags, then you should
 		// hook these flags into each GameMode.
 
@@ -144,6 +152,9 @@ public class VisitAddon extends Addon
 
 				gameModeAddon.getPlayerCommand().ifPresent(
 					playerCommand -> new VisitPlayerCommand(this, playerCommand));
+
+				// Add gamemode to enabled addon list. Used in GUIs.
+				this.addonManager.addGameMode(gameModeAddon);
 			}
 		});
 
@@ -178,6 +189,8 @@ public class VisitAddon extends Addon
 
 		this.settings = new Config<>(this, Settings.class).loadConfigObject();
 
+		// TODO: check and readd disabled addon list in addon manager.
+
 		if (this.settings == null)
 		{
 			// If we failed to load Settings then we should not enable addon.
@@ -211,5 +224,25 @@ public class VisitAddon extends Addon
 	public VaultHook getVaultHook()
 	{
 		return this.vaultHook.orElse(null);
+	}
+
+
+	/**
+	 * This method returns the settings value.
+	 * @return the value of settings.
+	 */
+	public Settings getSettings()
+	{
+		return this.settings;
+	}
+
+
+	/**
+	 * This method returns the addonManager value.
+	 * @return the value of addonManager.
+	 */
+	public VisitAddonManager getAddonManager()
+	{
+		return this.addonManager;
 	}
 }
