@@ -22,6 +22,10 @@ visit:
           name: 'Next Page'
         previous:
           name: 'Previous Page'
+        island:
+          name: '[name]'
+          noone-online: 'None of island members are online. You cannot visit the island.'
+          cost: 'It costs [cost] to visit this island.'
 
   messages:
     visit:
@@ -29,6 +33,11 @@ visit:
         load-skipping: 'Skipping to load [value] visit settings object'
         load-overwriting:  'Overwriting visit settings object with ID [value]'
         load-add:  'Adding visit settings object with ID [value]'
+  error:
+    cannot-withdraw-credits: '&r Cannot withdraw [credits] from your account! Operation is cancelled.'
+    cannot-deposit-credits: '&r Cannot deposit [credits] into island owner account! Operation is cancelled.'
+    not-enough-credits: '$r You do not have enough credits to visit this island. Necessary [credits] credits.'
+    noone-is-online: '$r Noone from this island is online.'
 
 protection:
   flags:

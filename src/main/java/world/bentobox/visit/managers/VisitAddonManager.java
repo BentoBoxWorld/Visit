@@ -1,16 +1,15 @@
 package world.bentobox.visit.managers;
 
 
+import org.bukkit.World;
 import org.eclipse.jdt.annotation.NonNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 
@@ -298,6 +297,84 @@ public class VisitAddonManager
 		else
 		{
 			return true;
+		}
+	}
+
+
+	// ---------------------------------------------------------------------
+	// Section: Teleportation methods
+	// ---------------------------------------------------------------------
+
+
+	/**
+	 * This method checks if any island member is online or offline visiting option is
+	 * enabled.
+	 * @param island Island that must be checked.
+	 * @param settings Island Visit Settings object.
+	 * @return {@code true} if offline visiting is enabled or any member is online,
+	 * {@code false} otherwise.
+	 */
+	public boolean canVisitOffline(Island island, IslandVisitSettings settings)
+	{
+		// Check if settings allow offline visiting or any island member is online.
+		return settings.isOfflineVisit() ||
+			island.getMemberSet().stream().anyMatch(uuid ->
+				User.getInstance(uuid) != null && User.getInstance(uuid).isOnline());
+	}
+
+
+	/**
+	 * This method process user teleportation to the given island.
+	 * @param user Targeted user who need to be teleported.
+	 * @param island Island where user need to be teleported.
+	 */
+	public void processTeleportation(User user,
+		Island island)
+	{
+		this.processTeleportation(user, island, this.getIslandVisitSettings(island));
+	}
+
+
+	/**
+	 * This method process user teleportation to the given island.
+	 * @param user Targeted user who need to be teleported.
+	 * @param island Island where user need to be teleported.
+	 * @param settings IslandVisitSettings object.
+	 */
+	public void processTeleportation(User user,
+		Island island,
+		IslandVisitSettings settings)
+	{
+		double payment = settings.getPayment() + this.addon.getSettings().getTaxAmount();
+
+		if (payment > 0 && !this.hasCredits(user, payment))
+		{
+			user.sendMessage("visit.error.not-enough-credits",
+				"[credits]", String.valueOf(payment));
+		}
+		else if (!this.canVisitOffline(island, settings))
+		{
+			user.sendMessage("visit.error.noone-is-online");
+		}
+		else if (payment > 0 && !this.withdrawCredits(user, payment))
+		{
+			// error on withdrawing credits. Cancelling
+			user.sendMessage("visit.error.cannot-withdraw-credits",
+				"[credits]", String.valueOf(payment));
+		}
+		else if (settings.getPayment() > 0 && !this.depositCredits(User.getInstance(island.getOwner()), settings.getPayment()))
+		{
+			// error on depositing credits. Cancelling
+			this.depositCredits(user, settings.getPayment() + this.addon.getSettings().getTaxAmount());
+
+			user.sendMessage("visit.error.cannot-deposit-credits",
+				"[credits]", String.valueOf(settings.getPayment()));
+		}
+		else
+		{
+			// Teleport player async to island spawn point.
+			Util.teleportAsync(user.getPlayer(),
+				Objects.requireNonNull(island.getSpawnPoint(World.Environment.NORMAL)));
 		}
 	}
 }
