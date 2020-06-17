@@ -1,6 +1,7 @@
 package world.bentobox.visit.managers;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.eclipse.jdt.annotation.NonNull;
 import java.util.*;
@@ -12,6 +13,7 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
+import world.bentobox.visit.events.VisitEvent;
 
 
 /**
@@ -372,9 +374,17 @@ public class VisitAddonManager
 		}
 		else
 		{
-			// Teleport player async to island spawn point.
-			Util.teleportAsync(user.getPlayer(),
-				Objects.requireNonNull(island.getSpawnPoint(World.Environment.NORMAL)));
+			// Call visit event.
+			VisitEvent event = new VisitEvent(user.getUniqueId(), island);
+			Bukkit.getPluginManager().callEvent(event);
+
+			// If event is not cancelled, then teleport player.
+			if (!event.isCancelled())
+			{
+				// Teleport player async to island spawn point.
+				Util.teleportAsync(user.getPlayer(),
+					Objects.requireNonNull(island.getSpawnPoint(World.Environment.NORMAL)));
+			}
 		}
 	}
 }
