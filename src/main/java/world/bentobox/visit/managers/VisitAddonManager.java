@@ -264,7 +264,7 @@ public class VisitAddonManager
 	 * This method deposits given amount to player account.
 	 * @param user Targeted user.
 	 * @param credits Amount that must be deposited.
-	 * @return {@code true} if vaultHook is enabled and transaction was successful,
+	 * @return {@code true} if vaultHook not enabled or transaction was successful,
 	 * {@code false} otherwise
 	 */
 	public boolean depositCredits(User user, double credits)
@@ -276,7 +276,7 @@ public class VisitAddonManager
 		}
 		else
 		{
-			return false;
+			return true;
 		}
 	}
 
@@ -285,7 +285,7 @@ public class VisitAddonManager
 	 * This method withdraws given amount from player account.
 	 * @param user Targeted user.
 	 * @param credits Amount that must be removed.
-	 * @return {@code true} if vaultHook is enabled and transaction was successful,
+	 * @return {@code true} if vaultHook is not enabled or transaction was successful,
 	 * {@code false} otherwise
 	 */
 	public boolean withdrawCredits(User user, double credits)
@@ -297,7 +297,7 @@ public class VisitAddonManager
 		}
 		else
 		{
-			return false;
+			return true;
 		}
 	}
 }
