@@ -59,6 +59,14 @@ public class Settings implements ConfigObject
 	private Material islandIcon = Material.PLAYER_HEAD;
 
 	@ConfigComment("")
+	@ConfigComment("Allows to define tax amount (not %) that must be payed extra for visiting.")
+	@ConfigComment("Example:")
+	@ConfigComment("   Island payment is set to 10, and tax is set to 5, then visitor will need to pay 15.")
+	@ConfigComment("   10 will go to island owner, while 5 will be erased from existence.")
+	@ConfigEntry(path = "traveling-tax")
+	private double taxAmount = 0.0;
+
+	@ConfigComment("")
 	@ConfigComment("Allows to define default payment for visiting the island.")
 	@ConfigComment("Setting 0 or less will mean that default value is free.")
 	@ConfigComment("Payment goes to island owner.")
@@ -206,5 +214,26 @@ public class Settings implements ConfigObject
 	public void setIslandIcon(Material islandIcon)
 	{
 		this.islandIcon = islandIcon;
+	}
+
+
+	/**
+	 * This method returns the taxAmount value.
+	 * @return the value of taxAmount.
+	 */
+	public double getTaxAmount()
+	{
+		return this.taxAmount;
+	}
+
+
+	/**
+	 * This method sets the taxAmount value.
+	 * @param taxAmount the taxAmount new value.
+	 *
+	 */
+	public void setTaxAmount(double taxAmount)
+	{
+		this.taxAmount = taxAmount;
 	}
 }

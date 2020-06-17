@@ -13,6 +13,12 @@ show-gamemode-header: true
 # PLAYER_HEAD will be transformed to island owner head.
 island-icon: PLAYER_HEAD
 
+# Allows to define tax amount (not %) that must be payed extra for visiting.
+# Example:
+# Island payment is set to 10, and tax is set to 5, then visitor will need to pay 15.
+# 10 will go to island owner, while 5 will be erased from existence.
+traveling-tax: 0
+
 default-settings:
   # Allows to define default payment for visiting the island.
   # Setting 0 or less will mean that default value is free.
