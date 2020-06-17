@@ -3,10 +3,15 @@ package world.bentobox.visit.commands.player;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
+import world.bentobox.visit.panels.player.VisitPanel;
 
 
 /**
@@ -64,7 +69,7 @@ public class VisitPlayerCommand extends CompositeCommand
 	@Override
 	public boolean canExecute(User user, String label, List<String> args)
 	{
-		return false;
+		return true;
 	}
 
 
@@ -80,7 +85,41 @@ public class VisitPlayerCommand extends CompositeCommand
 	@Override
 	public boolean execute(User user, String label, List<String> args)
 	{
-		return false;
+		if (args.isEmpty())
+		{
+			VisitPanel.openPanel(this.getAddon(), this.getWorld(), user);
+		}
+		else if (args.size() == 1)
+		{
+			UUID targetUUID = Util.getUUID(args.get(0));
+
+			if (targetUUID == null)
+			{
+				user.sendMessage("general.errors.unknown-player", TextVariables.NAME, args.get(0));
+			}
+			else
+			{
+				// Use getIsland as it returns island even if player is in team.
+				Island island = this.getIslands().getIsland(this.getWorld(), targetUUID);
+
+				if (island == null)
+				{
+					// There is no place to teleport.
+					user.sendMessage("general.errors.player-has-no-island");
+				}
+				else
+				{
+					// Process teleporation
+					this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, island);
+				}
+			}
+		}
+		else
+		{
+			this.showHelp(this, user);
+		}
+
+		return true;
 	}
 
 
@@ -97,6 +136,7 @@ public class VisitPlayerCommand extends CompositeCommand
 	@Override
 	public Optional<List<String>> tabComplete(User user, String alias, List<String> args)
 	{
-		return Optional.empty();
+		// TODO: nice addition would be to autocomplete user names.
+		return super.tabComplete(user, alias, args);
 	}
 }
