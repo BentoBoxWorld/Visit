@@ -238,4 +238,66 @@ public class VisitAddonManager
 	{
 		return enabledAddonList;
 	}
+
+
+	// ---------------------------------------------------------------------
+	// Section: VaultHook wrapper
+	// ---------------------------------------------------------------------
+
+
+	/**
+	 * This method checks if given user has enough credits.
+ 	 * @param user Targeted user.
+	 * @param credits Amount that must be checked.
+	 * @return {@code true} if vaultHook is enabled and player has enough credits,
+	 * {@code false} otherwise
+	 */
+	public boolean hasCredits(User user, double credits)
+	{
+		return this.addon.getVaultHook() == null ||
+			!this.addon.getVaultHook().hook() ||
+			this.addon.getVaultHook().has(user, credits);
+	}
+
+
+	/**
+	 * This method deposits given amount to player account.
+	 * @param user Targeted user.
+	 * @param credits Amount that must be deposited.
+	 * @return {@code true} if vaultHook is enabled and transaction was successful,
+	 * {@code false} otherwise
+	 */
+	public boolean depositCredits(User user, double credits)
+	{
+		if (this.addon.getVaultHook() != null &&
+			this.addon.getVaultHook().hook())
+		{
+			return this.addon.getVaultHook().deposit(user, credits).transactionSuccess();
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+
+	/**
+	 * This method withdraws given amount from player account.
+	 * @param user Targeted user.
+	 * @param credits Amount that must be removed.
+	 * @return {@code true} if vaultHook is enabled and transaction was successful,
+	 * {@code false} otherwise
+	 */
+	public boolean withdrawCredits(User user, double credits)
+	{
+		if (this.addon.getVaultHook() != null &&
+			this.addon.getVaultHook().hook())
+		{
+			return this.addon.getVaultHook().withdraw(user, credits).transactionSuccess();
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

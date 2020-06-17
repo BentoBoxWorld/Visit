@@ -51,6 +51,7 @@
         <!-- More visible way how to change dependency versions -->
         <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
         <bentobox.version>1.13.1</bentobox.version>
+        <vault.version>1.7</vault.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- This allows to change between versions and snapshots. -->
@@ -131,6 +132,10 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.oi/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -144,6 +149,12 @@
             <groupId>world.bentobox</groupId>
             <artifactId>bentobox</artifactId>
             <version>${bentobox.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>${vault.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
