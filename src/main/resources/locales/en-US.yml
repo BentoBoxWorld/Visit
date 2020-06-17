@@ -11,6 +11,24 @@ visit:
       main:
         description: 'Opens GUI that allows to edit default or targeted island settings.'
         parameters: '[player]'
+  gui:
+    player:
+      title:
+        choose: '&7 Choose Island'
+      button:
+        gamemode:
+          description: 'Choose from [gamemode] islands'
+        next:
+          name: 'Next Page'
+        previous:
+          name: 'Previous Page'
+
+  messages:
+    visit:
+      messages:
+        load-skipping: 'Skipping to load [value] visit settings object'
+        load-overwriting:  'Overwriting visit settings object with ID [value]'
+        load-add:  'Adding visit settings object with ID [value]'
 
 protection:
   flags:
