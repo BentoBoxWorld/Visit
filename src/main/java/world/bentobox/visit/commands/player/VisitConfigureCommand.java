@@ -2,11 +2,12 @@ package world.bentobox.visit.commands.player;
 
 
 import java.util.List;
-import java.util.Optional;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
+import world.bentobox.visit.panels.player.ConfigurePanel;
 
 
 /**
@@ -39,7 +40,7 @@ public class VisitConfigureCommand extends CompositeCommand
 	@Override
 	public void setup()
 	{
-		this.setPermission("visit");
+		this.setPermission("configure");
 		this.setParametersHelp("visit.commands.player.configure.parameters");
 		this.setDescription("visit.commands.player.configure.description");
 
@@ -62,7 +63,15 @@ public class VisitConfigureCommand extends CompositeCommand
 	@Override
 	public boolean canExecute(User user, String label, List<String> args)
 	{
-		return false;
+		Island island = this.getIslands().getIsland(this.getWorld(), user);
+
+		if (island == null)
+		{
+			user.sendMessage("general.errors.no-island");
+			return false;
+		}
+
+		return island.isAllowed(user, VisitAddon.EDIT_CONFIG_FLAG);
 	}
 
 
@@ -78,23 +87,8 @@ public class VisitConfigureCommand extends CompositeCommand
 	@Override
 	public boolean execute(User user, String label, List<String> args)
 	{
-		return false;
-	}
+		ConfigurePanel.openPanel(this.getAddon(), this.getWorld(), user);
 
-
-	/**
-	 * Tab Completer for CompositeCommands. Note that any registered sub-commands will be
-	 * automatically added to the list. Use this to add tab-complete for things like
-	 * names.
-	 *
-	 * @param user the {@link User} who is executing this command.
-	 * @param alias alias for command
-	 * @param args command arguments
-	 * @return List of strings that could be used to complete this command.
-	 */
-	@Override
-	public Optional<List<String>> tabComplete(User user, String alias, List<String> args)
-	{
-		return Optional.empty();
+		return true;
 	}
 }

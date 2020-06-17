@@ -17,6 +17,7 @@ visit:
         choose: '&7 Choose Island'
       button:
         gamemode:
+          name: '[gamemode]'
           description: 'Choose from [gamemode] islands'
         next:
           name: 'Next Page'
@@ -24,8 +25,19 @@ visit:
           name: 'Previous Page'
         island:
           name: '[name]'
-          noone-online: 'None of island members are online. You cannot visit the island.'
+          noone-online: 'None of island members | are online. | You cannot visit the island.'
           cost: 'It costs [cost] to visit this island.'
+        input:
+          name: 'Payment Value'
+          description: 'Allows to change payment value. | &7 Current value: [value]'
+        offline:
+          name: 'Allow Offline Visits'
+          description: 'Allows to change if | players can visit island | while all members are offline. | &7 Current value: [value]'
+        enable:
+          name: 'Allow Visits'
+          description: 'Allows to change if | visits are enabled. | &7 Current value: [value]'
+    questions:
+      prefix: '[SERVER]: '
 
   messages:
     visit:
@@ -38,6 +50,8 @@ visit:
     cannot-deposit-credits: '&r Cannot deposit [credits] into island owner account! Operation is cancelled.'
     not-enough-credits: '$r You do not have enough credits to visit this island. Necessary [credits] credits.'
     noone-is-online: '$r Noone from this island is online.'
+    not-valid-number: '$r Value [value] is not valid. It should be between [min] to [max].'
+    not-a-number: '&r "[value]" is not a number!'
 
 protection:
   flags:

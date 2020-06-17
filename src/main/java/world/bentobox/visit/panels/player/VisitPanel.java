@@ -257,7 +257,8 @@ public class VisitPanel
 	{
 		return new PanelItemBuilder().
 			icon(gameModeAddon.getDescription().getIcon()).
-			name(gameModeAddon.getDescription().getName()).
+			name(this.user.getTranslation("visit.gui.player.button.gamemode.name",
+				"[gamemode]", gameModeAddon.getDescription().getName())).
 			description(this.user.getTranslation("visit.gui.player.button.gamemode.description",
 				"[gamemode]", gameModeAddon.getDescription().getName())).
 			clickHandler((panel, user, clickType, index) -> {
