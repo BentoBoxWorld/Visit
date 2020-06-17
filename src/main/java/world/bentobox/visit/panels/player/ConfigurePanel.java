@@ -2,10 +2,10 @@ package world.bentobox.visit.panels.player;
 
 
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.conversations.*;
 import org.bukkit.inventory.ItemStack;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.function.Consumer;
 
@@ -41,9 +41,9 @@ public class ConfigurePanel
 	private final VisitAddonManager manager;
 
 	/**
-	 * This variable stores main world where GUI is targeted.
+	 * This variable stores main island which GUI is targeted.
 	 */
-	private final World world;
+	private final Island island;
 
 	/**
 	 * This variable holds user who opens panel. Without it panel cannot be opened.
@@ -62,12 +62,12 @@ public class ConfigurePanel
 	 * @param addon VisitAddon object.
 	 */
 	private ConfigurePanel(VisitAddon addon,
-		World world,
+		@Nullable Island island,
 		User user)
 	{
 		this.addon = addon;
 		this.manager = this.addon.getAddonManager();
-		this.world = world;
+		this.island = island;
 		this.user = user;
 	}
 
@@ -79,10 +79,10 @@ public class ConfigurePanel
 	 * @param user User who opens panel
 	 */
 	public static void openPanel(VisitAddon addon,
-		World world,
+		@Nullable Island island,
 		User user)
 	{
-		new ConfigurePanel(addon, world, user).build();
+		new ConfigurePanel(addon, island, user).build();
 	}
 
 
@@ -103,19 +103,17 @@ public class ConfigurePanel
 			name(this.user.getTranslation("visit.gui.player.title.configure")).
 			type(Panel.Type.HOPPER);
 
-		Island island = this.addon.getIslands().getIsland(this.world, this.user);
-
-		if (island == null)
+		if (this.island == null)
 		{
 			// Nothing to open as user do not have island anymore.
 			return;
 		}
 
-		IslandVisitSettings settings = this.manager.getIslandVisitSettings(island);
+		IslandVisitSettings settings = this.manager.getIslandVisitSettings(this.island);
 
 		panelBuilder.item(0, this.createValueButton(settings));
 		panelBuilder.item(2, this.createOfflineOnlyButton(settings));
-		panelBuilder.item(4, this.createEnableButton(island));
+		panelBuilder.item(4, this.createEnableButton(this.island));
 
 		// At the end we just call build method that creates and opens panel.
 		panelBuilder.build();

@@ -87,7 +87,9 @@ public class VisitConfigureCommand extends CompositeCommand
 	@Override
 	public boolean execute(User user, String label, List<String> args)
 	{
-		ConfigurePanel.openPanel(this.getAddon(), this.getWorld(), user);
+		ConfigurePanel.openPanel(this.getAddon(),
+			this.getIslands().getIsland(this.getWorld(), user),
+			user);
 
 		return true;
 	}
