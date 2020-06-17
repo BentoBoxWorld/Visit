@@ -9,7 +9,9 @@ import java.util.Optional;
 import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.flags.Flag;
+import world.bentobox.bentobox.api.flags.clicklisteners.CycleClick;
 import world.bentobox.bentobox.hooks.VaultHook;
+import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.visit.commands.admin.VisitSettingsCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
@@ -60,6 +62,18 @@ public class VisitAddon extends Addon
 	public final static Flag ALLOW_VISITS_FLAG =
 		new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
 			type(Flag.Type.SETTING).
+			build();
+
+	/**
+	 * This flag allows to change who have access to modify island visitor config option.
+	 * Owner can change it from member rank till owner rank.
+	 * Default value is set to subowner.
+	 */
+	public final static Flag EDIT_CONFIG_FLAG =
+		new Flag.Builder("EDIT_CONFIG_FLAG", Material.PUMPKIN_PIE).
+			type(Flag.Type.PROTECTION).
+			defaultRank(RanksManager.SUB_OWNER_RANK).
+			clickHandler(new CycleClick("VISITOR_CONFIG", RanksManager.MEMBER_RANK, RanksManager.OWNER_RANK)).
 			build();
 
 
@@ -139,6 +153,7 @@ public class VisitAddon extends Addon
 			{
 				// Now we add GameModes to our Flags
 				ALLOW_VISITS_FLAG.addGameModeAddon(gameModeAddon);
+				EDIT_CONFIG_FLAG.addGameModeAddon(gameModeAddon);
 
 				// Each GameMode could have Player Command and Admin Command and we could
 				// want to integrate our Visit Command into these commands.
@@ -161,6 +176,7 @@ public class VisitAddon extends Addon
 		// After we added all GameModes into flags, we need to register these flags into BentoBox.
 		ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
 		this.registerFlag(ALLOW_VISITS_FLAG);
+		this.registerFlag(EDIT_CONFIG_FLAG);
 
 		// BentoBox does not manage money, but it provides VaultHook that does it.
 		this.vaultHook = this.getPlugin().getVault();

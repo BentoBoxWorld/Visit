@@ -46,3 +46,9 @@ protection:
         - "&5&o Toggle if island can"
         - "&5&o visited by anyone."
       name: "Visit protection"
+    EDIT_CONFIG_FLAG:
+      description:
+        - "&5&o Allows to switch who"
+        - "&5&o can edit island visitor"
+        - "&5&o configuration"
+      name: "Manage visitor config"

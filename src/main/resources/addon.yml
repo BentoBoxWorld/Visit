@@ -29,3 +29,6 @@ permissions:
   bskyblock.visit:
     description: Access to '/island visit [player]' command
     default: true
+  bskyblock.visit.configure:
+    description: Access to '/island visit configure' command
+    default: true
