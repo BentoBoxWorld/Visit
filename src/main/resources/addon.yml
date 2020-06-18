@@ -32,3 +32,43 @@ permissions:
   bskyblock.visit.configure:
     description: Access to '/island visit configure' command
     default: true
+
+  acidisland.admin.visit:
+    description: Access to '/acid visit [player]' command
+    default: op
+  acidisland.visit:
+    description: Access to '/ai visit [player]' command
+    default: true
+  acidisland.visit.configure:
+    description: Access to '/ai visit configure' command
+    default: true
+
+  caveblock.admin.visit:
+    description: Access to '/cba visit [player]' command
+    default: op
+  caveblock.visit:
+    description: Access to '/cave visit [player]' command
+    default: true
+  caveblock.visit.configure:
+    description: Access to '/cave visit configure' command
+    default: true
+
+  skygrid.admin.visit:
+    description: Access to '/sga visit [player]' command
+    default: op
+  skygrid.visit:
+    description: Access to '/sg visit [player]' command
+    default: true
+  skygrid.visit.configure:
+    description: Access to '/sg visit configure' command
+    default: true
+
+  aoneblock.admin.visit:
+    description: Access to '/oba visit [player]' command
+    default: op
+  aoneblock.visit:
+    description: Access to '/ob visit [player]' command
+    default: true
+  aoneblock.visit.configure:
+    description: Access to '/ob visit configure' command
+    default: true
