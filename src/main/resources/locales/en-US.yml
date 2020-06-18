@@ -29,15 +29,44 @@ visit:
           cost: 'It costs [cost] to visit this island.'
         input:
           name: 'Payment Value'
-          description: 'Allows to change payment value. | &7 Current value: [value]'
+          description: 'Allows to change payment value. | &7 Current value: [value] | Note: you need to write | new value in chat | on click.'
         offline:
           name: 'Allow Offline Visits'
           description: 'Allows to change if | players can visit island | while all members are offline. | &7 Current value: [value]'
         enable:
           name: 'Allow Visits'
           description: 'Allows to change if | visits are enabled. | &7 Current value: [value]'
+    admin:
+      title:
+        main: 'Admin Panel'
+        select-island: 'Select an Island'
+      button:
+        manage:
+          name: 'Manage Island Settings'
+          description: 'Allows to edit island | visit settings for | selected island.'
+        reset:
+          name: 'Reset to Default'
+          description: 'Resets all island visit | settings to default values.'
+        tax:
+          name: 'Manage Tax'
+          description: 'Allows to set tax amount | for visiting island. | &7 Current value: [value] | Note: you need to write | value in chat.'
+        gamemode-header:
+          name: 'GameMode Header'
+          description: 'Allows to toggle GameMode | selection hear in visit | GUI if multiple GameModes | are on the same server. | &7 Current value: [value]'
+        default-payment:
+          name: 'Default Payment Value'
+          description: 'Allows to change payment value. | &7 Current value: [value] | Note: you need to write | new value in chat | on click.'
+        default-offline:
+          name: 'Default Offline Visits'
+          description: 'Allows to change if | players can visit island | while all members are offline. | &7 Current value: [value]'
+        default-visiting:
+          name: 'Default Enabled'
+          description: 'Allows to change if | visits are enabled. | &7 Current value: [value]'
+
     questions:
       prefix: '[SERVER]: '
+      number: 'Write new payment amount in the chat or "cancel" to exit.'
+      tax-number: 'Write new TAX amount in the chat or "cancel" to exit.'
 
   messages:
     visit:
