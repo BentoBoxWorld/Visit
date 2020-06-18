@@ -12,7 +12,7 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.clicklisteners.CycleClick;
 import world.bentobox.bentobox.hooks.VaultHook;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.visit.commands.admin.VisitSettingsCommand;
+import world.bentobox.visit.commands.admin.VisitAdminCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
 import world.bentobox.visit.managers.VisitAddonManager;
@@ -75,6 +75,11 @@ public class VisitAddon extends Addon
 			defaultRank(RanksManager.SUB_OWNER_RANK).
 			clickHandler(new CycleClick("VISITOR_CONFIG", RanksManager.MEMBER_RANK, RanksManager.OWNER_RANK)).
 			build();
+
+	/**
+	 * Stores instance of the addon.
+	 */
+	private static VisitAddon INSTANCE;
 
 
 	// ---------------------------------------------------------------------
@@ -160,7 +165,7 @@ public class VisitAddon extends Addon
 				// It provides ability to call command with GameMode command f.e. "/island visit"
 
 				gameModeAddon.getAdminCommand().ifPresent(
-					adminCommand -> new VisitSettingsCommand(this, adminCommand));
+					adminCommand -> new VisitAdminCommand(this, adminCommand));
 
 				// Of course we should check if these commands exists, as it is possible to
 				// create GameMode without them.
@@ -173,10 +178,17 @@ public class VisitAddon extends Addon
 			}
 		});
 
-		// After we added all GameModes into flags, we need to register these flags into BentoBox.
-		ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
-		this.registerFlag(ALLOW_VISITS_FLAG);
-		this.registerFlag(EDIT_CONFIG_FLAG);
+		if (!this.addonManager.getEnabledAddonList().isEmpty())
+		{
+			// After we added all GameModes into flags, we need to register these flags
+			// into BentoBox.
+
+			ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
+			this.registerFlag(ALLOW_VISITS_FLAG);
+			this.registerFlag(EDIT_CONFIG_FLAG);
+
+			INSTANCE = this;
+		}
 
 		// BentoBox does not manage money, but it provides VaultHook that does it.
 		this.vaultHook = this.getPlugin().getVault();
@@ -227,6 +239,18 @@ public class VisitAddon extends Addon
 	}
 
 
+	/**
+	 * This method saves settings file from memory.
+	 */
+	public void saveSettings()
+	{
+		if (this.settings != null)
+		{
+			new Config<>(this, Settings.class).saveConfigObject(this.settings);
+		}
+	}
+
+
 	// ---------------------------------------------------------------------
 	// Section: Getters
 	// ---------------------------------------------------------------------
@@ -260,5 +284,15 @@ public class VisitAddon extends Addon
 	public VisitAddonManager getAddonManager()
 	{
 		return this.addonManager;
+	}
+
+
+	/**
+	 * This method returns instance of current addon.
+	 * @return Addon instance.
+	 */
+	public static VisitAddon getInstance()
+	{
+		return VisitAddon.INSTANCE;
 	}
 }
