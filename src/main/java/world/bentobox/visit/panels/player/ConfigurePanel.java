@@ -128,7 +128,7 @@ public class ConfigurePanel
 	private PanelItem createValueButton(IslandVisitSettings settings)
 	{
 		String name = this.user.getTranslation("visit.gui.player.button.input.name");
-		String description = this.user.getTranslation("visit.gui.player.buttons.input.description",
+		String description = this.user.getTranslation("visit.gui.player.button.input.description",
 			"[value]", Double.toString(settings.getPayment()));
 		ItemStack icon = new ItemStack(Material.ANVIL);
 		PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
@@ -167,7 +167,7 @@ public class ConfigurePanel
 	private PanelItem createOfflineOnlyButton(IslandVisitSettings settings)
 	{
 		String name = this.user.getTranslation("visit.gui.player.button.offline.name");
-		String description = this.user.getTranslation("visit.gui.player.buttons.offline.description",
+		String description = this.user.getTranslation("visit.gui.player.button.offline.description",
 			"[value]", Boolean.toString(settings.isOfflineVisit()));
 		ItemStack icon = settings.isOfflineVisit() ?
 			new ItemStack(Material.GREEN_STAINED_GLASS_PANE) :
@@ -201,7 +201,7 @@ public class ConfigurePanel
 		boolean isAllowed = island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG);
 
 		String name = this.user.getTranslation("visit.gui.player.button.enabled.name");
-		String description = this.user.getTranslation("visit.gui.player.buttons.enabled.description",
+		String description = this.user.getTranslation("visit.gui.player.button.enabled.description",
 			"[value]", Boolean.toString(isAllowed));
 		ItemStack icon = new ItemStack(Material.PUMPKIN_PIE);
 		PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
