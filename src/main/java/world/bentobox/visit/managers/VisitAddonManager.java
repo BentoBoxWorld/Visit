@@ -167,12 +167,28 @@ public class VisitAddonManager
 		// Limitation is that if owner changes default, it will affect this
 		// island too, but that is how it is intended to work.
 
-		if (this.addon.getSettings().getDefaultVisitingPayment() != settings.getPayment() ||
-			this.addon.getSettings().isDefaultVisitingOffline() != settings.isOfflineVisit())
+		if (!this.hasDefaultValues(settings))
 		{
 			this.visitSettingsDatabase.saveObjectAsync(settings);
 		}
+		else if (this.visitSettingsCacheData.containsKey(settings.getUniqueId()))
+		{
+			this.visitSettingsDatabase.deleteObject(settings);
+			this.visitSettingsCacheData.remove(settings.getUniqueId());
+		}
 	}
+
+
+	/**
+	 * This method removes everything from database and cache.
+	 */
+	public void wipeDatabase()
+	{
+		List<IslandVisitSettings> visitSettings = this.visitSettingsDatabase.loadObjects();
+		visitSettings.forEach(settings -> this.visitSettingsDatabase.deleteID(settings.getUniqueId()));
+		this.visitSettingsCacheData.clear();
+	}
+
 
 	// ---------------------------------------------------------------------
 	// Section: Local cache access data
@@ -197,7 +213,11 @@ public class VisitAddonManager
 	 */
 	public IslandVisitSettings getIslandVisitSettings(String uuid)
 	{
-		return this.visitSettingsCacheData.getOrDefault(uuid, this.defaultIslandVisitSettings());
+		return this.visitSettingsCacheData.computeIfAbsent(uuid, id -> {
+			IslandVisitSettings settings = this.defaultIslandVisitSettings();
+			settings.setUniqueId(id);
+			return settings;
+		});
 	}
 
 
@@ -213,6 +233,18 @@ public class VisitAddonManager
 		settings.setPayment(this.addon.getSettings().getDefaultVisitingPayment());
 
 		return settings;
+	}
+
+
+	/**
+	 * This method returns if given settings object has all default values.
+ 	 * @param settings Settings object that must be checked.
+	 * @return {@code true} if object uses default settings, {@code false} otherwise.
+	 */
+	public boolean hasDefaultValues(IslandVisitSettings settings)
+	{
+		return this.addon.getSettings().getDefaultVisitingPayment() == settings.getPayment() &&
+			this.addon.getSettings().isDefaultVisitingOffline() == settings.isOfflineVisit();
 	}
 
 
