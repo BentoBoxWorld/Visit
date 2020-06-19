@@ -2,6 +2,7 @@ package world.bentobox.visit.managers;
 
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.eclipse.jdt.annotation.NonNull;
 import java.util.*;
@@ -11,6 +12,7 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Util;
+import world.bentobox.bentobox.util.teleport.SafeSpotTeleport;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.events.VisitEvent;
@@ -413,9 +415,23 @@ public class VisitAddonManager
 			// If event is not cancelled, then teleport player.
 			if (!event.isCancelled())
 			{
-				// Teleport player async to island spawn point.
-				Util.teleportAsync(user.getPlayer(),
-					Objects.requireNonNull(island.getSpawnPoint(World.Environment.NORMAL)));
+				Location location = island.getSpawnPoint(World.Environment.NORMAL);
+
+				if (location == null || !this.addon.getIslands().isSafeLocation(location))
+				{
+					// Use SafeSpotTeleport builder to avoid issues with players spawning in
+					// bad spot.
+					new SafeSpotTeleport.Builder(this.addon.getPlugin()).
+						entity(user.getPlayer()).
+						location(location == null ? island.getCenter() : location).
+						failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
+						build();
+				}
+				else
+				{
+					// Teleport player async to island spawn point.
+					Util.teleportAsync(user.getPlayer(), location);
+				}
 			}
 		}
 	}
