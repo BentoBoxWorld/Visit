@@ -1,6 +1,6 @@
 # Visit Addon
 [![Discord](https://img.shields.io/discord/272499714048524288.svg?logo=discord)](https://discord.bentobox.world)
-[![Build Status](https://ci.codemc.oi/buildStatus/icon?job=BentoBoxWorld/Visit)](https://ci.codemc.oi/job/BentoBoxWorld/job/Visit/)
+[![Build Status](https://ci.codemc.io/buildStatus/icon?job=BentoBoxWorld/Visit)](https://ci.codemc.io/job/BentoBoxWorld/job/Visit/)
 
 This is Visit Addon for BentoBox plugin.  
 
