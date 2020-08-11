@@ -5,7 +5,7 @@ main: world.bentobox.visit.VisitAddon
 # Version of your addon. Can use maven variables.
 version: ${version}
 # API version allows to specify minimal BentoBox version for your addon.
-api-version: ${bentobox.version}
+api-version: 1.14
 # Allow to send metric about this addon usage.
 metrics: true
 # GitHub version check. Will work only for GitHub.
@@ -23,52 +23,12 @@ softdepend: []
 
 # List of addon permissions
 permissions:
-  bskyblock.admin.visit:
-    description: Access to '/bsb visit [player]' command
+  '[gamemode].admin.visit':
+    description: Access to the admin 'visit <player>' command
     default: op
-  bskyblock.visit:
-    description: Access to '/island visit [player]' command
+  '[gamemode].visit':
+    description: Access to the player 'visit <player>' command
     default: true
-  bskyblock.visit.configure:
-    description: Access to '/island visit configure' command
-    default: true
-
-  acidisland.admin.visit:
-    description: Access to '/acid visit [player]' command
-    default: op
-  acidisland.visit:
-    description: Access to '/ai visit [player]' command
-    default: true
-  acidisland.visit.configure:
-    description: Access to '/ai visit configure' command
-    default: true
-
-  caveblock.admin.visit:
-    description: Access to '/cba visit [player]' command
-    default: op
-  caveblock.visit:
-    description: Access to '/cave visit [player]' command
-    default: true
-  caveblock.visit.configure:
-    description: Access to '/cave visit configure' command
-    default: true
-
-  skygrid.admin.visit:
-    description: Access to '/sga visit [player]' command
-    default: op
-  skygrid.visit:
-    description: Access to '/sg visit [player]' command
-    default: true
-  skygrid.visit.configure:
-    description: Access to '/sg visit configure' command
-    default: true
-
-  aoneblock.admin.visit:
-    description: Access to '/oba visit [player]' command
-    default: op
-  aoneblock.visit:
-    description: Access to '/ob visit [player]' command
-    default: true
-  aoneblock.visit.configure:
-    description: Access to '/ob visit configure' command
+  '[gamemode].visit.configure':
+    description: Access to the player 'visit configure' command
     default: true

@@ -15,7 +15,7 @@ This is Visit Addon for BentoBox plugin.
 The main idea of the addon is to allow faster ways how to visit any island. 
 The main difference from warps addon is that unlike warps, signs are not necessary, and users can travel to any island.
 
-Users can visit others by executing `/[player_command] visit [player_name]` or by choosing an island from the GUI which opens after executing command `/[player_command] visit` 
+Users can visit others by executing `/[player_command] visit <player_name>` or by choosing an island from the GUI which opens after executing command `/[player_command] visit` 
 
 However, users can disable the ability to travel to their island via island settings flag "Visit protection".
 There is also an option to disable visiting while island members are offline. It can be done by `/[player_command] visit configure` command.
@@ -29,4 +29,4 @@ There is also an option to set tax amount for visitors, that will be taken from 
 
 ## Compatibility
 
-- [x] BentoBox
+- [x] BentoBox 1.14+

@@ -3,14 +3,14 @@ visit:
     player:
       main:
         description: 'Opens GUI or visits targeted player island.'
-        parameters: '[player]'
+        parameters: '<player>'
       configure:
         description: 'Opens GUI that allows to manage visiting settings.'
         parameters: ''
     admin:
       main:
         description: 'Opens GUI that allows to edit default or targeted island settings.'
-        parameters: '[player]'
+        parameters: '<player>'
   gui:
     player:
       title:
