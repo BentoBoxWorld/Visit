@@ -24,7 +24,7 @@
 
     <ciManagement>
         <system>jenkins</system>
-        <url>http://ci.codemc.oi/job/BentoBoxWorld/job/Visit</url>
+        <url>http://ci.codemc.io/job/BentoBoxWorld/job/Visit</url>
     </ciManagement>
 
     <issueManagement>
@@ -35,11 +35,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>codemc-snapshots</id>
-            <url>https://repo.codemc.oi/repository/maven-snapshots</url>
+            <url>https://repo.codemc.io/repository/maven-snapshots</url>
         </snapshotRepository>
         <repository>
             <id>codemc-releases</id>
-            <url>https://repo.codemc.oi/repository/maven-releases</url>
+            <url>https://repo.codemc.io/repository/maven-releases</url>
         </repository>
     </distributionManagement>
 
