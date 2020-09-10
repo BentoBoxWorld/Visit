@@ -15,6 +15,7 @@ visit:
     player:
       title:
         choose: '&7 Choose Island'
+        configure: '&7 Configure Access'
       button:
         gamemode:
           name: '[gamemode]'
@@ -33,7 +34,7 @@ visit:
         offline:
           name: 'Allow Offline Visits'
           description: 'Allows to change if | players can visit island | while all members are offline. | &7 Current value: [value]'
-        enable:
+        enabled:
           name: 'Allow Visits'
           description: 'Allows to change if | visits are enabled. | &7 Current value: [value]'
     admin:
