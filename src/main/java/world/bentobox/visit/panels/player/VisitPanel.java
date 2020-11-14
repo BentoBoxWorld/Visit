@@ -349,7 +349,7 @@ public class VisitPanel
 		if (payment > 0)
 		{
 			description.add(this.user.getTranslation("visit.gui.player.button.island.cost",
-				"[cost]", String.valueOf(settings.getPayment())));
+				"[cost]", String.valueOf(payment)));
 
 			if (!this.manager.hasCredits(this.user, payment))
 			{
