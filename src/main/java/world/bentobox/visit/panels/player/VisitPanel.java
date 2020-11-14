@@ -245,13 +245,13 @@ public class VisitPanel
 		for (int slot = 0; slot < 9; slot++)
 		{
 			// Populate with GameMode icons.
-			if (!skipMiddle || slot != 4)
+			if (skipMiddle && slot == 4 || slot < startingIndex || enabledAddons.size() <= addonIndex)
 			{
-				panelBuilder.item(slot, this.createGameModeButton(enabledAddons.get(addonIndex++)));
+				panelBuilder.item(slot, VisitPanel.HEADER_BLOCK);
 			}
 			else
 			{
-				panelBuilder.item(slot, VisitPanel.HEADER_BLOCK);
+				panelBuilder.item(slot, this.createGameModeButton(enabledAddons.get(addonIndex++)));
 			}
 		}
 
