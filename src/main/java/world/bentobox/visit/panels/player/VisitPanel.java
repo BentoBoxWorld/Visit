@@ -59,6 +59,10 @@ public class VisitPanel
 	 */
 	private int pageIndex;
 
+	/**
+	 * This variable holds top command label which opened current panel.
+	 */
+	private final String label;
 
 	// ---------------------------------------------------------------------
 	// Section: Static Variables
@@ -82,16 +86,21 @@ public class VisitPanel
 	/**
 	 * This is internal constructor. It is used internally in current class to avoid
 	 * creating objects everywhere.
-	 * @param addon VisitAddon object.
+	 * @param addon VisitAddon object
+	 * @param world World where user will be teleported
+	 * @param user User who opens panel
+	 * @param label String that represents top command label.
 	 */
 	private VisitPanel(VisitAddon addon,
 		World world,
-		User user)
+		User user,
+		String label)
 	{
 		this.addon = addon;
 		this.manager = this.addon.getAddonManager();
 		this.world = world;
 		this.user = user;
+		this.label = label;
 
 		// Unfortunately, it is necessary to store islands in local list, as there is no
 		// other ways how to get the same island order from hash list :(.
@@ -118,13 +127,16 @@ public class VisitPanel
 	 * This method is used to open UserPanel outside this class. It will be much easier
 	 * to open panel with single method call then initializing new object.
 	 * @param addon VisitAddon object
+	 * @param world World where user will be teleported
 	 * @param user User who opens panel
+	 * @param label String that represents top command label.
 	 */
 	public static void openPanel(VisitAddon addon,
 		World world,
-		User user)
+		User user,
+		String label)
 	{
-		new VisitPanel(addon, world, user).build();
+		new VisitPanel(addon, world, user, label).build();
 	}
 
 
@@ -265,7 +277,8 @@ public class VisitPanel
 				gameModeAddon.getPlayerCommand().ifPresent(command ->
 					VisitPanel.openPanel(this.addon,
 						gameModeAddon.getOverWorld(),
-						user));
+						user,
+						gameModeAddon.getPlayerCommand().get().getTopLabel()));
 
 				return true;
 			}).
@@ -369,7 +382,7 @@ public class VisitPanel
 			{
 				if (canClick)
 				{
-					this.manager.processTeleportation(user, island, settings);
+					user.performCommand(this.label + " visit " + island.getOwner());
 					// Close inventory
 					user.closeInventory();
 				}

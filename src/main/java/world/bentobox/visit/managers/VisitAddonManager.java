@@ -11,6 +11,7 @@ import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.lists.Flags;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.bentobox.util.teleport.SafeSpotTeleport;
 import world.bentobox.visit.VisitAddon;
@@ -343,6 +344,56 @@ public class VisitAddonManager
 
 
 	/**
+	 * This method checks if teleportation can be performed.
+	 * @param user Targeted user who need to be teleported.
+	 * @param island Island where user need to be teleported.
+	 * @return {@code true} if teleportation can be performed, {@code false} otherwise.
+	 */
+	public boolean preprocessTeleportation(User user, Island island)
+	{
+		return this.preprocessTeleportation(user, island, this.getIslandVisitSettings(island));
+	}
+
+
+	/**
+	 * This method checks if teleportation can be performed.
+	 * @param user Targeted user who need to be teleported.
+	 * @param island Island where user need to be teleported.
+	 * @param settings Island Visit Settings object.
+	 * @return {@code true} if teleportation can be performed, {@code false} otherwise.
+	 */
+	public boolean preprocessTeleportation(User user, Island island, IslandVisitSettings settings)
+	{
+		double payment = settings.getPayment() + this.addon.getSettings().getTaxAmount();
+
+		if (Flags.PREVENT_TELEPORT_WHEN_FALLING.isSetForWorld(user.getWorld()) && user.getPlayer().getFallDistance() > 0)
+		{
+			// We're sending the "hint" to the player to tell them they cannot teleport while falling.
+			user.sendMessage(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference());
+		}
+		else if (payment > 0 && !this.hasCredits(user, payment))
+		{
+			// Send a message that player has not enough credits.
+			user.sendMessage("visit.error.not-enough-credits",
+				"[credits]", String.valueOf(payment));
+		}
+		else if (!this.canVisitOffline(island, settings))
+		{
+			// Send a message that there are no online players on island.
+			user.sendMessage("visit.error.noone-is-online");
+		}
+		else
+		{
+			// All other checks failed. Teleportation can be performed.
+			return true;
+		}
+
+		// Return statement at the end is always false.
+		return false;
+	}
+
+
+	/**
 	 * This method checks if any island member is online or offline visiting option is
 	 * enabled.
 	 * @param island Island that must be checked.
@@ -383,20 +434,12 @@ public class VisitAddonManager
 	{
 		double payment = settings.getPayment() + this.addon.getSettings().getTaxAmount();
 
-		if (payment > 0 && !this.hasCredits(user, payment))
-		{
-			user.sendMessage("visit.error.not-enough-credits",
-				"[credits]", String.valueOf(payment));
-		}
-		else if (!this.canVisitOffline(island, settings))
-		{
-			user.sendMessage("visit.error.noone-is-online");
-		}
-		else if (payment > 0 && !this.withdrawCredits(user, payment))
+		if (payment > 0 && !this.withdrawCredits(user, payment))
 		{
 			// error on withdrawing credits. Cancelling
 			user.sendMessage("visit.error.cannot-withdraw-credits",
 				"[credits]", String.valueOf(payment));
+			return;
 		}
 		else if (settings.getPayment() > 0 && !this.depositCredits(User.getInstance(island.getOwner()), settings.getPayment()))
 		{
@@ -405,33 +448,32 @@ public class VisitAddonManager
 
 			user.sendMessage("visit.error.cannot-deposit-credits",
 				"[credits]", String.valueOf(settings.getPayment()));
+			return;
 		}
-		else
+
+		// Call visit event.
+		VisitEvent event = new VisitEvent(user.getUniqueId(), island);
+		Bukkit.getPluginManager().callEvent(event);
+
+		// If event is not cancelled, then teleport player.
+		if (!event.isCancelled())
 		{
-			// Call visit event.
-			VisitEvent event = new VisitEvent(user.getUniqueId(), island);
-			Bukkit.getPluginManager().callEvent(event);
+			Location location = island.getSpawnPoint(World.Environment.NORMAL);
 
-			// If event is not cancelled, then teleport player.
-			if (!event.isCancelled())
+			if (location == null || !this.addon.getIslands().isSafeLocation(location))
 			{
-				Location location = island.getSpawnPoint(World.Environment.NORMAL);
-
-				if (location == null || !this.addon.getIslands().isSafeLocation(location))
-				{
-					// Use SafeSpotTeleport builder to avoid issues with players spawning in
-					// bad spot.
-					new SafeSpotTeleport.Builder(this.addon.getPlugin()).
-						entity(user.getPlayer()).
-						location(location == null ? island.getCenter() : location).
-						failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
-						build();
-				}
-				else
-				{
-					// Teleport player async to island spawn point.
-					Util.teleportAsync(user.getPlayer(), location);
-				}
+				// Use SafeSpotTeleport builder to avoid issues with players spawning in
+				// bad spot.
+				new SafeSpotTeleport.Builder(this.addon.getPlugin()).
+					entity(user.getPlayer()).
+					location(location == null ? island.getCenter() : location).
+					failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
+					build();
+			}
+			else
+			{
+				// Teleport player async to island spawn point.
+				Util.teleportAsync(user.getPlayer(), location);
 			}
 		}
 	}
