@@ -12,16 +12,14 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import world.bentobox.bentobox.BentoBox;
-import world.bentobox.bentobox.api.panels.Panel;
 import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.lists.Flags;
 import world.bentobox.visit.VisitAddon;
-import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
+import world.bentobox.visit.panels.GuiUtils;
 import world.bentobox.visit.panels.player.ConfigurePanel;
 
 
@@ -107,6 +105,9 @@ public class AdminPanel
 			user(this.user).
 			name(this.user.getTranslation("visit.gui.admin.title.main"));
 
+		// Fill border
+		GuiUtils.fillBorder(panelBuilder, 4, Material.MAGENTA_STAINED_GLASS_PANE);
+
 		panelBuilder.item(10, this.createManageIslandButton());
 		panelBuilder.item(19, this.createDeleteAllButton());
 
@@ -154,7 +155,7 @@ public class AdminPanel
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -178,7 +179,7 @@ public class AdminPanel
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -215,7 +216,7 @@ public class AdminPanel
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -240,12 +241,14 @@ public class AdminPanel
 			this.addon.getSettings().setShowGameModeHeader(!isAllowed);
 			this.addon.saveSettings();
 
+			this.build();
+
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			glow(isAllowed).
@@ -277,14 +280,14 @@ public class AdminPanel
 
 					this.build();
 				},
-				this.user.getTranslation("visit.gui.questions.default-payment"));
+				this.user.getTranslation("visit.gui.questions.number"));
 
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -309,12 +312,14 @@ public class AdminPanel
 			this.addon.getSettings().setDefaultVisitingOffline(!isAllowed);
 			this.addon.saveSettings();
 
+			this.build();
+
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			glow(isAllowed).
@@ -341,12 +346,14 @@ public class AdminPanel
 			VisitAddon.ALLOW_VISITS_FLAG.setDefaultSetting(!isAllowed);
 			this.addon.saveSettings();
 
+			this.build();
+
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			glow(isAllowed).

@@ -15,6 +15,7 @@ visit:
     player:
       title:
         choose: '&7 Choose Island'
+        configure: '&7 Configure Settings'
       button:
         gamemode:
           name: '[gamemode]'

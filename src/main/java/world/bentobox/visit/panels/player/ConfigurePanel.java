@@ -19,6 +19,7 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
+import world.bentobox.visit.panels.GuiUtils;
 
 
 /**
@@ -151,7 +152,7 @@ public class ConfigurePanel
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -177,14 +178,14 @@ public class ConfigurePanel
 			settings.setOfflineVisit(!settings.isOfflineVisit());
 			this.manager.saveSettings(settings);
 
-			panel.getItems().put(slot, this.createOfflineOnlyButton(settings));
+			panel.getInventory().setItem(slot, this.createOfflineOnlyButton(settings).getItem());
 
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			build();
@@ -200,21 +201,21 @@ public class ConfigurePanel
 	{
 		boolean isAllowed = island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG);
 
-		String name = this.user.getTranslation("visit.gui.player.button.enabled.name");
-		String description = this.user.getTranslation("visit.gui.player.button.enabled.description",
+		String name = this.user.getTranslation("visit.gui.player.button.enable.name");
+		String description = this.user.getTranslation("visit.gui.player.button.enable.description",
 			"[value]", Boolean.toString(isAllowed));
 		ItemStack icon = new ItemStack(Material.PUMPKIN_PIE);
 		PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
 		{
 			island.setSettingsFlag(VisitAddon.ALLOW_VISITS_FLAG, !isAllowed);
-			panel.getItems().put(slot, this.createEnableButton(island));
+			this.build();
 
 			return true;
 		};
 
 		return new PanelItemBuilder().
 			name(name).
-			description(description).
+			description(GuiUtils.stringSplit(description)).
 			icon(icon).
 			clickHandler(clickHandler).
 			glow(isAllowed).

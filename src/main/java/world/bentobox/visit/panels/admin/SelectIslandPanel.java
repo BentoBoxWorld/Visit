@@ -15,6 +15,7 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
+import world.bentobox.visit.panels.GuiUtils;
 
 
 /**
@@ -176,7 +177,7 @@ public class SelectIslandPanel
 		description.add(this.user.getTranslation("visit.gui.player.button.island.cost",
 			"[cost]", String.valueOf(settings.getPayment())));
 
-		builder.description(description);
+		builder.description(GuiUtils.stringSplit(description));
 
 		// Glow icon if user can visit the island.
 		builder.glow(VisitAddon.getInstance().getAddonManager().hasDefaultValues(settings));

@@ -18,6 +18,7 @@ import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
+import world.bentobox.visit.panels.GuiUtils;
 
 
 /**
@@ -271,8 +272,8 @@ public class VisitPanel
 			icon(gameModeAddon.getDescription().getIcon()).
 			name(this.user.getTranslation("visit.gui.player.button.gamemode.name",
 				"[gamemode]", gameModeAddon.getDescription().getName())).
-			description(this.user.getTranslation("visit.gui.player.button.gamemode.description",
-				"[gamemode]", gameModeAddon.getDescription().getName())).
+			description(GuiUtils.stringSplit(this.user.getTranslation("visit.gui.player.button.gamemode.description",
+				"[gamemode]", gameModeAddon.getDescription().getName()))).
 			clickHandler((panel, user, clickType, index) -> {
 				gameModeAddon.getPlayerCommand().ifPresent(command ->
 					VisitPanel.openPanel(this.addon,
@@ -370,7 +371,7 @@ public class VisitPanel
 			}
 		}
 
-		builder.description(description);
+		builder.description(GuiUtils.stringSplit(description));
 
 		// Glow icon if user can visit the island.
 		builder.glow(canVisit);
