@@ -196,9 +196,9 @@ public class VisitAddon extends Addon
 		// Even if Vault is installed, it does not mean that economy can be used. It is
 		// necessary to check it via VaultHook#hook() method.
 
-		if (!this.vaultHook.isPresent() || !this.vaultHook.get().hook())
+		if (!this.vaultHook.isPresent())
 		{
-			this.logWarning("Economy plugin not found by Visit Addon!");
+			this.logWarning("Vault plugin not found. Economy will not work!");
 		}
 	}
 

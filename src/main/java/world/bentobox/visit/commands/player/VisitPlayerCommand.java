@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.commands.DelayedTeleportCommand;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
@@ -17,7 +18,7 @@ import world.bentobox.visit.panels.player.VisitPanel;
 /**
  * This class process /{player_command} visit command call.
  */
-public class VisitPlayerCommand extends CompositeCommand
+public class VisitPlayerCommand extends DelayedTeleportCommand
 {
 	/**
 	 * This is simple constructor for initializing /{player_command} visit command.
@@ -69,6 +70,40 @@ public class VisitPlayerCommand extends CompositeCommand
 	@Override
 	public boolean canExecute(User user, String label, List<String> args)
 	{
+		if (args.isEmpty())
+		{
+			// Open panel. No checks required.
+			return true;
+		}
+		else if (args.size() == 1)
+		{
+			UUID targetUUID = Util.getUUID(args.get(0));
+
+			if (targetUUID == null)
+			{
+				user.sendMessage("general.errors.unknown-player", TextVariables.NAME, args.get(0));
+				return false;
+			}
+			else
+			{
+				// Use getIsland as it returns island even if player is in team.
+				this.island = this.getIslands().getIsland(this.getWorld(), targetUUID);
+
+				if (this.island == null)
+				{
+					// There is no place to teleport.
+					user.sendMessage("general.errors.player-has-no-island");
+					return false;
+				}
+				else
+				{
+					// Return preprocess result from teleportation.
+					return this.<VisitAddon>getAddon().getAddonManager().
+						preprocessTeleportation(user, this.island);
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -87,32 +122,13 @@ public class VisitPlayerCommand extends CompositeCommand
 	{
 		if (args.isEmpty())
 		{
-			VisitPanel.openPanel(this.getAddon(), this.getWorld(), user);
+			VisitPanel.openPanel(this.getAddon(), this.getWorld(), user, this.getTopLabel());
 		}
 		else if (args.size() == 1)
 		{
-			UUID targetUUID = Util.getUUID(args.get(0));
-
-			if (targetUUID == null)
-			{
-				user.sendMessage("general.errors.unknown-player", TextVariables.NAME, args.get(0));
-			}
-			else
-			{
-				// Use getIsland as it returns island even if player is in team.
-				Island island = this.getIslands().getIsland(this.getWorld(), targetUUID);
-
-				if (island == null)
-				{
-					// There is no place to teleport.
-					user.sendMessage("general.errors.player-has-no-island");
-				}
-				else
-				{
-					// Process teleporation
-					this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, island);
-				}
-			}
+			// Process teleportation
+			this.delayCommand(user, () ->
+				this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island));
 		}
 		else
 		{
@@ -139,4 +155,10 @@ public class VisitPlayerCommand extends CompositeCommand
 		// TODO: nice addition would be to autocomplete user names.
 		return super.tabComplete(user, alias, args);
 	}
+
+
+	/**
+	 * Island instance to which player will be teleported.
+	 */
+	private Island island;
 }

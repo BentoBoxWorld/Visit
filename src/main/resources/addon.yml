@@ -24,11 +24,11 @@ softdepend: []
 # List of addon permissions
 permissions:
   '[gamemode].admin.visit':
-    description: Access to the admin 'visit <player>' command
+    description: Access to '/[admin_command] visit [player]' command
     default: op
   '[gamemode].visit':
-    description: Access to the player 'visit <player>' command
+    description: Access to '/[player_command] visit [player]' command
     default: true
   '[gamemode].visit.configure':
-    description: Access to the player 'visit configure' command
+    description: Access to '/[player_command] visit configure' command
     default: true
