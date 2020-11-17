@@ -4,11 +4,13 @@ package world.bentobox.visit.database.object;
 import com.google.gson.annotations.Expose;
 
 import world.bentobox.bentobox.database.objects.DataObject;
+import world.bentobox.bentobox.database.objects.Table;
 
 
 /**
  * This class stores information about island visiting data.
  */
+@Table(name = "IslandVisitSettings")
 public class IslandVisitSettings implements DataObject
 {
 	// ---------------------------------------------------------------------

@@ -73,7 +73,7 @@ public class VisitAddon extends Addon
 		new Flag.Builder("EDIT_CONFIG_FLAG", Material.PUMPKIN_PIE).
 			type(Flag.Type.PROTECTION).
 			defaultRank(RanksManager.SUB_OWNER_RANK).
-			clickHandler(new CycleClick("VISITOR_CONFIG", RanksManager.MEMBER_RANK, RanksManager.OWNER_RANK)).
+			clickHandler(new CycleClick("EDIT_CONFIG_FLAG", RanksManager.MEMBER_RANK, RanksManager.OWNER_RANK)).
 			build();
 
 	/**

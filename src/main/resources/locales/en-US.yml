@@ -3,19 +3,19 @@ visit:
     player:
       main:
         description: 'Opens GUI or visits targeted player island.'
-        parameters: '[player]'
+        parameters: '<player>'
       configure:
         description: 'Opens GUI that allows to manage visiting settings.'
         parameters: ''
     admin:
       main:
         description: 'Opens GUI that allows to edit default or targeted island settings.'
-        parameters: '[player]'
+        parameters: '<player>'
   gui:
     player:
       title:
         choose: '&7 Choose Island'
-        configure: '&7 Configure Settings'
+        configure: '&7 Configure Access'
       button:
         gamemode:
           name: '[gamemode]'
@@ -34,7 +34,7 @@ visit:
         offline:
           name: 'Allow Offline Visits'
           description: 'Allows to change if | players can visit island | while all members are offline. | &7 Current value: [value]'
-        enable:
+        enabled:
           name: 'Allow Visits'
           description: 'Allows to change if | visits are enabled. | &7 Current value: [value]'
     admin:
