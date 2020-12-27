@@ -2,6 +2,7 @@ package world.bentobox.visit.events;
 
 
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
 
 import java.util.UUID;
 
@@ -16,26 +17,6 @@ import world.bentobox.bentobox.database.objects.Island;
  */
 public class VisitEvent extends BentoBoxEvent implements Cancellable
 {
-	// ---------------------------------------------------------------------
-	// Section: Variables
-	// ---------------------------------------------------------------------
-
-	/**
-	 * Variable that shows if visiting is cancelled.
-	 */
-	private boolean cancelled;
-
-	/**
-	 * Variable that stores island that will be visited.
-	 */
-	private Island island;
-
-	/**
-	 * Variable that stores player who wants to visit an island.
-	 */
-	private UUID player;
-
-
 	// ---------------------------------------------------------------------
 	// Section: Constructor
 	// ---------------------------------------------------------------------
@@ -122,4 +103,57 @@ public class VisitEvent extends BentoBoxEvent implements Cancellable
 	{
 		this.player = player;
 	}
+
+
+// ---------------------------------------------------------------------
+// Section: Handler methods
+// ---------------------------------------------------------------------
+
+
+	/**
+	 * Gets handlers.
+	 *
+	 * @return the handlers
+	 */
+	@Override
+	public HandlerList getHandlers()
+	{
+		return VisitEvent.handlers;
+	}
+
+
+	/**
+	 * Gets handlers.
+	 *
+	 * @return the handlers
+	 */
+	public static HandlerList getHandlerList()
+	{
+		return VisitEvent.handlers;
+	}
+
+
+	// ---------------------------------------------------------------------
+	// Section: Variables
+	// ---------------------------------------------------------------------
+
+	/**
+	 * Variable that shows if visiting is cancelled.
+	 */
+	private boolean cancelled;
+
+	/**
+	 * Variable that stores island that will be visited.
+	 */
+	private Island island;
+
+	/**
+	 * Variable that stores player who wants to visit an island.
+	 */
+	private UUID player;
+
+	/**
+	 * Event listener list for current
+	 */
+	private static final HandlerList handlers = new HandlerList();
 }
