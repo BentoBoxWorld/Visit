@@ -371,6 +371,11 @@ public class VisitAddonManager
 			// We're sending the "hint" to the player to tell them they cannot teleport while falling.
 			user.sendMessage(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference());
 		}
+		else if (island.isAllowed(user, Flags.LOCK))
+		{
+			// Visiting is not allowed.
+			user.sendMessage("protection.locked");
+		}
 		else if (payment > 0 && !this.hasCredits(user, payment))
 		{
 			// Send a message that player has not enough credits.
