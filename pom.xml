@@ -51,7 +51,7 @@
         <!-- More visible way how to change dependency versions -->
         <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
         <!-- BentoBox API version -->
-        <bentobox.version>1.15.0</bentobox.version>
+        <bentobox.version>1.15.4</bentobox.version>
         <vault.version>1.7</vault.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
