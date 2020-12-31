@@ -4,7 +4,7 @@ package world.bentobox.visit.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.eclipse.jdt.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +65,7 @@ public class VisitAddonManager
      *
      * @param islandSettings object that must be loaded in local cache
      */
-    private void loadSettings(@NonNull IslandVisitSettings islandSettings)
+    private void loadSettings(@NotNull IslandVisitSettings islandSettings)
     {
         this.loadSettings(islandSettings, true, null, true);
     }
@@ -81,23 +81,11 @@ public class VisitAddonManager
      * @param silent of type boolean that indicate if message to user must be sent.
      * @return boolean that indicate about load status.
      */
-    public boolean loadSettings(@NonNull IslandVisitSettings islandSettings,
+    public boolean loadSettings(@NotNull IslandVisitSettings islandSettings,
         boolean overwrite,
         User user,
         boolean silent)
     {
-        // This may happen if database somehow failed to load challenge and return
-        // null as input.
-        if (islandSettings == null)
-        {
-            if (!silent)
-            {
-                user.sendMessage("load-error", "[value]", "NULL");
-            }
-
-            return false;
-        }
-
         if (this.visitSettingsCacheData.containsKey(islandSettings.getUniqueId()))
         {
             if (!overwrite)
@@ -173,6 +161,17 @@ public class VisitAddonManager
         List<IslandVisitSettings> visitSettings = this.visitSettingsDatabase.loadObjects();
         visitSettings.forEach(settings -> this.visitSettingsDatabase.deleteID(settings.getUniqueId()));
         this.visitSettingsCacheData.clear();
+    }
+
+
+    /**
+     * This method removes data from database for given island.
+     * @param island Island which data must be removed.
+     */
+    public void removeData(@NotNull Island island)
+    {
+        this.visitSettingsCacheData.remove(island.getUniqueId());
+        this.visitSettingsDatabase.deleteID(island.getUniqueId());
     }
 
 
