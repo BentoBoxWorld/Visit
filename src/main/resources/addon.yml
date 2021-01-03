@@ -5,7 +5,7 @@ main: world.bentobox.visit.VisitAddon
 # Version of your addon. Can use maven variables.
 version: ${version}
 # API version allows to specify minimal BentoBox version for your addon.
-api-version: 1.14
+api-version: ${bentobox.version}
 # Allow to send metric about this addon usage.
 metrics: true
 # GitHub version check. Will work only for GitHub.
@@ -32,3 +32,6 @@ permissions:
   '[gamemode].visit.configure':
     description: Access to '/[player_command] visit configure' command
     default: true
+  'visit.icon.STONE':
+    description: Allows to set a different icon for owner island.
+    default: false

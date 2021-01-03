@@ -27,6 +27,7 @@ import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.panels.ConversationUtils;
 import world.bentobox.visit.utils.Constants;
+import world.bentobox.visit.utils.Utils;
 
 
 /**
@@ -289,13 +290,24 @@ public class SelectIslandPanel
             return builder.build();
         }
 
-        if (VisitAddon.getInstance().getSettings().getIslandIcon() == Material.PLAYER_HEAD)
+        // Check owner for a specific icon
+        Material material = Material.matchMaterial(
+            Utils.getPermissionValue(owner, "visit.icon",
+                VisitAddon.getInstance().getSettings().getIslandIcon().name()));
+
+        if (material == null)
+        {
+            // Set material to a default icon from settings.
+            material = VisitAddon.getInstance().getSettings().getIslandIcon();
+        }
+
+        if (material == Material.PLAYER_HEAD)
         {
             builder.icon(owner.getName());
         }
         else
         {
-            builder.icon(VisitAddon.getInstance().getSettings().getIslandIcon());
+            builder.icon(material);
         }
 
         builder.name(this.user.getTranslation(Constants.BUTTONS + "island.name",
