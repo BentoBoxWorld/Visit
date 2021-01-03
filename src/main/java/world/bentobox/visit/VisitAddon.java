@@ -19,6 +19,7 @@ import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.visit.commands.admin.VisitAdminCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
+import world.bentobox.visit.listeners.IslandEventsListener;
 import world.bentobox.visit.managers.VisitAddonManager;
 
 
@@ -138,6 +139,9 @@ public class VisitAddon extends Addon
             ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
             this.registerFlag(ALLOW_VISITS_FLAG);
             this.registerFlag(VISIT_CONFIG_PERMISSION);
+
+            // Add listener.
+            this.registerListener(new IslandEventsListener(this));
 
             INSTANCE = this;
         }
