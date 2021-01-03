@@ -31,6 +31,7 @@ public class VisitAddon extends Addon
     // Section: Variables
     // ---------------------------------------------------------------------
 
+
     /**
      * Executes code when loading the addon. This is called before {@link #onEnable()}. This <b>must</b> be used to
      * setup configuration, worlds and commands.
@@ -257,6 +258,7 @@ public class VisitAddon extends Addon
         return VisitAddon.INSTANCE;
     }
 
+
     /**
      * Settings object contains
      */
@@ -283,6 +285,12 @@ public class VisitAddon extends Addon
     private static VisitAddon INSTANCE;
 
     /**
+     * This flag allows to change who have access to modify island visitor config option. Owner can change it from
+     * member rank till owner rank. Default value is set to subowner.
+     */
+    public static Flag VISIT_CONFIG_PERMISSION;
+
+    /**
      * Settings flags allows to modifying parameters of the island.
      * <p>
      * It can be modified by the players (island owner). This is usually an on/off setting.
@@ -295,10 +303,4 @@ public class VisitAddon extends Addon
         new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
             type(Flag.Type.SETTING).
             build();
-
-    /**
-     * This flag allows to change who have access to modify island visitor config option. Owner can change it from
-     * member rank till owner rank. Default value is set to subowner.
-     */
-    public static Flag VISIT_CONFIG_PERMISSION;
 }

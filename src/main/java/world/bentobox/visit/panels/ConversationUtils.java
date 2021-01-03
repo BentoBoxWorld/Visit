@@ -184,7 +184,8 @@ public class ConversationUtils
             @Override
             protected String getInputNotNumericText(ConversationContext context, String invalidInput)
             {
-                return user.getTranslation(Constants.CONVERSATIONS + "numeric-only", Constants.PARAMETER_VALUE, invalidInput);
+                return user.getTranslation(Constants.CONVERSATIONS + "numeric-only",
+                    Constants.PARAMETER_VALUE, invalidInput);
             }
 
 

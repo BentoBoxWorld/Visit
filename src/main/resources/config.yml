@@ -75,4 +75,4 @@ commands:
 # To disable addon it is necessary to write its name in new line that starts with -. Example:
 # disabled-gamemodes:
 #  - BSkyBlock
-disabled-gamemodes: []
+disabled-gamemodes: [ ]

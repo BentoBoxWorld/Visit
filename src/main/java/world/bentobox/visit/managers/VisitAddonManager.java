@@ -90,9 +90,8 @@ public class VisitAddonManager
 
 
     /**
-     * Has offline enabled for given island.
-     * It checks if island has Offline Metadata and return its value.
-     * If metadata is not present, then it returns default value for the flag.
+     * Has offline enabled for given island. It checks if island has Offline Metadata and return its value. If metadata
+     * is not present, then it returns default value for the flag.
      *
      * @param island the island
      * @return the boolean
@@ -111,8 +110,7 @@ public class VisitAddonManager
 
 
     /**
-     * Gets island earnings that are set in Island Payment Metadata.
-     * If metadata is not set up, return default value.
+     * Gets island earnings that are set in Island Payment Metadata. If metadata is not set up, return default value.
      *
      * @param island the island
      * @return the island earnings

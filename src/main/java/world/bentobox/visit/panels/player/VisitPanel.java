@@ -10,12 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -66,9 +61,9 @@ public class VisitPanel
         this.filtersAtTheTop = this.addon.getSettings().isFiltersTopLine();
         this.maxElements = this.filtersEnabled ? 45 : 54;
         this.maxSlotIndex = !this.filtersEnabled || this.filtersAtTheTop ? 53 : 44;
-        
+
         this.borderBlock = this.createBorderBlock();
-        
+
         this.activeFilter = this.addon.getSettings().getDefaultFilter();
 
         // Unfortunately, it is necessary to store islands in local list, as there is no
@@ -114,18 +109,18 @@ public class VisitPanel
         {
             return new PanelItemBuilder().build();
         }
-        
+
         ItemStack itemStack = new ItemStack(this.addon.getSettings().getBorderBlock());
         ItemMeta meta = itemStack.getItemMeta();
         meta.setDisplayName(this.addon.getSettings().getBorderBlockName());
         itemStack.setItemMeta(meta);
-        
+
         return new PanelItemBuilder().
             icon(itemStack).
             name(this.addon.getSettings().getBorderBlockName()).
             build();
     }
-    
+
 
     /**
      * Build method manages current panel opening. It uses BentoBox PanelAPI that is easy to use and users can get nice
@@ -209,7 +204,7 @@ public class VisitPanel
         {
             panelBuilder.item(i, this.borderBlock);
         }
-        
+
         panelBuilder.item(startIndex + 4, this.createSearchButton());
         panelBuilder.item(startIndex + 8, this.createFilterButton());
     }
@@ -353,7 +348,7 @@ public class VisitPanel
      */
     private PanelItem createFilterButton()
     {
-        
+
         String name = this.user.getTranslation(Constants.BUTTONS + "filter.name");
         Material icon;
 
@@ -406,8 +401,8 @@ public class VisitPanel
             clickHandler(clickHandler).
             build();
     }
-    
-    
+
+
     /**
      * This method creates and returns button that switch to next page in view mode.
      *
@@ -686,14 +681,14 @@ public class VisitPanel
     private final PanelItem borderBlock;
 
     /**
-     * This variable stores filtered elements.
-     */
-    private List<Island> elementList;
-
-    /**
      * This variable holds top command label which opened current panel.
      */
     private final String label;
+
+    /**
+     * This variable stores filtered elements.
+     */
+    private List<Island> elementList;
 
     /**
      * This variable holds current pageIndex for multi-page island choosing.
@@ -704,7 +699,7 @@ public class VisitPanel
      * This variable stores search string for player / island names.
      */
     private String searchString;
-    
+
     /**
      * Stores active filter.
      */
