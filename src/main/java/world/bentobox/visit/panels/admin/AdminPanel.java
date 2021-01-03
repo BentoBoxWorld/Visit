@@ -3,24 +3,24 @@ package world.bentobox.visit.panels.admin;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.conversations.*;
-import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.NonNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
-import world.bentobox.visit.managers.VisitAddonManager;
+import world.bentobox.visit.configs.Settings;
+import world.bentobox.visit.panels.ConversationUtils;
 import world.bentobox.visit.panels.GuiUtils;
 import world.bentobox.visit.panels.player.ConfigurePanel;
+import world.bentobox.visit.utils.Constants;
+import world.bentobox.visit.utils.Utils;
 
 
 /**
@@ -28,10 +28,6 @@ import world.bentobox.visit.panels.player.ConfigurePanel;
  */
 public class AdminPanel
 {
-    // ---------------------------------------------------------------------
-    // Section: Variables
-    // ---------------------------------------------------------------------
-
     /**
      * This is internal constructor. It is used internally in current class to avoid creating objects everywhere.
      *
@@ -42,7 +38,6 @@ public class AdminPanel
         User user)
     {
         this.addon = addon;
-        this.manager = this.addon.getAddonManager();
         this.world = world;
         this.user = user;
     }
@@ -57,20 +52,23 @@ public class AdminPanel
         // PanelBuilder is a BentoBox API that provides ability to easy create Panels.
         PanelBuilder panelBuilder = new PanelBuilder().
             user(this.user).
-            name(this.user.getTranslation("visit.gui.admin.title.main"));
+            name(this.user.getTranslation(Constants.TITLES + "main"));
 
         // Fill border
-        GuiUtils.fillBorder(panelBuilder, 4, Material.MAGENTA_STAINED_GLASS_PANE);
+        GuiUtils.fillBorder(panelBuilder, 5, Material.MAGENTA_STAINED_GLASS_PANE);
 
-        panelBuilder.item(10, this.createManageIslandButton());
-        panelBuilder.item(19, this.createDeleteAllButton());
+        panelBuilder.item(10, this.createButton(Button.MANAGE));
+        panelBuilder.item(28, this.createButton(Button.RESET));
+        panelBuilder.item(11, this.createButton(Button.TAX));
 
-        panelBuilder.item(12, this.createTaxButton());
-        panelBuilder.item(21, this.createHeaderButton());
+        panelBuilder.item(13, this.createButton(Button.AT_TOP));
+        panelBuilder.item(22, this.createButton(Button.TOGGLE_FILTERS));
+        panelBuilder.item(31, this.createButton(Button.TOGGLE_SEARCH));
+        panelBuilder.item(14, this.createButton(Button.FILTER));
 
-        panelBuilder.item(14, this.createDefaultPaymentButton());
-        panelBuilder.item(15, this.createDefaultOfflineButton());
-        panelBuilder.item(16, this.createDefaultEnableButton());
+        panelBuilder.item(16, this.createButton(Button.DEFAULT_ENABLED));
+        panelBuilder.item(25, this.createButton(Button.DEFAULT_OFFLINE));
+        panelBuilder.item(34, this.createButton(Button.DEFAULT_PAYMENT));
 
         // At the end we just call build method that creates and opens panel.
         panelBuilder.build();
@@ -78,385 +76,372 @@ public class AdminPanel
 
 
     /**
-     * This method creates button that allows to manage any island settings.
+     * Create button panel item.
      *
-     * @return PanelItem button.
+     * @param button the button
+     * @return the panel item
      */
-    private PanelItem createManageIslandButton()
+    private PanelItem createButton(Button button)
     {
-        String name = this.user.getTranslation("visit.gui.admin.button.manage.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.manage.description");
-        ItemStack icon = new ItemStack(Material.PLAYER_HEAD);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
+        final String reference = Constants.BUTTONS + button.name().toLowerCase();
+        String name = this.user.getTranslation(reference + ".name");
+        List<String> description = new ArrayList<>();
+        description.add(this.user.getTranslationOrNothing(reference + ".description"));
+
+        Material material;
+        PanelItem.ClickHandler clickHandler;
+        boolean glow = false;
+
+        switch (button)
         {
-            List<Island> islandList = this.addon.getIslands().getIslands(this.world).stream().
-                // Filter out islands without owner.
-                    filter(Island::isOwned).
-                // Sort by island and owner name
-                    sorted((o1, o2) ->
-                    (
-                        o1.getName() != null ?
-                            o1.getName() : Objects.requireNonNull(User.getInstance(o1.getOwner())).getName()).
-                        compareToIgnoreCase(o2.getName() != null ?
-                            o2.getName() : Objects.requireNonNull(User.getInstance(o2.getOwner())).getName())).
-                    collect(Collectors.toList());
+            case MANAGE:
+            {
+                material = Material.PLAYER_HEAD;
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-choose"));
 
-            // Open Edit panel after user selected island.
-            SelectIslandPanel.open(user,
-                islandList,
-                island -> ConfigurePanel.openPanel(this.addon, island, this.user));
-
-            return true;
-        };
-
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
-    }
-
-
-    /**
-     * This method creates button that allows to reset every island to default values.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createDeleteAllButton()
-    {
-        String name = this.user.getTranslation("visit.gui.admin.button.reset.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.reset.description");
-        ItemStack icon = new ItemStack(Material.TNT);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
-        {
-            this.addon.getAddonManager().wipeDatabase();
-            return true;
-        };
-
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
-    }
-
-
-    // ---------------------------------------------------------------------
-    // Section: Internal Constructor
-    // ---------------------------------------------------------------------
-
-
-    /**
-     * This method creates button that starts ConversationAPI to get amount for tax value.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createTaxButton()
-    {
-        String name = this.user.getTranslation("visit.gui.admin.button.tax.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.tax.description",
-            "[value]", Double.toString(this.addon.getSettings().getTaxAmount()));
-        ItemStack icon = new ItemStack(Material.GOLD_INGOT);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
-
-            this.getNumberInput(number ->
+                clickHandler = (panel, user, clickType, slot) ->
                 {
-                    if (number != null)
+                    // Filter out islands without owner.
+                    // Sort by island and owner name
+
+                    List<Island> islandList = this.addon.getIslands().getIslands(this.world).stream().
+                        filter(Island::isOwned).
+                        sorted((o1, o2) ->
+                        {
+                            String o1Name = o1.getName() != null ? o1.getName() :
+                                Objects.requireNonNull(User.getInstance(o1.getOwner())).getName();
+                            String o2Name = o2.getName() != null ? o2.getName() :
+                                Objects.requireNonNull(User.getInstance(o2.getOwner())).getName();
+
+                            return o1Name.compareToIgnoreCase(o2Name);
+                        }).
+                        collect(Collectors.toList());
+
+                    // Open Edit panel after user selected island.
+                    SelectIslandPanel.open(user,
+                        islandList,
+                        island -> ConfigurePanel.openPanel(this.addon, island, this.user));
+
+                    return true;
+                };
+
+                break;
+            }
+            case RESET:
+            {
+                material = Material.TNT;
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-reset"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    // Create consumer that accepts value from conversation.
+                    Consumer<Boolean> consumer = value ->
                     {
-                        // Null value is passed if user write cancel.
-                        this.addon.getSettings().setTaxAmount(number.doubleValue());
-                        this.addon.saveSettings();
-                    }
+                        if (value)
+                        {
+                            this.addon.getAddonManager().wipeDatabase();
+                        }
+
+                        this.build();
+                    };
+
+                    // Create conversation that gets user acceptance to delete island data.
+                    ConversationUtils.createConfirmation(
+                        consumer,
+                        this.user,
+                        this.user.getTranslation(Constants.CONVERSATIONS + "confirm-island-data-deletion",
+                            Constants.PARAMETER_GAMEMODE, Utils.getGameMode(this.world)),
+                        this.user.getTranslation(Constants.CONVERSATIONS + "user-data-removed",
+                            Constants.PARAMETER_GAMEMODE, Utils.getGameMode(this.world)));
+
+                    return true;
+                };
+
+                break;
+            }
+            case TAX:
+            {
+                material = Material.GOLD_INGOT;
+                description.add(this.user.getTranslation(reference + ".value",
+                    Constants.PARAMETER_NUMBER, String.valueOf(this.addon.getSettings().getTaxAmount())));
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-edit"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    Consumer<Number> numberConsumer = number ->
+                    {
+                        if (number != null)
+                        {
+                            this.addon.getSettings().setTaxAmount(number.doubleValue());
+                            this.addon.saveSettings();
+                        }
+
+                        // reopen panel
+                        this.build();
+                    };
+
+                    ConversationUtils.createNumericInput(numberConsumer,
+                        this.user,
+                        this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
+                        0,
+                        Double.MAX_VALUE);
+
+                    return true;
+                };
+
+                break;
+            }
+            case DEFAULT_PAYMENT:
+            {
+                material = Material.ANVIL;
+                description.add(this.user.getTranslation(reference + ".value",
+                    Constants.PARAMETER_NUMBER, String.valueOf(this.addon.getSettings().getDefaultVisitingPayment())));
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-edit"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    Consumer<Number> numberConsumer = number ->
+                    {
+                        if (number != null)
+                        {
+                            this.addon.getSettings().setDefaultVisitingPayment(number.doubleValue());
+                            this.addon.saveSettings();
+                        }
+
+                        // reopen panel
+                        this.build();
+                    };
+
+                    ConversationUtils.createNumericInput(numberConsumer,
+                        this.user,
+                        this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
+                        0,
+                        Double.MAX_VALUE);
+
+                    return true;
+                };
+
+                break;
+            }
+            case DEFAULT_OFFLINE:
+            {
+                material = Material.MUSIC_DISC_11;
+
+                glow = this.addon.getSettings().isDefaultVisitingOffline();
+
+                if (glow)
+                {
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
+                {
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setDefaultVisitingOffline(
+                        !this.addon.getSettings().isDefaultVisitingOffline());
+                    this.addon.saveSettings();
+                    this.build();
+
+                    return true;
+                };
+
+                break;
+            }
+            case DEFAULT_ENABLED:
+            {
+                material = Material.MINECART;
+
+                glow = this.addon.getSettings().isDefaultVisitingEnabled();
+
+                if (glow)
+                {
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
+                {
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setDefaultVisitingEnabled(
+                        !this.addon.getSettings().isDefaultVisitingEnabled());
+                    VisitAddon.ALLOW_VISITS_FLAG.setDefaultSetting(
+                        this.addon.getSettings().isDefaultVisitingEnabled());
+                    this.addon.saveSettings();
 
                     this.build();
-                },
-                this.user.getTranslation("visit.gui.questions.tax-number"));
 
-            return true;
-        };
+                    return true;
+                };
 
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
-    }
+                break;
+            }
+            case AT_TOP:
+            {
+                material = Material.GLASS;
 
+                glow = this.addon.getSettings().isFiltersTopLine();
 
-    /**
-     * This method creates toggleable button that allows to enable and disable gamemode selection header in player visit
-     * panel.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createHeaderButton()
-    {
-        boolean isAllowed = this.addon.getSettings().isShowGameModeHeader();
-
-        String name = this.user.getTranslation("visit.gui.admin.button.gamemode-header.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.gamemode-header.description",
-            "[value]", Boolean.toString(isAllowed));
-        ItemStack icon = new ItemStack(Material.MUSIC_DISC_11);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
-        {
-            this.addon.getSettings().setShowGameModeHeader(!isAllowed);
-            this.addon.saveSettings();
-
-            this.build();
-
-            return true;
-        };
-
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            glow(isAllowed).
-            build();
-    }
-
-
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
-
-
-    /**
-     * This method creates button that starts ConversationAPI to get amount for default payment value.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createDefaultPaymentButton()
-    {
-        String name = this.user.getTranslation("visit.gui.admin.button.default-payment.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.default-payment.description",
-            "[value]", Double.toString(this.addon.getSettings().getDefaultVisitingPayment()));
-        ItemStack icon = new ItemStack(Material.ANVIL);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
-
-            this.getNumberInput(number ->
+                if (glow)
                 {
-                    if (number != null)
-                    {
-                        // Null value is passed if user write cancel.
-                        this.addon.getSettings().setDefaultVisitingPayment(number.doubleValue());
-                        this.addon.saveSettings();
-                    }
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
+                {
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
 
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setFiltersTopLine(
+                        !this.addon.getSettings().isFiltersTopLine());
+                    this.addon.saveSettings();
                     this.build();
-                },
-                this.user.getTranslation("visit.gui.questions.number"));
 
-            return true;
-        };
+                    return true;
+                };
 
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
-    }
+                break;
+            }
+            case TOGGLE_FILTERS:
+            {
+                material = Material.HOPPER;
 
+                glow = this.addon.getSettings().isFiltersEnabled();
 
-    /**
-     * This method creates toggleable button that allows to switch if default offline visiting is enabled or not.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createDefaultOfflineButton()
-    {
-        boolean isAllowed = this.addon.getSettings().isDefaultVisitingOffline();
-
-        String name = this.user.getTranslation("visit.gui.admin.button.default-offline.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.default-offline.description",
-            "[value]", Boolean.toString(isAllowed));
-        ItemStack icon = new ItemStack(Material.MUSIC_DISC_11);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
-        {
-            this.addon.getSettings().setDefaultVisitingOffline(!isAllowed);
-            this.addon.saveSettings();
-
-            this.build();
-
-            return true;
-        };
-
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            glow(isAllowed).
-            build();
-    }
-
-
-    /**
-     * This method creates toggleable button that allows to switch if default visiting is enabled or not.
-     *
-     * @return PanelItem button.
-     */
-    private PanelItem createDefaultEnableButton()
-    {
-        boolean isAllowed = this.addon.getSettings().isDefaultVisitingEnabled();
-
-        String name = this.user.getTranslation("visit.gui.admin.button.default-visiting.name");
-        String description = this.user.getTranslation("visit.gui.admin.button.default-visiting.description",
-            "[value]", Boolean.toString(isAllowed));
-        ItemStack icon = new ItemStack(Material.MINECART);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
-        {
-            this.addon.getSettings().setDefaultVisitingEnabled(!isAllowed);
-            VisitAddon.ALLOW_VISITS_FLAG.setDefaultSetting(!isAllowed);
-            this.addon.saveSettings();
-
-            this.build();
-
-            return true;
-        };
-
-        return new PanelItemBuilder().
-            name(name).
-            description(GuiUtils.stringSplit(description)).
-            icon(icon).
-            clickHandler(clickHandler).
-            glow(isAllowed).
-            build();
-    }
-
-
-    /**
-     * This method will close opened gui and writes inputText in chat. After players answers on inputText in chat,
-     * message will trigger consumer and gui will reopen.
-     *
-     * @param consumer Consumer that accepts player output text.
-     * @param question Message that will be displayed in chat when player triggers conversion.
-     */
-    private void getNumberInput(Consumer<Number> consumer, @NonNull String question)
-    {
-        final User user = this.user;
-
-        Conversation conversation =
-            new ConversationFactory(BentoBox.getInstance()).withFirstPrompt(
-                new NumericPrompt()
+                if (glow)
                 {
-                    /**
-                     * Override this method to perform some action with
-                     * the user's integer response.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param input The user's response as a {@link
-                     * Number}.
-                     * @return The next {@link Prompt} in the prompt
-                     * graph.
-                     */
-                    @Override
-                    protected Prompt acceptValidatedInput(ConversationContext context, Number input)
-                    {
-                        // Add answer to consumer.
-                        consumer.accept(input);
-                        // Reopen GUI
-                        AdminPanel.this.build();
-                        // End conversation
-                        return Prompt.END_OF_CONVERSATION;
-                    }
-
-
-                    /**
-                     * Override this method to do further validation on
-                     * the numeric player input after the input has been
-                     * determined to actually be a number.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param input The number the player provided.
-                     * @return The validity of the player's input.
-                     */
-                    @Override
-                    protected boolean isNumberValid(ConversationContext context, Number input)
-                    {
-                        return input.doubleValue() >= 0.0 &&
-                            input.doubleValue() <= Double.MAX_VALUE;
-                    }
-
-
-                    /**
-                     * Optionally override this method to display an
-                     * additional message if the user enters an invalid
-                     * number.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param invalidInput The invalid input provided by
-                     * the user.
-                     * @return A message explaining how to correct the
-                     * input.
-                     */
-                    @Override
-                    protected String getInputNotNumericText(ConversationContext context,
-                        String invalidInput)
-                    {
-                        return AdminPanel.this.user.getTranslation("visit.error.not-a-number", "[value]", invalidInput);
-                    }
-
-
-                    /**
-                     * Optionally override this method to display an
-                     * additional message if the user enters an invalid
-                     * numeric input.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param invalidInput The invalid input provided by
-                     * the user.
-                     * @return A message explaining how to correct the
-                     * input.
-                     */
-                    @Override
-                    protected String getFailedValidationText(ConversationContext context,
-                        Number invalidInput)
-                    {
-                        return AdminPanel.this.user.getTranslation("visit.error.not-valid-number",
-                            "[value]", invalidInput.toString(),
-                            "[min]", Double.toString(0),
-                            "[max]", Double.toString(Double.MAX_VALUE));
-                    }
-
-
-                    /**
-                     * @see Prompt#getPromptText(ConversationContext)
-                     */
-                    @Override
-                    public String getPromptText(ConversationContext conversationContext)
-                    {
-                        // Close input GUI.
-                        user.closeInventory();
-
-                        // There are no editable message. Just return question.
-                        return question;
-                    }
-                }).
-                withLocalEcho(false).
-                // On cancel conversation will be closed.
-                    withEscapeSequence("cancel").
-                // Use null value in consumer to detect if user has abandoned conversation.
-                    addConversationAbandonedListener(abandonedEvent ->
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
                 {
-                    if (!abandonedEvent.gracefulExit())
-                    {
-                        consumer.accept(null);
-                    }
-                }).
-                withPrefix(context -> this.user.getTranslation("visit.gui.questions.prefix")).
-                buildConversation(user.getPlayer());
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
 
-        conversation.begin();
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setFiltersEnabled(
+                        !this.addon.getSettings().isFiltersEnabled());
+                    this.addon.saveSettings();
+                    this.build();
+
+                    return true;
+                };
+
+                break;
+            }
+            case FILTER:
+            {
+                switch (this.addon.getSettings().getDefaultFilter())
+                {
+                    case ONLINE_ISLANDS:
+                        material = Material.SANDSTONE_STAIRS;
+                        break;
+                    case CAN_VISIT:
+                        material = Material.SANDSTONE_STAIRS;
+                        break;
+                    default:
+                        material = Material.SMOOTH_SANDSTONE;
+                        break;
+                }
+
+                description.add(this.user.getTranslation(reference + "." +
+                    this.addon.getSettings().getDefaultFilter().name().toLowerCase()));
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-switch"));
+
+                clickHandler = (panel, user, clickType, slot) -> {
+                    if (clickType.isRightClick())
+                    {
+                        // Clear string.
+                        this.addon.getSettings().setDefaultFilter(Utils.getPreviousValue(
+                            Settings.Filter.values(),
+                            this.addon.getSettings().getDefaultFilter()));
+                    }
+                    else
+                    {
+                        this.addon.getSettings().setDefaultFilter(Utils.getNextValue(
+                            Settings.Filter.values(),
+                            this.addon.getSettings().getDefaultFilter()));
+                    }
+                    // Save settings
+                    this.addon.saveSettings();
+                    // Rebuild gui.
+                    this.build();
+
+                    return true;
+                };
+
+                break;
+            }
+            case TOGGLE_SEARCH:
+            {
+                material = Material.PAPER;
+
+                glow = this.addon.getSettings().isSearchEnabled();
+
+                if (glow)
+                {
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
+                {
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setSearchEnabled(
+                        !this.addon.getSettings().isSearchEnabled());
+                    this.addon.saveSettings();
+                    this.build();
+
+                    return true;
+                };
+
+                break;
+            }
+            case DEFAULT_RANK:
+                // TODO: need Implementing
+                return PanelItem.empty();
+            case ICON:
+                // TODO: need Implementing
+                return PanelItem.empty();
+            case BORDER_BLOCK:
+                // TODO: need Implementing
+                return PanelItem.empty();
+            case BORDER_BLOCK_NAME:
+                // TODO: need Implementing
+                return PanelItem.empty();
+            default:
+                return PanelItem.empty();
+        }
+
+        return new PanelItemBuilder().
+            name(name).
+            description(description).
+            icon(material).
+            clickHandler(clickHandler).
+            glow(glow).
+            build();
     }
 
 
@@ -474,25 +459,85 @@ public class AdminPanel
         new AdminPanel(addon, world, user).build();
     }
 
+
+    /**
+     * This enum holds all buttons from the GUI.
+     */
+    private enum Button
+    {
+        /**
+         * Allows to manage island settings.
+         */
+        MANAGE,
+        /**
+         * Allows to reset all island config to the default values.
+         */
+        RESET,
+        /**
+         * Allows to change tax amount.
+         */
+        TAX,
+        /**
+         * Allows to change default payment amount.
+         */
+        DEFAULT_PAYMENT,
+        /**
+         * Allows to change default offline visit mode.
+         */
+        DEFAULT_OFFLINE,
+        /**
+         * Allows to change default visiting enable mode.
+         */
+        DEFAULT_ENABLED,
+        /**
+         * Allows to switch filters from top to bottom.
+         */
+        AT_TOP,
+        /**
+         * Allows to toggle filters
+         */
+        TOGGLE_FILTERS,
+        /**
+         * Allows to change default active filter
+         */
+        FILTER,
+        /**
+         * Allows to toggle search button
+         */
+        TOGGLE_SEARCH,
+        /**
+         * Allows to change default rank for changing config.
+         */
+        DEFAULT_RANK,
+        /**
+         * Allows to switch default island icon.
+         */
+        ICON,
+        /**
+         * Allows to change border block material.
+         */
+        BORDER_BLOCK,
+        /**
+         * Allows to change border block name.
+         */
+        BORDER_BLOCK_NAME,
+    }
+
+
+// ---------------------------------------------------------------------
+// Section: Variables
+// ---------------------------------------------------------------------
+
+
     /**
      * This variable allows to access addon object.
      */
     private final VisitAddon addon;
 
     /**
-     * This variable allows to access addon manager object.
-     */
-    private final VisitAddonManager manager;
-
-    /**
      * This variable stores main world where GUI is targeted.
      */
     private final World world;
-
-
-    // ---------------------------------------------------------------------
-    // Section: Conversation API
-    // ---------------------------------------------------------------------
 
     /**
      * This variable holds user who opens panel. Without it panel cannot be opened.

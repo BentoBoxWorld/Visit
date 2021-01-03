@@ -2,13 +2,12 @@ package world.bentobox.visit.panels.player;
 
 
 import org.bukkit.Material;
-import org.bukkit.conversations.*;
 import org.bukkit.inventory.ItemStack;
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.panels.Panel;
 import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
@@ -18,7 +17,9 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
+import world.bentobox.visit.panels.ConversationUtils;
 import world.bentobox.visit.panels.GuiUtils;
+import world.bentobox.visit.utils.Constants;
 
 
 /**
@@ -26,10 +27,6 @@ import world.bentobox.visit.panels.GuiUtils;
  */
 public class ConfigurePanel
 {
-    // ---------------------------------------------------------------------
-    // Section: Variables
-    // ---------------------------------------------------------------------
-
     /**
      * This is internal constructor. It is used internally in current class to avoid creating objects everywhere.
      *
@@ -55,7 +52,7 @@ public class ConfigurePanel
         // PanelBuilder is a BentoBox API that provides ability to easy create Panels.
         PanelBuilder panelBuilder = new PanelBuilder().
             user(this.user).
-            name(this.user.getTranslation("visit.gui.player.title.configure")).
+            name(this.user.getTranslation(Constants.TITLES + "configure")).
             type(Panel.Type.HOPPER);
 
         if (this.island == null)
@@ -66,7 +63,12 @@ public class ConfigurePanel
 
         IslandVisitSettings settings = this.manager.getIslandVisitSettings(this.island);
 
-        panelBuilder.item(0, this.createValueButton(settings));
+        if (this.addon.getVaultHook().hook())
+        {
+            // Add value button only if vault is enabled.
+            panelBuilder.item(0, this.createValueButton(settings));
+        }
+
         panelBuilder.item(2, this.createOfflineOnlyButton(settings));
         panelBuilder.item(4, this.createEnableButton(this.island));
 
@@ -83,31 +85,41 @@ public class ConfigurePanel
      */
     private PanelItem createValueButton(IslandVisitSettings settings)
     {
-        String name = this.user.getTranslation("visit.gui.player.button.input.name");
-        String description = this.user.getTranslation("visit.gui.player.button.input.description",
-            "[value]", Double.toString(settings.getPayment()));
+        String name = this.user.getTranslation(Constants.BUTTONS + "payment.name");
+        List<String> description = new ArrayList<>(3);
+
+        description.add(this.user.getTranslation(Constants.BUTTONS + "payment.description",
+            Constants.PARAMETER_NUMBER, Double.toString(settings.getPayment())));
+
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-change"));
+
         ItemStack icon = new ItemStack(Material.ANVIL);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
-
-            this.getNumberInput(number ->
+        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
+        {
+            Consumer<Number> numberConsumer = number -> {
+                if (number != null)
                 {
-                    if (number != null)
-                    {
-                        // Null value is passed if user write cancel.
-                        settings.setPayment(number.doubleValue());
-                        this.manager.saveSettings(settings);
-                    }
+                    settings.setPayment(number.doubleValue());
+                    this.manager.saveSettings(settings);
+                }
 
-                    this.build();
-                },
-                this.user.getTranslation("visit.gui.questions.number"));
+                // reopen panel
+                this.build();
+            };
+
+            ConversationUtils.createNumericInput(numberConsumer,
+                this.user,
+                this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
+                0,
+                Double.MAX_VALUE);
 
             return true;
         };
 
         return new PanelItemBuilder().
             name(name).
-            description(GuiUtils.stringSplit(description)).
+            description(description).
             icon(icon).
             clickHandler(clickHandler).
             build();
@@ -122,12 +134,26 @@ public class ConfigurePanel
      */
     private PanelItem createOfflineOnlyButton(IslandVisitSettings settings)
     {
-        String name = this.user.getTranslation("visit.gui.player.button.offline.name");
-        String description = this.user.getTranslation("visit.gui.player.button.offline.description",
-            "[value]", Boolean.toString(settings.isOfflineVisit()));
-        ItemStack icon = settings.isOfflineVisit() ?
-            new ItemStack(Material.GREEN_STAINED_GLASS_PANE) :
-            new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        String name = this.user.getTranslation(Constants.BUTTONS + "offline.name");
+        List<String> description = new ArrayList<>(5);
+        description.add(this.user.getTranslation(Constants.BUTTONS + "offline.description"));
+
+        ItemStack icon;
+
+        if (settings.isOfflineVisit())
+        {
+            description.add(this.user.getTranslation(Constants.BUTTONS + "offline.enabled"));
+            icon = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+        }
+        else
+        {
+            description.add(this.user.getTranslation(Constants.BUTTONS + "offline.disabled"));
+            icon = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        }
+
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
         PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
         {
             settings.setOfflineVisit(!settings.isOfflineVisit());
@@ -140,16 +166,11 @@ public class ConfigurePanel
 
         return new PanelItemBuilder().
             name(name).
-            description(GuiUtils.stringSplit(description)).
+            description(description).
             icon(icon).
             clickHandler(clickHandler).
             build();
     }
-
-
-    // ---------------------------------------------------------------------
-    // Section: Internal Constructor
-    // ---------------------------------------------------------------------
 
 
     /**
@@ -161,9 +182,23 @@ public class ConfigurePanel
     {
         boolean isAllowed = island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG);
 
-        String name = this.user.getTranslation("visit.gui.player.button.enable.name");
-        String description = this.user.getTranslation("visit.gui.player.button.enable.description",
-            "[value]", Boolean.toString(isAllowed));
+        String name = this.user.getTranslation(Constants.BUTTONS + "enabled.name");
+        List<String> description = new ArrayList<>(5);
+        description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.description"));
+
+        if (isAllowed)
+        {
+            description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.enabled"));
+        }
+        else
+        {
+            description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.disabled"));
+        }
+
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
+
         ItemStack icon = new ItemStack(Material.PUMPKIN_PIE);
         PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
         {
@@ -175,148 +210,12 @@ public class ConfigurePanel
 
         return new PanelItemBuilder().
             name(name).
-            description(GuiUtils.stringSplit(description)).
+            description(description).
             icon(icon).
             clickHandler(clickHandler).
             glow(isAllowed).
             build();
     }
-
-
-    /**
-     * This method will close opened gui and writes inputText in chat. After players answers on inputText in chat,
-     * message will trigger consumer and gui will reopen.
-     *
-     * @param consumer Consumer that accepts player output text.
-     * @param question Message that will be displayed in chat when player triggers conversion.
-     */
-    private void getNumberInput(Consumer<Number> consumer, @NonNull String question)
-    {
-        final User user = this.user;
-
-        Conversation conversation =
-            new ConversationFactory(BentoBox.getInstance()).withFirstPrompt(
-                new NumericPrompt()
-                {
-                    /**
-                     * Override this method to perform some action with
-                     * the user's integer response.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param input The user's response as a {@link
-                     * Number}.
-                     * @return The next {@link Prompt} in the prompt
-                     * graph.
-                     */
-                    @Override
-                    protected Prompt acceptValidatedInput(ConversationContext context, Number input)
-                    {
-                        // Add answer to consumer.
-                        consumer.accept(input);
-                        // Reopen GUI
-                        ConfigurePanel.this.build();
-                        // End conversation
-                        return Prompt.END_OF_CONVERSATION;
-                    }
-
-
-                    /**
-                     * Override this method to do further validation on
-                     * the numeric player input after the input has been
-                     * determined to actually be a number.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param input The number the player provided.
-                     * @return The validity of the player's input.
-                     */
-                    @Override
-                    protected boolean isNumberValid(ConversationContext context, Number input)
-                    {
-                        return input.doubleValue() >= 0.0 &&
-                            input.doubleValue() <= Double.MAX_VALUE;
-                    }
-
-
-                    /**
-                     * Optionally override this method to display an
-                     * additional message if the user enters an invalid
-                     * number.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param invalidInput The invalid input provided by
-                     * the user.
-                     * @return A message explaining how to correct the
-                     * input.
-                     */
-                    @Override
-                    protected String getInputNotNumericText(ConversationContext context,
-                        String invalidInput)
-                    {
-                        return ConfigurePanel.this.user
-                            .getTranslation("visit.error.not-a-number", "[value]", invalidInput);
-                    }
-
-
-                    /**
-                     * Optionally override this method to display an
-                     * additional message if the user enters an invalid
-                     * numeric input.
-                     *
-                     * @param context Context information about the
-                     * conversation.
-                     * @param invalidInput The invalid input provided by
-                     * the user.
-                     * @return A message explaining how to correct the
-                     * input.
-                     */
-                    @Override
-                    protected String getFailedValidationText(ConversationContext context,
-                        Number invalidInput)
-                    {
-                        return ConfigurePanel.this.user.getTranslation("visit.error.not-valid-number",
-                            "[value]", invalidInput.toString(),
-                            "[min]", Double.toString(0),
-                            "[max]", Double.toString(Double.MAX_VALUE));
-                    }
-
-
-                    /**
-                     * @see Prompt#getPromptText(ConversationContext)
-                     */
-                    @Override
-                    public String getPromptText(ConversationContext conversationContext)
-                    {
-                        // Close input GUI.
-                        user.closeInventory();
-
-                        // There are no editable message. Just return question.
-                        return question;
-                    }
-                }).
-                withLocalEcho(false).
-                // On cancel conversation will be closed.
-                    withEscapeSequence("cancel").
-                // Use null value in consumer to detect if user has abandoned conversation.
-                    addConversationAbandonedListener(abandonedEvent ->
-                {
-                    if (!abandonedEvent.gracefulExit())
-                    {
-                        consumer.accept(null);
-                    }
-                }).
-                withPrefix(context -> this.user.getTranslation("visit.gui.questions.prefix")).
-                buildConversation(user.getPlayer());
-
-        conversation.begin();
-    }
-
-
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
 
 
     /**
@@ -333,6 +232,12 @@ public class ConfigurePanel
         new ConfigurePanel(addon, island, user).build();
     }
 
+
+// ---------------------------------------------------------------------
+// Section: Variables
+// ---------------------------------------------------------------------
+
+
     /**
      * This variable allows to access addon object.
      */
@@ -347,11 +252,6 @@ public class ConfigurePanel
      * This variable stores main island which GUI is targeted.
      */
     private final Island island;
-
-
-    // ---------------------------------------------------------------------
-    // Section: Conversation API
-    // ---------------------------------------------------------------------
 
     /**
      * This variable holds user who opens panel. Without it panel cannot be opened.

@@ -12,6 +12,7 @@ import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.panels.admin.AdminPanel;
 import world.bentobox.visit.panels.player.ConfigurePanel;
+import world.bentobox.visit.utils.Constants;
 
 
 /**
@@ -27,7 +28,10 @@ public class VisitAdminCommand extends CompositeCommand
      */
     public VisitAdminCommand(VisitAddon addon, CompositeCommand parentCommand)
     {
-        super(addon, parentCommand, "visit");
+        super(addon,
+            parentCommand,
+            addon.getSettings().getAdminMainCommand().split(" ")[0],
+            addon.getSettings().getAdminMainCommand().split(" "));
     }
 
 
@@ -46,8 +50,8 @@ public class VisitAdminCommand extends CompositeCommand
     public void setup()
     {
         this.setPermission("admin.visit");
-        this.setParametersHelp("visit.commands.admin.main.parameters");
-        this.setDescription("visit.commands.admin.main.description");
+        this.setParametersHelp(Constants.ADMIN_COMMANDS + "main.parameters");
+        this.setDescription(Constants.ADMIN_COMMANDS + "main.description");
 
         this.setOnlyPlayer(true);
     }

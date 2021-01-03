@@ -1,32 +1,78 @@
 # Config file for Visit add-on Version ${version}
-
-# Disabled Game Mode Addons
-# Visit Addon will not work in these game modes
-disabled-gamemodes: []
-#- SkyGrid
-
-# Adds Tabbed header for Visit GUI that allows to switch between GameModes.
-# Works only if there is more then 1 GameMode Addon.
-show-gamemode-header: true
-
-# Allows to change icon in the GUI for island selection.
-# PLAYER_HEAD will be transformed to island owner head.
-island-icon: PLAYER_HEAD
-
+# This config file is dynamic and saved when the server is shutdown.
+#
 # Allows to define tax amount (not %) that must be payed extra for visiting.
 # Example:
-# Island payment is set to 10, and tax is set to 5, then visitor will need to pay 15.
-# 10 will go to island owner, while 5 will be erased from existence.
-traveling-tax: 0
-
+#    Island payment is set to 10, and tax is set to 5, then visitor will need to pay 15.
+#    10 will go to island owner, while 5 will be erased from existence.
+traveling-tax: 0.0
+#
 default-settings:
   # Allows to define default payment for visiting the island.
   # Setting 0 or less will mean that default value is free.
   # Payment goes to island owner.
-  payment: 0
+  payment: 0.0
+  #
   # Allows to set if players can visit other islands while
-  # all members are offline
+  # all members are offline.
   offline: true
+  #
   # Allows to set if default visit flag value is set as
   # enabled (true) or disabled (false).
-  enabled: false
+  enabled: true
+  #
+  # Allows to set default rank that can edit config settings.
+  # OWNER_RANK = 1000
+  # SUB_OWNER_RANK = 900
+  # MEMBER_RANK = 500
+  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+  permission: 900
+gui:
+  filters:
+    # Allows to toggle if player GUI should show filter line.
+    # enabled (true) or disabled (false).
+    enabled: true
+    # Allows to switch default active filter for Player Visit GUI.
+    #    ALL_ISLANDS - all islands will be available in the GUI.
+    #    ONLINE_ISLANDS - all online islands will be available in the GUI.
+    #    CAN_VISIT - all islands that can be visited will be available in the GUI.
+    show: CAN_VISIT
+    # Allows to toggle if player GUI should show search button.
+    # enabled (true) or disabled (false).
+    search: true
+    # Allows to toggle if filters line should be at the top or bottom.
+    # enabled (true) or disabled (false).
+    top: true
+  # Allows to change icon in the GUI for island selection.
+  # PLAYER_HEAD will be transformed to island owner head.
+  # Island owner permission `visit.icon.[material]` can overwrite the icon.
+  island-icon: PLAYER_HEAD
+  # Allows to change icon in the GUI for island selection.
+  # PLAYER_HEAD will be transformed to island owner head.
+  # Island owner permission `visit.icon.[material]` can overwrite the icon.
+  border-block: MAGENTA_STAINED_GLASS_PANE
+  # Allows to change icon in the GUI for island selection.
+  # PLAYER_HEAD will be transformed to island owner head.
+  # Island owner permission `visit.icon.[material]` can overwrite the icon.
+  border-block-name: ' '
+commands:
+  player:
+    # Player main sub-command to access the addon.
+    # This command label will be required to write after gamemode player command label, f.e. /[label] visit
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    main: visit
+    # Player configure sub-command that allows to see configure GUI.
+    # This command label will be required to write after gamemode player command label, f.e. /[label] visit configure
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    configure: configure
+  admin:
+    # Admin main sub-command to access the addon.
+    # This command label will be required to write after gamemode admin command label, f.e. /[label] visit
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    main: visit
+#
+# This list stores GameModes in which Example addon should not work.
+# To disable addon it is necessary to write its name in new line that starts with -. Example:
+# disabled-gamemodes:
+#  - BSkyBlock
+disabled-gamemodes: []

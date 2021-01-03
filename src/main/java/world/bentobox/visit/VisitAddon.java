@@ -52,6 +52,15 @@ public class VisitAddon extends Addon
             this.logError("Visit settings could not load! Addon disabled.");
             this.setState(State.DISABLED);
         }
+
+        // Set up flag with correct default rank permission.
+        VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.DIAMOND_PICKAXE).
+            type(Flag.Type.PROTECTION).
+            defaultRank(this.settings.getDefaultConfigPermission()).
+            clickHandler(new CycleClick("VISIT_CONFIG_PERMISSION",
+                RanksManager.MEMBER_RANK,
+                RanksManager.OWNER_RANK)).
+            build();
     }
 
 
@@ -96,7 +105,7 @@ public class VisitAddon extends Addon
             {
                 // Now we add GameModes to our Flags
                 ALLOW_VISITS_FLAG.addGameModeAddon(gameModeAddon);
-                EDIT_CONFIG_FLAG.addGameModeAddon(gameModeAddon);
+                VISIT_CONFIG_PERMISSION.addGameModeAddon(gameModeAddon);
 
                 // Each GameMode could have Player Command and Admin Command and we could
                 // want to integrate our Visit Command into these commands.
@@ -123,7 +132,7 @@ public class VisitAddon extends Addon
 
             ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
             this.registerFlag(ALLOW_VISITS_FLAG);
-            this.registerFlag(EDIT_CONFIG_FLAG);
+            this.registerFlag(VISIT_CONFIG_PERMISSION);
 
             INSTANCE = this;
         }
@@ -286,10 +295,5 @@ public class VisitAddon extends Addon
      * This flag allows to change who have access to modify island visitor config option. Owner can change it from
      * member rank till owner rank. Default value is set to subowner.
      */
-    public final static Flag EDIT_CONFIG_FLAG =
-        new Flag.Builder("EDIT_CONFIG_FLAG", Material.PUMPKIN_PIE).
-            type(Flag.Type.PROTECTION).
-            defaultRank(RanksManager.SUB_OWNER_RANK).
-            clickHandler(new CycleClick("EDIT_CONFIG_FLAG", RanksManager.MEMBER_RANK, RanksManager.OWNER_RANK)).
-            build();
+    public static Flag VISIT_CONFIG_PERMISSION;
 }

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import world.bentobox.bentobox.api.addons.GameModeAddon;
@@ -20,6 +21,8 @@ import world.bentobox.bentobox.util.teleport.SafeSpotTeleport;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.events.VisitEvent;
+import world.bentobox.visit.utils.Constants;
+import world.bentobox.visit.utils.Utils;
 
 
 /**
@@ -57,6 +60,7 @@ public class VisitAddonManager
         this.addon.log("Loading stored island visit settings...");
         this.visitSettingsCacheData.clear();
         this.visitSettingsDatabase.loadObjects().forEach(this::loadSettings);
+        this.addon.log("Visits data loaded.");
     }
 
 
@@ -67,58 +71,9 @@ public class VisitAddonManager
      */
     private void loadSettings(@NotNull IslandVisitSettings islandSettings)
     {
-        this.loadSettings(islandSettings, true, null, true);
-    }
-
-
-    /**
-     * This method loads given island visit settings into local cache. It provides functionality to overwrite local
-     * value with new one, and send message to given user.
-     *
-     * @param islandSettings object that must be loaded in local cache
-     * @param overwrite of type boolean that indicate if local element must be overwritten.
-     * @param user of type User who will receive messages.
-     * @param silent of type boolean that indicate if message to user must be sent.
-     * @return boolean that indicate about load status.
-     */
-    public boolean loadSettings(@NotNull IslandVisitSettings islandSettings,
-        boolean overwrite,
-        User user,
-        boolean silent)
-    {
-        if (this.visitSettingsCacheData.containsKey(islandSettings.getUniqueId()))
-        {
-            if (!overwrite)
-            {
-                if (!silent)
-                {
-                    user.sendMessage("visit.messages.load-skipping",
-                        "[value]", islandSettings.getUniqueId());
-                }
-
-                return false;
-            }
-            else
-            {
-                if (!silent)
-                {
-                    user.sendMessage("visit.messages.load-overwriting",
-                        "[value]", islandSettings.getUniqueId());
-                }
-            }
-        }
-        else
-        {
-            if (!silent)
-            {
-                user.sendMessage("visit.messages.load-add",
-                    "[value]", islandSettings.getUniqueId());
-            }
-        }
-
         this.visitSettingsCacheData.put(islandSettings.getUniqueId(), islandSettings);
-        return true;
     }
+
 
     // ---------------------------------------------------------------------
     // Section: Constructors
@@ -355,23 +310,39 @@ public class VisitAddonManager
             user.getPlayer().getFallDistance() > 0)
         {
             // We're sending the "hint" to the player to tell them they cannot teleport while falling.
-            user.sendMessage(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference());
+            Utils.sendMessage(user,
+                user.getTranslation(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference()));
         }
-        else if (island.isAllowed(user, Flags.LOCK))
+        else if (island.isBanned(user.getUniqueId()))
         {
-            // Visiting is not allowed.
-            user.sendMessage("protection.locked");
+            // Banned players are not allowed.
+            Utils.sendMessage(user,
+                user.getTranslation("commands.island.ban.you-are-banned"));
+        }
+        else if (!island.isAllowed(user, Flags.LOCK))
+        {
+            // Island is locked.
+            Utils.sendMessage(user,
+                user.getTranslation("protection.locked"));
+        }
+        else if (!island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG))
+        {
+            // Visits are disabled in settings.
+            Utils.sendMessage(user,
+                user.getTranslation(VisitAddon.ALLOW_VISITS_FLAG.getHintReference()));
+        }
+        else if (!this.canVisitOffline(island, settings))
+        {
+            // Send a message that noone is online from this island
+            Utils.sendMessage(user,
+                user.getTranslation(Constants.ERRORS + "noone-is-online"));
         }
         else if (payment > 0 && !this.hasCredits(user, payment))
         {
             // Send a message that player has not enough credits.
-            user.sendMessage("visit.error.not-enough-credits",
-                "[credits]", String.valueOf(payment));
-        }
-        else if (!this.canVisitOffline(island, settings))
-        {
-            // Send a message that there are no online players on island.
-            user.sendMessage("visit.error.noone-is-online");
+            Utils.sendMessage(user,
+                user.getTranslation(Constants.ERRORS + "not-enough-credits",
+                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
         }
         else
         {
@@ -395,8 +366,10 @@ public class VisitAddonManager
     {
         // Check if settings allow offline visiting or any island member is online.
         return settings.isOfflineVisit() ||
-            island.getMemberSet().stream().anyMatch(uuid ->
-                User.getInstance(uuid) != null && User.getInstance(uuid).isOnline());
+            island.getMemberSet().stream().
+                map(User::getInstance).
+                filter(Objects::nonNull).
+                anyMatch(User::isOnline);
     }
 
 
@@ -434,8 +407,9 @@ public class VisitAddonManager
         if (payment > 0 && !this.withdrawCredits(user, payment))
         {
             // error on withdrawing credits. Cancelling
-            user.sendMessage("visit.error.cannot-withdraw-credits",
-                "[credits]", String.valueOf(payment));
+            Utils.sendMessage(user,
+                user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
+                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
             return;
         }
         else if (settings.getPayment() > 0 &&
@@ -444,8 +418,9 @@ public class VisitAddonManager
             // error on depositing credits. Cancelling
             this.depositCredits(user, settings.getPayment() + this.addon.getSettings().getTaxAmount());
 
-            user.sendMessage("visit.error.cannot-deposit-credits",
-                "[credits]", String.valueOf(settings.getPayment()));
+            Utils.sendMessage(user,
+                user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
+                    Constants.PARAMETER_NUMBER, String.valueOf(settings.getPayment())));
             return;
         }
 
@@ -489,10 +464,10 @@ public class VisitAddonManager
     /**
      * This config object stores structures for island visit settings objects.
      */
-    private Database<IslandVisitSettings> visitSettingsDatabase;
+    private final Database<IslandVisitSettings> visitSettingsDatabase;
 
     /**
      * This is local cache that links island unique id with island visit settings object.
      */
-    private Map<String, IslandVisitSettings> visitSettingsCacheData;
+    private final Map<String, IslandVisitSettings> visitSettingsCacheData;
 }

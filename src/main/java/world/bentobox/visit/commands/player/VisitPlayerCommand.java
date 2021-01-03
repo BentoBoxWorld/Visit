@@ -13,6 +13,7 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.panels.player.VisitPanel;
+import world.bentobox.visit.utils.Constants;
 
 
 /**
@@ -28,7 +29,10 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
      */
     public VisitPlayerCommand(VisitAddon addon, CompositeCommand parentCommand)
     {
-        super(addon, parentCommand, "visit");
+        super(addon,
+            parentCommand,
+            addon.getSettings().getPlayerMainCommand().split(" ")[0],
+            addon.getSettings().getPlayerMainCommand().split(" "));
     }
 
 
@@ -47,8 +51,8 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
     public void setup()
     {
         this.setPermission("visit");
-        this.setParametersHelp("visit.commands.player.main.parameters");
-        this.setDescription("visit.commands.player.main.description");
+        this.setParametersHelp(Constants.PLAYER_COMMANDS + "main.parameters");
+        this.setDescription(Constants.PLAYER_COMMANDS + "main.description");
 
         new VisitConfigureCommand(this.getAddon(), this);
 

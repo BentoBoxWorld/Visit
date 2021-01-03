@@ -3,24 +3,30 @@ package world.bentobox.visit.panels.player;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.lists.Flags;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.visit.VisitAddon;
+import world.bentobox.visit.configs.Settings;
 import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
-import world.bentobox.visit.panels.GuiUtils;
+import world.bentobox.visit.panels.ConversationUtils;
+import world.bentobox.visit.utils.Constants;
+import world.bentobox.visit.utils.Utils;
 
 
 /**
@@ -29,8 +35,9 @@ import world.bentobox.visit.panels.GuiUtils;
 public class VisitPanel
 {
     // ---------------------------------------------------------------------
-    // Section: Variables
+    // Section: Constructor
     // ---------------------------------------------------------------------
+
 
     /**
      * This is internal constructor. It is used internally in current class to avoid creating objects everywhere.
@@ -47,31 +54,74 @@ public class VisitPanel
     {
         this.addon = addon;
         this.manager = this.addon.getAddonManager();
-        this.world = world;
         this.user = user;
         this.label = label;
+        this.searchString = null;
+
+        this.filtersEnabled = this.addon.getSettings().isFiltersEnabled();
+        this.filtersAtTheTop = this.addon.getSettings().isFiltersTopLine();
+        this.maxElements = this.filtersEnabled ? 45 : 54;
+        this.maxSlotIndex = !this.filtersEnabled || this.filtersAtTheTop ? 53 : 44;
+        
+        this.borderBlock = this.createBorderBlock();
+        
+        this.activeFilter = this.addon.getSettings().getDefaultFilter();
 
         // Unfortunately, it is necessary to store islands in local list, as there is no
         // other ways how to get the same island order from hash list :(.
-        this.islandList = this.addon.getIslands().getIslands(this.world).stream().
-            // Filter out islands without owner.
-                filter(Island::isOwned).
-            // Filter out locked islands.
-                filter(island -> island.isAllowed(this.user, Flags.LOCK)).
-            // Filter out islands with disabled visits flag.
-                filter(island -> island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG)).
-            // Filter out islands where player is banned.
-                filter(island -> !island.isBanned(this.user.getUniqueId())).
-            // Sort by island and owner name
-                sorted((o1, o2) ->
-                (
-                    o1.getName() != null ?
-                        o1.getName() : Objects.requireNonNull(User.getInstance(o1.getOwner())).getName()).
-                    compareToIgnoreCase(o2.getName() != null ?
-                        o2.getName() : Objects.requireNonNull(User.getInstance(o2.getOwner())).getName())).
-                collect(Collectors.toList());
+
+        // Filter out islands without owner.
+        // Filter out locked islands.
+        // Filter out islands with disabled visits flag.
+        // Filter out islands where player is banned.
+
+        // Sort by island and owner name
+
+        this.islandList = this.addon.getIslands().getIslands(world).stream().
+            filter(Island::isOwned).
+            sorted((o1, o2) ->
+            {
+                String o1Name = o1.getName() != null ? o1.getName() :
+                    Objects.requireNonNull(User.getInstance(o1.getOwner())).getName();
+                String o2Name = o2.getName() != null ? o2.getName() :
+                    Objects.requireNonNull(User.getInstance(o2.getOwner())).getName();
+
+                return o1Name.compareToIgnoreCase(o2Name);
+            }).
+            collect(Collectors.toList());
+
+        this.updateFilter();
     }
 
+
+    // ---------------------------------------------------------------------
+    // Section: Methods
+    // ---------------------------------------------------------------------
+
+
+    /**
+     * Create border block panel item.
+     *
+     * @return the panel item
+     */
+    private PanelItem createBorderBlock()
+    {
+        if (!this.filtersEnabled)
+        {
+            return new PanelItemBuilder().build();
+        }
+        
+        ItemStack itemStack = new ItemStack(this.addon.getSettings().getBorderBlock());
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setDisplayName(this.addon.getSettings().getBorderBlockName());
+        itemStack.setItemMeta(meta);
+        
+        return new PanelItemBuilder().
+            icon(itemStack).
+            name(this.addon.getSettings().getBorderBlockName()).
+            build();
+    }
+    
 
     /**
      * Build method manages current panel opening. It uses BentoBox PanelAPI that is easy to use and users can get nice
@@ -82,15 +132,15 @@ public class VisitPanel
         // PanelBuilder is a BentoBox API that provides ability to easy create Panels.
         PanelBuilder panelBuilder = new PanelBuilder().
             user(this.user).
-            name(this.user.getTranslation("visit.gui.player.title.choose"));
+            name(this.user.getTranslation(Constants.TITLES + "choose"));
 
-        // We can allow to assing next button automatically by PanelBuilder.
-        boolean hasHeader = this.createHeader(panelBuilder);
+        // Create header
+        if (this.filtersEnabled && this.filtersAtTheTop)
+        {
+            this.createFilters(panelBuilder, 0);
+        }
 
-        // Panels are limited to 54 elements. If there exist header, then only 45 islands
-        // can be viewed.
-        final int MAX_ELEMENTS = hasHeader ? 45 : 54;
-
+        // Process island population.
         int index;
 
         if (this.pageIndex > 0)
@@ -98,7 +148,7 @@ public class VisitPanel
             panelBuilder.item(this.createPreviousPageButton());
             // Multiple pages. Adjust index.
 
-            index = this.pageIndex * MAX_ELEMENTS;
+            index = this.pageIndex * this.maxElements;
         }
         else
         {
@@ -106,10 +156,10 @@ public class VisitPanel
         }
 
         // Create island iterator for sublist that contains elements from index till list size.
-        Iterator<Island> islandIterator = this.islandList.subList(index, this.islandList.size()).iterator();
+        Iterator<Island> islandIterator = this.elementList.subList(index, this.elementList.size()).iterator();
 
         // Fill every free spot till last block is not used.
-        while (islandIterator.hasNext() && panelBuilder.nextSlot() < 53)
+        while (islandIterator.hasNext() && panelBuilder.nextSlot() < this.maxSlotIndex)
         {
             panelBuilder.item(this.createIslandButton(islandIterator.next()));
         }
@@ -131,89 +181,33 @@ public class VisitPanel
             }
         }
 
+        // Create footer.
+        if (this.filtersEnabled && !this.filtersAtTheTop)
+        {
+            this.createFilters(panelBuilder, 45);
+        }
+
         // At the end we just call build method that creates and opens panel.
         panelBuilder.build();
     }
 
 
     /**
-     * This method creates header for current Panel.
+     * Create filter row for the gui.
      *
-     * @param panelBuilder Builder that will create panel.
-     * @return {@code true} if header is created, {@code false} otherwise.
+     * @param panelBuilder the panel builder
+     * @param startIndex the start index
      */
-    private boolean createHeader(PanelBuilder panelBuilder)
+    private void createFilters(PanelBuilder panelBuilder, int startIndex)
     {
-        if (!this.addon.getSettings().isShowGameModeHeader())
+        // Populate panel with border material.
+        for (int i = startIndex; i < startIndex + 9; i++)
         {
-            // GameMode header is disabled.
-            return false;
+            panelBuilder.item(i, this.borderBlock);
         }
-
-        List<GameModeAddon> enabledAddons = this.manager.getEnabledAddonList();
-
-        // Sets if slot 4 should be empty.
-        boolean skipMiddle = enabledAddons.size() % 2 == 0;
-        // Sets starting index for icon creation
-        int startingIndex = 4 - (skipMiddle ? enabledAddons.size() : (enabledAddons.size() - 1)) / 2;
-
-        if (enabledAddons.size() < 2)
-        {
-            // Do not build header if there is only 1 gamemode.
-            return false;
-        }
-
-        if (enabledAddons.size() > 9)
-        {
-            // Too many gamemode addons.
-            return false;
-        }
-
-        int addonIndex = 0;
-
-        for (int slot = 0; slot < 9; slot++)
-        {
-            // Populate with GameMode icons.
-            if (skipMiddle && slot == 4 || slot < startingIndex || enabledAddons.size() <= addonIndex)
-            {
-                panelBuilder.item(slot, VisitPanel.HEADER_BLOCK);
-            }
-            else
-            {
-                panelBuilder.item(slot, this.createGameModeButton(enabledAddons.get(addonIndex++)));
-            }
-        }
-
-
-        return true;
-    }
-
-
-    /**
-     * This method creates Button for given GameMode gameModeAddon.
-     *
-     * @param gameModeAddon Addon which button must be created.
-     * @return PanelItem that represents given GameMode gameModeAddon.
-     */
-    private PanelItem createGameModeButton(final GameModeAddon gameModeAddon)
-    {
-        return new PanelItemBuilder().
-            icon(gameModeAddon.getDescription().getIcon()).
-            name(this.user.getTranslation("visit.gui.player.button.gamemode.name",
-                "[gamemode]", gameModeAddon.getDescription().getName())).
-            description(GuiUtils.stringSplit(this.user.getTranslation("visit.gui.player.button.gamemode.description",
-                "[gamemode]", gameModeAddon.getDescription().getName()))).
-            clickHandler((panel, user, clickType, index) -> {
-                gameModeAddon.getPlayerCommand().ifPresent(command ->
-                    VisitPanel.openPanel(this.addon,
-                        gameModeAddon.getOverWorld(),
-                        user,
-                        gameModeAddon.getPlayerCommand().get().getTopLabel()));
-
-                return true;
-            }).
-            glow(Util.getWorld(this.world) == gameModeAddon.getOverWorld()).
-            build();
+        
+        panelBuilder.item(startIndex + 4, this.createSearchButton());
+        panelBuilder.item(startIndex + 8, this.createFilterButton());
     }
 
 
@@ -224,9 +218,21 @@ public class VisitPanel
      */
     private PanelItem createPreviousPageButton()
     {
+        int page = this.pageIndex;
+
+        List<String> description = new ArrayList<>(3);
+        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "previous.description",
+            Constants.PARAMETER_NUMBER, String.valueOf(page)));
+
+        // add empty line
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-previous"));
+
         return new PanelItemBuilder().
             icon(Material.TIPPED_ARROW).
-            name(this.user.getTranslation("visit.gui.player.button.previous.name")).
+            name(this.user.getTranslation(Constants.BUTTONS + "previous.name")).
+            description(description).
+            amount(page).
             clickHandler((panel, user, clickType, index) -> {
                 this.pageIndex = Math.max(0, this.pageIndex - 1);
                 this.build();
@@ -243,9 +249,21 @@ public class VisitPanel
      */
     private PanelItem createNextPageButton()
     {
+        int page = this.pageIndex + 2;
+
+        List<String> description = new ArrayList<>(3);
+        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "next.description",
+            Constants.PARAMETER_NUMBER, String.valueOf(page)));
+
+        // add empty line
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-next"));
+
         return new PanelItemBuilder().
             icon(Material.TIPPED_ARROW).
-            name(this.user.getTranslation("visit.gui.player.button.next.name")).
+            name(this.user.getTranslation(Constants.BUTTONS + "next.name")).
+            description(description).
+            amount(page).
             clickHandler((panel, user, clickType, index) -> {
                 this.pageIndex++;
                 this.build();
@@ -256,54 +274,266 @@ public class VisitPanel
 
 
     /**
+     * This method creates and returns button that allows searching island.
+     *
+     * @return PanelItem that allows to change search value
+     */
+    private PanelItem createSearchButton()
+    {
+        String name = this.user.getTranslation(Constants.BUTTONS + "search.name");
+        Material icon = Material.PAPER;
+        List<String> description = new ArrayList<>();
+        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "search.description"));
+
+        if (this.searchString != null && !this.searchString.isEmpty())
+        {
+            description.add(this.user.getTranslation(Constants.BUTTONS + "search.search",
+                Constants.PARAMETER_VALUE, this.searchString));
+        }
+
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "left-click-to-edit"));
+
+        // If there is search string, then add remove tooltip.
+        if (this.searchString != null && !this.searchString.isEmpty())
+        {
+            description.add(this.user.getTranslation(Constants.TIPS + "right-click-to-clear"));
+        }
+
+        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
+            if (clickType.isRightClick())
+            {
+                // Clear string.
+                this.searchString = "";
+                this.updateFilter();
+                // Rebuild gui.
+                this.build();
+            }
+            else
+            {
+                // Create consumer that process description change
+                Consumer<String> consumer = value ->
+                {
+                    if (value != null)
+                    {
+                        this.searchString = value;
+                        this.updateFilter();
+                    }
+
+                    this.build();
+                };
+
+                // start conversation
+                ConversationUtils.createStringInput(consumer,
+                    this.user,
+                    this.user.getTranslation(Constants.CONVERSATIONS + "write-search"),
+                    this.user.getTranslation(Constants.CONVERSATIONS + "search-updated"));
+            }
+
+            return true;
+        };
+
+        return new PanelItemBuilder().
+            name(name).
+            description(description).
+            icon(icon).
+            clickHandler(clickHandler).
+            build();
+    }
+
+
+    /**
+     * Create filter button panel item.
+     *
+     * @return the panel item
+     */
+    private PanelItem createFilterButton()
+    {
+        
+        String name = this.user.getTranslation(Constants.BUTTONS + "filter.name");
+        Material icon;
+
+        switch (this.activeFilter)
+        {
+            case ONLINE_ISLANDS:
+                icon = Material.SANDSTONE_STAIRS;
+                break;
+            case CAN_VISIT:
+                icon = Material.SANDSTONE_STAIRS;
+                break;
+            default:
+                icon = Material.SMOOTH_SANDSTONE;
+                break;
+        }
+
+        List<String> description = new ArrayList<>();
+        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "filter.description"));
+
+        description.add(this.user.getTranslation(Constants.BUTTONS + "filter.value",
+            Constants.PARAMETER_VALUE,
+            this.user.getTranslation(Constants.BUTTONS + "filter." + this.activeFilter.name().toLowerCase())));
+
+        description.add("");
+        description.add(this.user.getTranslation(Constants.TIPS + "click-to-switch"));
+
+        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
+            if (clickType.isRightClick())
+            {
+                // Clear string.
+                this.activeFilter = Utils.getPreviousValue(Settings.Filter.values(), this.activeFilter);
+            }
+            else
+            {
+                this.activeFilter = Utils.getNextValue(Settings.Filter.values(), this.activeFilter);
+            }
+
+            // Update filters
+            this.updateFilter();
+            // Rebuild gui.
+            this.build();
+
+            return true;
+        };
+
+        return new PanelItemBuilder().
+            name(name).
+            description(description).
+            icon(icon).
+            clickHandler(clickHandler).
+            build();
+    }
+    
+    
+    /**
      * This method creates and returns button that switch to next page in view mode.
      *
      * @return PanelItem that allows to select next island view page.
      */
     private PanelItem createIslandButton(Island island)
     {
+        // Get settings for island.
+        IslandVisitSettings settings = this.manager.getIslandVisitSettings(island);
+
         PanelItemBuilder builder = new PanelItemBuilder();
+        User owner = User.getInstance(island.getOwner());
+
+        if (owner == null)
+        {
+            // return as island has no owner. Empty button will be created.
+            return builder.build();
+        }
 
         if (this.addon.getSettings().getIslandIcon() == Material.PLAYER_HEAD)
         {
-            builder.icon(Objects.requireNonNull(User.getInstance(island.getOwner())).getName());
+            builder.icon(owner.getName());
         }
         else
         {
             builder.icon(this.addon.getSettings().getIslandIcon());
         }
 
-        builder.name(this.user.getTranslation("visit.gui.player.button.island.name",
-            "[name]",
-            island.getName() != null ? island.getName() :
-                Objects.requireNonNull(User.getInstance(island.getOwner())).getName()));
+        builder.name(this.user.getTranslation(Constants.BUTTONS + "island.name",
+            Constants.PARAMETER_NAME, island.getName() != null ?
+                island.getName() : owner.getName()));
 
-        List<String> description = new ArrayList<>();
+        // Process Description of the button.
 
-        IslandVisitSettings settings = this.manager.getIslandVisitSettings(island);
+        // Generate [owner] text.
+        String ownerText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.owner",
+            Constants.PARAMETER_PLAYER, owner.getName());
 
+        // Generate [members] text
+        String memberText;
+
+        if (island.getMemberSet().size() > 1)
+        {
+            StringBuilder memberBuilder = new StringBuilder(
+                this.user.getTranslationOrNothing(Constants.BUTTONS + "island.members-title"));
+
+            for (UUID uuid : island.getMemberSet())
+            {
+                User user = User.getInstance(uuid);
+
+                if (memberBuilder.length() > 0)
+                {
+                    memberBuilder.append("\n");
+                }
+
+                if (user != null)
+                {
+                    memberBuilder.append(
+                        this.user.getTranslationOrNothing(Constants.BUTTONS + "island.member",
+                            Constants.PARAMETER_PLAYER, user.getName()));
+                }
+            }
+
+            memberText = memberBuilder.toString();
+        }
+        else
+        {
+            memberText = "";
+        }
+
+        // Boolean that indicate if visiting is allowed.
         boolean canVisit = true;
+
+        // Generate [noone-online] text
+        String nooneOnlineText;
 
         if (!this.manager.canVisitOffline(island, settings))
         {
-            description.add(this.user.getTranslation("visit.gui.player.button.island.noone-online"));
+            nooneOnlineText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.noone-online");
             canVisit = false;
         }
+        else
+        {
+            nooneOnlineText = "";
+        }
 
+        // Payment for visiting island.
         double payment = settings.getPayment() + this.addon.getSettings().getTaxAmount();
+        // Generate [payment] text
+        String paymentText;
 
         if (payment > 0)
         {
-            description.add(this.user.getTranslation("visit.gui.player.button.island.cost",
-                "[cost]", String.valueOf(payment)));
+            paymentText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.payment",
+                Constants.PARAMETER_NUMBER, String.valueOf(payment));
 
             if (!this.manager.hasCredits(this.user, payment))
             {
                 canVisit = false;
             }
         }
+        else
+        {
+            paymentText = "";
+        }
 
-        builder.description(GuiUtils.stringSplit(description));
+        // Generate [no-visit] text;
+        String noVisitText = canVisit ? "" :
+            this.user.getTranslationOrNothing(Constants.BUTTONS + "island.no-visit");
+
+        // Generate full description text.
+        String descriptionText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.description",
+            Constants.PARAMETER_OWNER, ownerText,
+            Constants.PARAMETER_MEMBERS, memberText,
+            Constants.PARAMETER_NOONE_ONLINE, nooneOnlineText,
+            Constants.PARAMETER_PAYMENT, paymentText,
+            Constants.PARAMETER_NO_VISIT, noVisitText);
+
+        // Clean up description text and split it into parts.
+        List<String> description = Arrays.stream(descriptionText.replaceAll("(?m)^[ \\t]*\\r?\\n", "").
+            split("\n")).
+            collect(Collectors.toList());
+
+        // Add tooltips.
+        if (canVisit)
+        {
+            this.user.getTranslationOrNothing(Constants.TIPS + "click-to-visit");
+        }
+
+        builder.description(description);
 
         // Glow icon if user can visit the island.
         builder.glow(canVisit);
@@ -321,12 +551,57 @@ public class VisitPanel
             }
 
             return true;
-        }).
-            build();
+        }).build();
     }
 
+
+    /**
+     * This method update filtered element list
+     */
+    private void updateFilter()
+    {
+        switch (this.activeFilter)
+        {
+            case ONLINE_ISLANDS:
+                this.elementList = this.islandList.stream().
+                    filter(island -> island.getMemberSet().stream().
+                        map(User::getInstance).
+                        filter(Objects::nonNull).
+                        anyMatch(User::isOnline)).
+                    collect(Collectors.toList());
+                break;
+            case CAN_VISIT:
+                // TODO: add balance and online check.
+                this.elementList = this.islandList.stream().
+                    filter(island -> island.isAllowed(this.user, Flags.LOCK)).
+                    filter(island -> island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG)).
+                    filter(island -> !island.isBanned(this.user.getUniqueId())).
+                    collect(Collectors.toList());
+
+                break;
+            default:
+                this.elementList = this.islandList;
+        }
+
+        // Apply searchedString filter.
+        if (this.searchString != null && !this.searchString.isEmpty())
+        {
+            this.elementList = this.elementList.stream().
+                filter(island -> island.getName() == null ||
+                    island.getName().toLowerCase().contains(this.searchString)).
+                filter(island -> island.getMemberSet().stream().
+                    map(User::getInstance).
+                    filter(Objects::nonNull).
+                    anyMatch(user -> user.getName().toLowerCase().contains(this.searchString))).
+                collect(Collectors.toList());
+        }
+
+        this.pageIndex = 0;
+    }
+
+
     // ---------------------------------------------------------------------
-    // Section: Static Variables
+    // Section: Static methods
     // ---------------------------------------------------------------------
 
 
@@ -349,7 +624,7 @@ public class VisitPanel
 
 
     // ---------------------------------------------------------------------
-    // Section: Internal Constructor
+    // Section: Variables
     // ---------------------------------------------------------------------
 
     /**
@@ -362,16 +637,6 @@ public class VisitPanel
      */
     private final VisitAddonManager manager;
 
-
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
-
-    /**
-     * This variable stores main world where GUI is targeted.
-     */
-    private final World world;
-
     /**
      * This variable holds user who opens panel. Without it panel cannot be opened.
      */
@@ -381,6 +646,36 @@ public class VisitPanel
      * This variable stores all islands in the given world.
      */
     private final List<Island> islandList;
+
+    /**
+     * This boolean indicate if filters line should be enabled.
+     */
+    private final boolean filtersEnabled;
+
+    /**
+     * Stores maximal allowed elements per page.
+     */
+    private final int maxElements;
+
+    /**
+     * Stores max island slot index.
+     */
+    private final int maxSlotIndex;
+
+    /**
+     * Indicates that filters should be located at the top or bottom line.
+     */
+    private final boolean filtersAtTheTop;
+
+    /**
+     * Border Block Item.
+     */
+    private final PanelItem borderBlock;
+
+    /**
+     * This variable stores filtered elements.
+     */
+    private List<Island> elementList;
 
     /**
      * This variable holds top command label which opened current panel.
@@ -393,10 +688,12 @@ public class VisitPanel
     private int pageIndex;
 
     /**
-     * Material for panel Header.
+     * This variable stores search string for player / island names.
      */
-    private final static PanelItem HEADER_BLOCK = new PanelItemBuilder().
-        icon(Material.MAGENTA_STAINED_GLASS_PANE).
-        description(" ").
-        build();
+    private String searchString;
+    
+    /**
+     * Stores active filter.
+     */
+    private Settings.Filter activeFilter;
 }

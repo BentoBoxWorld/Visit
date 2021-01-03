@@ -8,6 +8,7 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.panels.player.ConfigurePanel;
+import world.bentobox.visit.utils.Constants;
 
 
 /**
@@ -23,7 +24,10 @@ public class VisitConfigureCommand extends CompositeCommand
      */
     public VisitConfigureCommand(VisitAddon addon, CompositeCommand parentCommand)
     {
-        super(addon, parentCommand, "configure");
+        super(addon,
+            parentCommand,
+            addon.getSettings().getPlayerConfigureCommand().split(" ")[0],
+            addon.getSettings().getPlayerConfigureCommand().split(" "));
     }
 
 
@@ -42,8 +46,8 @@ public class VisitConfigureCommand extends CompositeCommand
     public void setup()
     {
         this.setPermission("configure");
-        this.setParametersHelp("visit.commands.player.configure.parameters");
-        this.setDescription("visit.commands.player.configure.description");
+        this.setParametersHelp(Constants.PLAYER_COMMANDS + "configure.parameters");
+        this.setDescription(Constants.PLAYER_COMMANDS + "configure.description");
 
         this.setOnlyPlayer(true);
     }
@@ -72,7 +76,7 @@ public class VisitConfigureCommand extends CompositeCommand
             return false;
         }
 
-        return island.isAllowed(user, VisitAddon.EDIT_CONFIG_FLAG);
+        return island.isAllowed(user, VisitAddon.VISIT_CONFIG_PERMISSION);
     }
 
 
