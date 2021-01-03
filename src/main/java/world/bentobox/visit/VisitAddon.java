@@ -59,7 +59,7 @@ public class VisitAddon extends Addon
         }
 
         // Set up flag with correct default rank permission.
-        VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.DIAMOND_PICKAXE).
+        VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.PUMPKIN).
             type(Flag.Type.PROTECTION).
             defaultRank(this.settings.getDefaultConfigPermission()).
             clickHandler(new CycleClick("VISIT_CONFIG_PERMISSION",
