@@ -29,4 +29,4 @@ There is also an option to set tax amount for visitors, that will be taken from 
 
 ## Compatibility
 
-- [x] BentoBox 1.14+
+- [x] BentoBox 1.15.4+
