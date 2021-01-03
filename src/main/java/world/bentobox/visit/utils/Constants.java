@@ -158,4 +158,18 @@ public class Constants
      * Reference string to no-visit parameter in translations.
      */
     public static final String PARAMETER_NO_VISIT = "[no-visit]";
+
+// ---------------------------------------------------------------------
+// Section: Metadata
+// ---------------------------------------------------------------------
+
+    /**
+     * Reference to the Visit Payment metadata in Island Object.
+     */
+    public static final String METADATA_PAYMENT = "Visit_Payment";
+
+    /**
+     * Reference to the Visit Offline metadata in Island Object.
+     */
+    public static final String METADATA_OFFLINE = "Visit_Offline";
 }

@@ -20,10 +20,8 @@ import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
-import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
 import world.bentobox.visit.panels.ConversationUtils;
-import world.bentobox.visit.panels.GuiUtils;
 import world.bentobox.visit.utils.Constants;
 
 
@@ -66,15 +64,13 @@ public class ConfigurePanel
             return;
         }
 
-        IslandVisitSettings settings = this.manager.getIslandVisitSettings(this.island);
-
         if (this.addon.getVaultHook().hook())
         {
             // Add value button only if vault is enabled.
-            panelBuilder.item(0, this.createValueButton(settings));
+            panelBuilder.item(0, this.createValueButton());
         }
 
-        panelBuilder.item(2, this.createOfflineOnlyButton(settings));
+        panelBuilder.item(2, this.createOfflineOnlyButton());
         panelBuilder.item(4, this.createEnableButton(this.island));
 
         // At the end we just call build method that creates and opens panel.
@@ -85,16 +81,15 @@ public class ConfigurePanel
     /**
      * This method creates input button that allows to write any number in chat.
      *
-     * @param settings Settings where this number will be saved.
      * @return PanelItem button that allows to change payment value.
      */
-    private PanelItem createValueButton(IslandVisitSettings settings)
+    private PanelItem createValueButton()
     {
         String name = this.user.getTranslation(Constants.BUTTONS + "payment.name");
         List<String> description = new ArrayList<>(3);
 
         description.add(this.user.getTranslation(Constants.BUTTONS + "payment.description",
-            Constants.PARAMETER_NUMBER, Double.toString(settings.getPayment())));
+            Constants.PARAMETER_NUMBER, Double.toString(this.addon.getAddonManager().getIslandEarnings(this.island))));
 
         description.add("");
         description.add(this.user.getTranslation(Constants.TIPS + "click-to-change"));
@@ -105,8 +100,7 @@ public class ConfigurePanel
             Consumer<Number> numberConsumer = number -> {
                 if (number != null)
                 {
-                    settings.setPayment(number.doubleValue());
-                    this.manager.saveSettings(settings);
+                    this.manager.setIslandEarnings(this.island, number.doubleValue());
                 }
 
                 // reopen panel
@@ -134,10 +128,9 @@ public class ConfigurePanel
     /**
      * This method creates toggleable button that allows to switch between only online/ offline button.
      *
-     * @param settings Settings where this number will be saved.
      * @return PanelItem button.
      */
-    private PanelItem createOfflineOnlyButton(IslandVisitSettings settings)
+    private PanelItem createOfflineOnlyButton()
     {
         String name = this.user.getTranslation(Constants.BUTTONS + "offline.name");
         List<String> description = new ArrayList<>(5);
@@ -145,7 +138,9 @@ public class ConfigurePanel
 
         ItemStack icon;
 
-        if (settings.isOfflineVisit())
+        final boolean value = this.manager.hasOfflineEnabled(this.island);
+
+        if (value)
         {
             description.add(this.user.getTranslation(Constants.BUTTONS + "offline.enabled"));
             icon = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
@@ -161,10 +156,8 @@ public class ConfigurePanel
 
         PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
         {
-            settings.setOfflineVisit(!settings.isOfflineVisit());
-            this.manager.saveSettings(settings);
-
-            panel.getInventory().setItem(slot, this.createOfflineOnlyButton(settings).getItem());
+            this.manager.setOfflineData(this.island, !value);
+            panel.getInventory().setItem(slot, this.createOfflineOnlyButton().getItem());
 
             return true;
         };

@@ -146,7 +146,14 @@ public class AdminPanel
                     {
                         if (value)
                         {
-                            this.addon.getAddonManager().wipeDatabase();
+                            this.addon.getIslands().getIslands(this.world).forEach(island ->
+                            {
+                                if (island.getMetaData() != null)
+                                {
+                                    island.removeMetaData(Constants.METADATA_OFFLINE);
+                                    island.removeMetaData(Constants.METADATA_PAYMENT);
+                                }
+                            });
                         }
 
                         this.build();

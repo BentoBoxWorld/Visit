@@ -27,7 +27,6 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.lists.Flags;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.configs.Settings;
-import world.bentobox.visit.database.object.IslandVisitSettings;
 import world.bentobox.visit.managers.VisitAddonManager;
 import world.bentobox.visit.panels.ConversationUtils;
 import world.bentobox.visit.utils.Constants;
@@ -417,8 +416,6 @@ public class VisitPanel
     private PanelItem createIslandButton(Island island)
     {
         // Get settings for island.
-        IslandVisitSettings settings = this.manager.getIslandVisitSettings(island);
-
         PanelItemBuilder builder = new PanelItemBuilder();
         User owner = User.getInstance(island.getOwner());
 
@@ -496,7 +493,7 @@ public class VisitPanel
         // Generate [noone-online] text
         String nooneOnlineText;
 
-        if (!this.manager.canVisitOffline(island, settings))
+        if (!this.manager.canVisitOffline(island))
         {
             nooneOnlineText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.noone-online");
             canVisit = false;
@@ -507,7 +504,7 @@ public class VisitPanel
         }
 
         // Payment for visiting island.
-        double payment = settings.getPayment() + this.addon.getSettings().getTaxAmount();
+        double payment = this.manager.getIslandEarnings(island) + this.addon.getSettings().getTaxAmount();
         // Generate [payment] text
         String paymentText;
 
