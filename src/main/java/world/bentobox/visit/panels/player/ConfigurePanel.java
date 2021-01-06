@@ -64,7 +64,7 @@ public class ConfigurePanel
             return;
         }
 
-        if (this.addon.getVaultHook().hook())
+        if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
         {
             // Add value button only if vault is enabled.
             panelBuilder.item(0, this.createValueButton());
