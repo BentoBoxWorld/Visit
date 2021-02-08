@@ -44,9 +44,9 @@ public class VisitAddonManager
     }
 
 
-// ---------------------------------------------------------------------
-// Section: Methods
-// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Section: Methods
+    // ---------------------------------------------------------------------
 
 
     /**
@@ -82,7 +82,7 @@ public class VisitAddonManager
         // Check if settings allow offline visiting or any island member is online.
 
         return this.hasOfflineEnabled(island) ||
-            island.getMemberSet().stream().
+                island.getMemberSet().stream().
                 map(User::getInstance).
                 filter(Objects::nonNull).
                 anyMatch(User::isOnline);
@@ -98,14 +98,7 @@ public class VisitAddonManager
      */
     public boolean hasOfflineEnabled(Island island)
     {
-        if (island.getMetaData() != null && island.getMetaData().containsKey(Constants.METADATA_OFFLINE))
-        {
-            return island.getMetaData(Constants.METADATA_OFFLINE).asBoolean();
-        }
-        else
-        {
-            return this.addon.getSettings().isDefaultVisitingOffline();
-        }
+        return island.getMetaData(Constants.METADATA_OFFLINE).map(MetaDataValue::asBoolean).orElse(this.addon.getSettings().isDefaultVisitingOffline());
     }
 
 
@@ -117,14 +110,7 @@ public class VisitAddonManager
      */
     public double getIslandEarnings(Island island)
     {
-        if (island.getMetaData() != null && island.getMetaData().containsKey(Constants.METADATA_PAYMENT))
-        {
-            return island.getMetaData(Constants.METADATA_PAYMENT).asDouble();
-        }
-        else
-        {
-            return this.addon.getSettings().getDefaultVisitingPayment();
-        }
+        return island.getMetaData(Constants.METADATA_PAYMENT).map(MetaDataValue::asDouble).orElse(this.addon.getSettings().getDefaultVisitingPayment());
     }
 
 
@@ -166,9 +152,9 @@ public class VisitAddonManager
     }
 
 
-// ---------------------------------------------------------------------
-// Section: VaultHook methods
-// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Section: VaultHook methods
+    // ---------------------------------------------------------------------
 
 
     /**
@@ -181,8 +167,8 @@ public class VisitAddonManager
     public boolean hasCredits(User user, double credits)
     {
         return this.addon.getVaultHook() == null ||
-            !this.addon.getVaultHook().hook() ||
-            this.addon.getVaultHook().has(user, credits);
+                !this.addon.getVaultHook().hook() ||
+                this.addon.getVaultHook().has(user, credits);
     }
 
 
@@ -196,7 +182,7 @@ public class VisitAddonManager
     public boolean depositCredits(User user, double credits)
     {
         if (this.addon.getVaultHook() != null &&
-            this.addon.getVaultHook().hook())
+                this.addon.getVaultHook().hook())
         {
             return this.addon.getVaultHook().deposit(user, credits).transactionSuccess();
         }
@@ -217,7 +203,7 @@ public class VisitAddonManager
     public boolean withdrawCredits(User user, double credits)
     {
         if (this.addon.getVaultHook() != null &&
-            this.addon.getVaultHook().hook())
+                this.addon.getVaultHook().hook())
         {
             return this.addon.getVaultHook().withdraw(user, credits).transactionSuccess();
         }
@@ -228,9 +214,9 @@ public class VisitAddonManager
     }
 
 
-// ---------------------------------------------------------------------
-// Section: Teleportation methods
-// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Section: Teleportation methods
+    // ---------------------------------------------------------------------
 
 
     /**
@@ -245,42 +231,42 @@ public class VisitAddonManager
         double payment = this.addon.getSettings().getTaxAmount() + this.getIslandEarnings(island);
 
         if (Flags.PREVENT_TELEPORT_WHEN_FALLING.isSetForWorld(user.getWorld()) &&
-            user.getPlayer().getFallDistance() > 0)
+                user.getPlayer().getFallDistance() > 0)
         {
             // We're sending the "hint" to the player to tell them they cannot teleport while falling.
             Utils.sendMessage(user,
-                user.getTranslation(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference()));
+                    user.getTranslation(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference()));
         }
         else if (island.isBanned(user.getUniqueId()))
         {
             // Banned players are not allowed.
             Utils.sendMessage(user,
-                user.getTranslation("commands.island.ban.you-are-banned"));
+                    user.getTranslation("commands.island.ban.you-are-banned"));
         }
         else if (!island.isAllowed(user, Flags.LOCK))
         {
             // Island is locked.
             Utils.sendMessage(user,
-                user.getTranslation("protection.locked"));
+                    user.getTranslation("protection.locked"));
         }
         else if (!island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG))
         {
             // Visits are disabled in settings.
             Utils.sendMessage(user,
-                user.getTranslation(VisitAddon.ALLOW_VISITS_FLAG.getHintReference()));
+                    user.getTranslation(VisitAddon.ALLOW_VISITS_FLAG.getHintReference()));
         }
         else if (!this.canVisitOffline(island))
         {
             // Send a message that noone is online from this island
             Utils.sendMessage(user,
-                user.getTranslation(Constants.ERRORS + "noone-is-online"));
+                    user.getTranslation(Constants.ERRORS + "noone-is-online"));
         }
         else if (payment > 0 && !this.hasCredits(user, payment))
         {
             // Send a message that player has not enough credits.
             Utils.sendMessage(user,
-                user.getTranslation(Constants.ERRORS + "not-enough-credits",
-                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                    user.getTranslation(Constants.ERRORS + "not-enough-credits",
+                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
         }
         else
         {
@@ -308,19 +294,19 @@ public class VisitAddonManager
         {
             // error on withdrawing credits. Cancelling
             Utils.sendMessage(user,
-                user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
-                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                    user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
+                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
             return;
         }
         else if (earnedMoney > 0 &&
-            !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
+                !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
         {
             // error on depositing credits. Cancelling
             this.depositCredits(user, earnedMoney + this.addon.getSettings().getTaxAmount());
 
             Utils.sendMessage(user,
-                user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
-                    Constants.PARAMETER_NUMBER, String.valueOf(earnedMoney)));
+                    user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
+                            Constants.PARAMETER_NUMBER, String.valueOf(earnedMoney)));
             return;
         }
 
@@ -338,10 +324,10 @@ public class VisitAddonManager
                 // Use SafeSpotTeleport builder to avoid issues with players spawning in
                 // bad spot.
                 new SafeSpotTeleport.Builder(this.addon.getPlugin()).
-                    entity(user.getPlayer()).
-                    location(location == null ? island.getCenter() : location).
-                    failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
-                    build();
+                entity(user.getPlayer()).
+                location(location == null ? island.getCenter() : location).
+                failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
+                build();
             }
             else
             {
@@ -352,9 +338,9 @@ public class VisitAddonManager
     }
 
 
-// ---------------------------------------------------------------------
-// Section: Variables
-// ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    // Section: Variables
+    // ---------------------------------------------------------------------
 
 
     /**
