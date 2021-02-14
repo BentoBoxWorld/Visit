@@ -5,7 +5,7 @@ main: world.bentobox.visit.VisitAddon
 # Version of your addon. Can use maven variables.
 version: ${version}
 # API version allows to specify minimal BentoBox version for your addon.
-api-version: ${bentobox.version}
+api-version: 1.16.0
 # Allow to send metric about this addon usage.
 metrics: true
 # GitHub version check. Will work only for GitHub.
