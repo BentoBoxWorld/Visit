@@ -65,7 +65,9 @@ commands:
     # This command label will be required to write after gamemode player command label, f.e. /[label] visit configure
     # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
     configure: configure
-
+    # Player setLocation sub-command that allows to change spawn location for visitors.
+    # This command label will be required to write after gamemode player command label, f.e. /[label] visit setLocation
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
     set-location: setLocation
   admin:
     # Admin main sub-command to access the addon.

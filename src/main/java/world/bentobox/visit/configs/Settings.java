@@ -584,7 +584,7 @@ public class Settings implements ConfigObject
     /**
      * The Player setLocation command.
      */
-    @ConfigComment("Player setLocation sub-command that allows to change spawn location for visitors..")
+    @ConfigComment("Player setLocation sub-command that allows to change spawn location for visitors.")
     @ConfigComment("This command label will be required to write after gamemode player command label, f.e. /[label] visit setLocation")
     @ConfigEntry(path = "commands.player.set-location", needsRestart = true)
     private String playerSetLocationCommand = "setLocation";
