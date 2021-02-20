@@ -226,7 +226,8 @@ public class VisitAddonManager
      */
     public boolean preprocessTeleportation(User user, Island island)
     {
-        double payment = this.addon.getSettings().getTaxAmount() + this.getIslandEarnings(island);
+        double payment = this.addon.getSettings().isDisableEconomy() ? 0 :
+            this.addon.getSettings().getTaxAmount() + this.getIslandEarnings(island);
 
         if (Flags.PREVENT_TELEPORT_WHEN_FALLING.isSetForWorld(user.getWorld()) &&
                 user.getPlayer().getFallDistance() > 0)
@@ -285,19 +286,21 @@ public class VisitAddonManager
      */
     public void processTeleportation(User user, Island island)
     {
-        double earnedMoney = this.getIslandEarnings(island);
-        double payment = earnedMoney + this.addon.getSettings().getTaxAmount();
+        double earnedMoney = this.addon.getSettings().isDisableEconomy() ? 0 : this.getIslandEarnings(island);
+
+        double payment = this.addon.getSettings().isDisableEconomy() ? 0 :
+            earnedMoney + this.addon.getSettings().getTaxAmount();
 
         if (payment > 0 && !this.withdrawCredits(user, payment))
         {
             // error on withdrawing credits. Cancelling
             Utils.sendMessage(user,
-                    user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
-                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
+                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
             return;
         }
         else if (earnedMoney > 0 &&
-                !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
+            !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
         {
             // error on depositing credits. Cancelling
             this.depositCredits(user, earnedMoney + this.addon.getSettings().getTaxAmount());

@@ -424,6 +424,28 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Is disable economy boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDisableEconomy()
+    {
+        return disableEconomy;
+    }
+
+
+    /**
+     * Sets disable economy.
+     *
+     * @param disableEconomy the disable economy
+     */
+    public void setDisableEconomy(boolean disableEconomy)
+    {
+        this.disableEconomy = disableEconomy;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -453,6 +475,14 @@ public class Settings implements ConfigObject
 // Section: Variables
 // ---------------------------------------------------------------------
 
+    /**
+     * Disable economy.
+     */
+    @ConfigComment("")
+    @ConfigComment("Allows to disable economy part of Visits addon if Vault plugin is present.")
+    @ConfigComment("It will disable taxation and ability to change visiting cost.")
+    @ConfigEntry(path = "disable-economy")
+    private boolean disableEconomy = false;
 
     /**
      * The Tax amount.

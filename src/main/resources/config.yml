@@ -1,6 +1,9 @@
 # Config file for Visit add-on Version ${version}
 # This config file is dynamic and saved when the server is shutdown.
 #
+# Allows to disable economy part of Visits addon if Vault plugin is present.
+# It will disable taxation and ability to change visiting cost.
+disable-economy: false
 # Allows to define tax amount (not %) that must be payed extra for visiting.
 # Example:
 #    Island payment is set to 10, and tax is set to 5, then visitor will need to pay 15.

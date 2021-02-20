@@ -197,7 +197,18 @@ visit:
           &7 Search button is &a enabled.
         disabled: |-
           &7 Search button is &c disabled.
-      # This section contains all tip messages.
+      # Button that allows to change location of filter row
+      enable_economy:
+        name: '&f&l Enable Economy'
+        description: |-
+          &7 Allows to toggle economy part
+          &7 addon if Vault plugin is
+          &7 is present.
+        enabled: |-
+          &7 Economy is &a enabled.
+        disabled: |-
+          &7 Economy is &c disabled.
+    # This section contains all tip messages.
     tips:
       click-to-switch: "&e Click &7 to switch."
       click-to-previous: "&e Click &7 to view previous page."
