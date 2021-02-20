@@ -325,7 +325,7 @@ public class VisitAddonManager
                 // bad spot.
                 new SafeSpotTeleport.Builder(this.addon.getPlugin()).
                 entity(user.getPlayer()).
-                location(location == null ? island.getCenter() : location).
+                location(location == null ? island.getProtectionCenter() : location).
                 failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
                 build();
             }
