@@ -402,6 +402,28 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Gets player set location command.
+     *
+     * @return the player set location command
+     */
+    public String getPlayerSetLocationCommand()
+    {
+        return playerSetLocationCommand;
+    }
+
+
+    /**
+     * Sets player set location command.
+     *
+     * @param playerSetLocationCommand the player set location command
+     */
+    public void setPlayerSetLocationCommand(String playerSetLocationCommand)
+    {
+        this.playerSetLocationCommand = playerSetLocationCommand;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -558,6 +580,14 @@ public class Settings implements ConfigObject
     @ConfigComment("This command label will be required to write after gamemode player command label, f.e. /[label] visit configure")
     @ConfigEntry(path = "commands.player.configure", needsRestart = true)
     private String playerConfigureCommand = "configure";
+
+    /**
+     * The Player setLocation command.
+     */
+    @ConfigComment("Player setLocation sub-command that allows to change spawn location for visitors..")
+    @ConfigComment("This command label will be required to write after gamemode player command label, f.e. /[label] visit setLocation")
+    @ConfigEntry(path = "commands.player.set-location", needsRestart = true)
+    private String playerSetLocationCommand = "setLocation";
 
     /**
      * The Admin main command.

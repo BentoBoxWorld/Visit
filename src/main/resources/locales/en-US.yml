@@ -14,6 +14,9 @@ visit:
       configure:
         description: 'opens GUI that allows to manage visiting settings.'
         parameters: ''
+      set-location:
+        description: 'allows to change visitors spawn location.'
+        parameters: ''
   # This section contains translations for items inside GUI interfaces.
   gui:
     # This section contains titles for all GUIs.
@@ -214,6 +217,9 @@ visit:
     not-enough-credits: '&r You do not have enough credits to visit this island. Necessary [number] credits.'
     cannot-withdraw-credits: '&r Cannot withdraw [number] from your account! Operation is cancelled.'
     cannot-deposit-credits: '&r Cannot deposit [number] into island owner account! Operation is cancelled.'
+    not-in-overworld: '&r You must be in overworld to change visitor spawn location! Operation is cancelled.'
+    not-in-protected-area: '&r You must be in your island protected area! Operation is cancelled.'
+    not-safe-location: '&r Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
   conversations:
     # List of strings that are valid for confirming input. (separated with ,)
     confirm-string: "true, on, yes, confirm, y, valid, correct"
