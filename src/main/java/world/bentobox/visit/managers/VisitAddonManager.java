@@ -9,10 +9,8 @@ package world.bentobox.visit.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import org.bukkit.util.Vector;
+import java.util.*;
 
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.metadata.MetaDataValue;
@@ -319,20 +317,24 @@ public class VisitAddonManager
         {
             Location location = island.getSpawnPoint(World.Environment.NORMAL);
 
-            if (location == null || !this.addon.getIslands().isSafeLocation(location))
+            // There is a possibility that location may be out of protected area. These locations should
+            // not be valid for teleporting.
+            if (location != null &&
+                island.getProtectionBoundingBox().contains(location.toVector()) &&
+                this.addon.getIslands().isSafeLocation(location))
+            {
+                // Teleport player async to island spawn point.
+                Util.teleportAsync(user.getPlayer(), location);
+            }
+            else
             {
                 // Use SafeSpotTeleport builder to avoid issues with players spawning in
                 // bad spot.
                 new SafeSpotTeleport.Builder(this.addon.getPlugin()).
-                entity(user.getPlayer()).
-                location(location == null ? island.getProtectionCenter() : location).
-                failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
-                build();
-            }
-            else
-            {
-                // Teleport player async to island spawn point.
-                Util.teleportAsync(user.getPlayer(), location);
+                    entity(user.getPlayer()).
+                    location(location == null ? island.getProtectionCenter() : location).
+                    failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
+                    build();
             }
         }
     }
