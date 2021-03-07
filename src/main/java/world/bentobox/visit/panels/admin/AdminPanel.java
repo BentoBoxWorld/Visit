@@ -64,6 +64,12 @@ public class AdminPanel
 
         panelBuilder.item(10, this.createButton(Button.MANAGE));
         panelBuilder.item(28, this.createButton(Button.RESET));
+
+        if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
+        {
+            panelBuilder.item(29, this.createButton(Button.ENABLE_ECONOMY));
+        }
+
         panelBuilder.item(11, this.createButton(Button.TAX));
 
         panelBuilder.item(13, this.createButton(Button.AT_TOP));
@@ -443,6 +449,35 @@ public class AdminPanel
             case BORDER_BLOCK_NAME:
                 // TODO: need Implementing
                 return PanelItem.empty();
+            case ENABLE_ECONOMY:
+            {
+                material = Material.EMERALD;
+
+                glow = this.addon.getSettings().isDisableEconomy();
+
+                if (!glow)
+                {
+                    description.add(this.user.getTranslation(reference + ".enabled"));
+                }
+                else
+                {
+                    description.add(this.user.getTranslation(reference + ".disabled"));
+                }
+                description.add("");
+                description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
+
+                clickHandler = (panel, user, clickType, slot) ->
+                {
+                    this.addon.getSettings().setDisableEconomy(
+                        !this.addon.getSettings().isDisableEconomy());
+                    this.addon.saveSettings();
+                    this.build();
+
+                    return true;
+                };
+
+                break;
+            }
             default:
                 return PanelItem.empty();
         }
@@ -533,6 +568,10 @@ public class AdminPanel
          * Allows to change border block name.
          */
         BORDER_BLOCK_NAME,
+        /**
+         * Allows to disable economy part of the addon.
+         */
+        ENABLE_ECONOMY,
     }
 
 

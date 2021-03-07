@@ -64,7 +64,9 @@ public class ConfigurePanel
             return;
         }
 
-        if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
+        if (this.addon.getVaultHook() != null &&
+            this.addon.getVaultHook().hook() &&
+            !this.addon.getSettings().isDisableEconomy())
         {
             // Add value button only if vault is enabled.
             panelBuilder.item(0, this.createValueButton());
@@ -107,11 +109,13 @@ public class ConfigurePanel
                 this.build();
             };
 
+            final double maxAmount = this.addon.getSettings().getMaxAmount();
+
             ConversationUtils.createNumericInput(numberConsumer,
                 this.user,
                 this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
                 0,
-                Double.MAX_VALUE);
+                maxAmount > 0 ? maxAmount : Double.MAX_VALUE);
 
             return true;
         };

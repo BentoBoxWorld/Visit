@@ -32,6 +32,9 @@ permissions:
   '[gamemode].visit.configure':
     description: Access to '/[player_command] visit configure' command
     default: true
+  '[gamemode].visit.setlocation':
+    description: Access to '/[player_command] visit setlocation' command
+    default: true
   'visit.icon.STONE':
     description: Allows to set a different icon for owner island.
     default: false

@@ -60,6 +60,7 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
         this.setDescription(Constants.PLAYER_COMMANDS + "main.description");
 
         new VisitConfigureCommand(this.getAddon(), this);
+        new VisitSetLocationCommand(this.getAddon(), this);
 
         this.setOnlyPlayer(true);
     }

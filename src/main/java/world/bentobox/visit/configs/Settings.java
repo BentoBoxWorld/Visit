@@ -402,6 +402,72 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Gets player set location command.
+     *
+     * @return the player set location command
+     */
+    public String getPlayerSetLocationCommand()
+    {
+        return playerSetLocationCommand;
+    }
+
+
+    /**
+     * Sets player set location command.
+     *
+     * @param playerSetLocationCommand the player set location command
+     */
+    public void setPlayerSetLocationCommand(String playerSetLocationCommand)
+    {
+        this.playerSetLocationCommand = playerSetLocationCommand;
+    }
+
+
+    /**
+     * Is disable economy boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDisableEconomy()
+    {
+        return disableEconomy;
+    }
+
+
+    /**
+     * Sets disable economy.
+     *
+     * @param disableEconomy the disable economy
+     */
+    public void setDisableEconomy(boolean disableEconomy)
+    {
+        this.disableEconomy = disableEconomy;
+    }
+
+
+    /**
+     * Gets max amount.
+     *
+     * @return the max amount
+     */
+    public double getMaxAmount()
+    {
+        return maxAmount;
+    }
+
+
+    /**
+     * Sets max amount.
+     *
+     * @param maxAmount the max amount
+     */
+    public void setMaxAmount(double maxAmount)
+    {
+        this.maxAmount = maxAmount;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -431,6 +497,14 @@ public class Settings implements ConfigObject
 // Section: Variables
 // ---------------------------------------------------------------------
 
+    /**
+     * Disable economy.
+     */
+    @ConfigComment("")
+    @ConfigComment("Allows to disable economy part of Visits addon if Vault plugin is present.")
+    @ConfigComment("It will disable taxation and ability to change visiting cost.")
+    @ConfigEntry(path = "disable-economy")
+    private boolean disableEconomy = false;
 
     /**
      * The Tax amount.
@@ -442,6 +516,15 @@ public class Settings implements ConfigObject
     @ConfigComment("   10 will go to island owner, while 5 will be erased from existence.")
     @ConfigEntry(path = "traveling-tax")
     private double taxAmount = 0.0;
+
+    /**
+     * The Tax amount.
+     */
+    @ConfigComment("")
+    @ConfigComment("Allows to set maximal amount for payment that players can set to their island.")
+    @ConfigComment("0 or below will not limit maximal value.")
+    @ConfigEntry(path = "max-payment-value")
+    private double maxAmount = 0.0;
 
     /**
      * The Default visiting payment.
@@ -558,6 +641,14 @@ public class Settings implements ConfigObject
     @ConfigComment("This command label will be required to write after gamemode player command label, f.e. /[label] visit configure")
     @ConfigEntry(path = "commands.player.configure", needsRestart = true)
     private String playerConfigureCommand = "configure";
+
+    /**
+     * The Player setLocation command.
+     */
+    @ConfigComment("Player setLocation sub-command that allows to change spawn location for visitors.")
+    @ConfigComment("This command label will be required to write after gamemode player command label, f.e. /[label] visit setLocation")
+    @ConfigEntry(path = "commands.player.set-location", needsRestart = true)
+    private String playerSetLocationCommand = "setLocation";
 
     /**
      * The Admin main command.
