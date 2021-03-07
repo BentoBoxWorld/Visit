@@ -446,6 +446,28 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Gets max amount.
+     *
+     * @return the max amount
+     */
+    public double getMaxAmount()
+    {
+        return maxAmount;
+    }
+
+
+    /**
+     * Sets max amount.
+     *
+     * @param maxAmount the max amount
+     */
+    public void setMaxAmount(double maxAmount)
+    {
+        this.maxAmount = maxAmount;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -494,6 +516,15 @@ public class Settings implements ConfigObject
     @ConfigComment("   10 will go to island owner, while 5 will be erased from existence.")
     @ConfigEntry(path = "traveling-tax")
     private double taxAmount = 0.0;
+
+    /**
+     * The Tax amount.
+     */
+    @ConfigComment("")
+    @ConfigComment("Allows to set maximal amount for payment that players can set to their island.")
+    @ConfigComment("0 or below will not limit maximal value.")
+    @ConfigEntry(path = "max-payment-value")
+    private double maxAmount = 0.0;
 
     /**
      * The Default visiting payment.

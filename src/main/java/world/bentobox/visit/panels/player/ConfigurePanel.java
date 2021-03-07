@@ -109,11 +109,13 @@ public class ConfigurePanel
                 this.build();
             };
 
+            final double maxAmount = this.addon.getSettings().getMaxAmount();
+
             ConversationUtils.createNumericInput(numberConsumer,
                 this.user,
                 this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
                 0,
-                Double.MAX_VALUE);
+                maxAmount > 0 ? maxAmount : Double.MAX_VALUE);
 
             return true;
         };
