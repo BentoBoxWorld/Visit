@@ -224,13 +224,13 @@ visit:
       click-to-select: "&e Click &7 to select."
       click-to-deselect: "&e Click &7 to deselect."
   errors:
-    noone-is-online: '&r Noone from this island is online!'
-    not-enough-credits: '&r You do not have enough credits to visit this island. Necessary [number] credits.'
-    cannot-withdraw-credits: '&r Cannot withdraw [number] from your account! Operation is cancelled.'
-    cannot-deposit-credits: '&r Cannot deposit [number] into island owner account! Operation is cancelled.'
-    not-in-overworld: '&r You must be in overworld to change visitor spawn location! Operation is cancelled.'
-    not-in-protected-area: '&r You must be in your island protected area! Operation is cancelled.'
-    not-safe-location: '&r Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
+    noone-is-online: '&r&c Noone from this island is online!'
+    not-enough-credits: '&r&c You do not have enough credits to visit this island. Necessary [number] credits.'
+    cannot-withdraw-credits: '&r&c Cannot withdraw [number] from your account! Operation is cancelled.'
+    cannot-deposit-credits: '&r&c Cannot deposit [number] into island owner account! Operation is cancelled.'
+    not-in-overworld: '&rv You must be in overworld to change visitor spawn location! Operation is cancelled.'
+    not-in-protected-area: '&r&c You must be in your island protected area! Operation is cancelled.'
+    not-safe-location: '&r&c Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
   conversations:
     # List of strings that are valid for confirming input. (separated with ,)
     confirm-string: "true, on, yes, confirm, y, valid, correct"
@@ -259,6 +259,8 @@ visit:
     confirm-island-data-deletion: "&e Confirm that you want to delete all user data from the database for [gamemode]."
     # Message that appears after successful user data removing.
     user-data-removed: "&a Success, all user data for [gamemode] was removed!"
+    # Message that appears when user updates spawn point.
+    spawn-point-updated: "&a Success, spawn point is changed!"
 # Protection flags that are used in current addon.
 protection:
   flags:
