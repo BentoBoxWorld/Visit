@@ -6,9 +6,9 @@
 package world.bentobox.visit.commands.player;
 
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
+import java.util.*;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.commands.DelayedTeleportCommand;
@@ -63,6 +63,52 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
         new VisitSetLocationCommand(this.getAddon(), this);
 
         this.setOnlyPlayer(true);
+    }
+
+
+    /**
+     * Ask confirmation for teleportation.
+     * @param user User who need to confirm.
+     * @param message Message that will be set to user.
+     * @param confirmed Confirm task.
+     */
+    public void askConfirmation(User user, String message, Runnable confirmed)
+    {
+        // Check for pending confirmations
+        if (toBeConfirmed.containsKey(user))
+        {
+            if (toBeConfirmed.get(user).getTopLabel().equals(getTopLabel()) &&
+                toBeConfirmed.get(user).getLabel().equalsIgnoreCase(getLabel()))
+            {
+                toBeConfirmed.get(user).getTask().cancel();
+                Bukkit.getScheduler().runTask(getPlugin(), toBeConfirmed.get(user).getRunnable());
+                toBeConfirmed.remove(user);
+                return;
+            }
+            else
+            {
+                // Player has another outstanding confirmation request that will now be cancelled
+                user.sendMessage("commands.confirmation.previous-request-cancelled");
+            }
+        }
+        // Send user the context message if it is not empty
+        if (!message.trim().isEmpty())
+        {
+            user.sendRawMessage(message);
+        }
+        // Tell user that they need to confirm
+        user.sendMessage("commands.confirmation.confirm",
+            "[seconds]",
+            String.valueOf(getSettings().getConfirmationTime()));
+        // Set up a cancellation task
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(getPlugin(), () ->
+        {
+            user.sendMessage("commands.confirmation.request-cancelled");
+            toBeConfirmed.remove(user);
+        }, getPlugin().getSettings().getConfirmationTime() * 20L);
+
+        // Add to the global confirmation map
+        toBeConfirmed.put(user, new Confirmer(getTopLabel(), getLabel(), confirmed, task));
     }
 
 
@@ -137,9 +183,45 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
         }
         else if (args.size() == 1)
         {
-            // Process teleportation
-            this.delayCommand(user, () ->
-                this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island));
+            double tax;
+            double earnings;
+
+            if (this.<VisitAddon>getAddon().getSettings().isDisableEconomy())
+            {
+                tax = 0;
+                earnings = 0;
+            }
+            else
+            {
+                // check tax and island earnings that if economy is enabled.
+                tax = this.<VisitAddon>getAddon().getSettings().getTaxAmount();
+                earnings = this.<VisitAddon>getAddon().getAddonManager().getIslandEarnings(this.island);
+            }
+
+            String prefix = user.getTranslation(Constants.CONVERSATIONS + "prefix");
+            String message = prefix +
+                user.getTranslation(Constants.CONVERSATIONS + "visit-payment",
+                    Constants.PARAMETER_PAYMENT, String.valueOf(tax + earnings),
+                    Constants.PARAMETER_TAX, String.valueOf(tax),
+                    Constants.PARAMETER_ISLAND, String.valueOf(this.island.getName()),
+                    Constants.PARAMETER_OWNER, this.getPlayers().getName(this.island.getOwner()),
+                    Constants.PARAMETER_RECEIVER, String.valueOf(earnings));
+
+            if (this.<VisitAddon>getAddon().getSettings().isPaymentConfirmation() && (tax + earnings) > 0)
+            {
+                // If there is associated cost, then ask confirmation from user.
+                this.askConfirmation(user,
+                    message,
+                    () -> this.delayCommand(user, () ->
+                        this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island)));
+            }
+            else
+            {
+                // Execute teleportation without confirmation.
+                this.delayCommand(user,
+                    (tax + earnings > 0) ? message : "",
+                    () -> this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island));
+            }
         }
         else
         {
@@ -167,8 +249,70 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
     }
 
 
+    // ---------------------------------------------------------------------
+    // Section: Classes
+    // ---------------------------------------------------------------------
+
+
+    /**
+     * This is clone from BentoBox ConfirmableCommand class.
+     */
+    private static class Confirmer {
+        private final String topLabel;
+        private final String label;
+        private final Runnable runnable;
+        private final BukkitTask task;
+
+        /**
+         * @param label - command label
+         * @param runnable - runnable to run when confirmed
+         * @param task - task ID to cancel when confirmed
+         */
+        Confirmer(String topLabel, String label, Runnable runnable, BukkitTask task) {
+            this.topLabel = topLabel;
+            this.label = label;
+            this.runnable = runnable;
+            this.task = task;
+        }
+        /**
+         * @return the topLabel
+         */
+        public String getTopLabel() {
+            return topLabel;
+        }
+        /**
+         * @return the label
+         */
+        public String getLabel() {
+            return label;
+        }
+        /**
+         * @return the runnable
+         */
+        public Runnable getRunnable() {
+            return runnable;
+        }
+        /**
+         * @return the task
+         */
+        public BukkitTask getTask() {
+            return task;
+        }
+    }
+
+
+    // ---------------------------------------------------------------------
+    // Section: Variables
+    // ---------------------------------------------------------------------
+
+
     /**
      * Island instance to which player will be teleported.
      */
     private Island island;
+
+    /**
+     * Map that contains which users are in confirmation process.
+     */
+    private static final Map<User, Confirmer> toBeConfirmed = new HashMap<>();
 }

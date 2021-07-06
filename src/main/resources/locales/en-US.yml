@@ -261,6 +261,9 @@ visit:
     user-data-removed: "&a Success, all user data for [gamemode] was removed!"
     # Message that appears when user updates spawn point.
     spawn-point-updated: "&a Success, spawn point is changed!"
+    # Message that appears when user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-payment: "&e Visiting [owner] island will cost &l&6 $[payment]."
 # Protection flags that are used in current addon.
 protection:
   flags:
