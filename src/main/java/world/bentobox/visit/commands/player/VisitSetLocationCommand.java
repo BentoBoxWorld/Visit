@@ -53,7 +53,7 @@ public class VisitSetLocationCommand extends CompositeCommand
     @Override
     public void setup()
     {
-        this.setPermission("setlocation");
+        this.setPermission("visit.setlocation");
         this.setParametersHelp(Constants.PLAYER_COMMANDS + "set-location.parameters");
         this.setDescription(Constants.PLAYER_COMMANDS + "set-location.description");
 
