@@ -103,6 +103,7 @@ public class VisitSetLocationCommand extends CompositeCommand
         {
             // User must be in protected area.
             Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-protected-area"));
+            return false;
         }
         else if (!this.getAddon().getIslands().isSafeLocation(user.getLocation()))
         {
