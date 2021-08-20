@@ -132,7 +132,7 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
             // Open panel. No checks required.
             return true;
         }
-        else if (args.size() == 1)
+        else if (args.size() == 1 || args.size() == 2 && Objects.equals(args.get(1), "bypass"))
         {
             UUID targetUUID = Util.getUUID(args.get(0));
 
@@ -177,11 +177,13 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
     @Override
     public boolean execute(User user, String label, List<String> args)
     {
+        boolean bypass = args.size() == 2 && Objects.equals(args.get(1), "bypass");
+
         if (args.isEmpty())
         {
             VisitPanel.openPanel(this.getAddon(), this.getWorld(), user, this.getTopLabel());
         }
-        else if (args.size() == 1)
+        else if (args.size() == 1 || bypass)
         {
             double tax;
             double earnings;
@@ -207,7 +209,7 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
                     Constants.PARAMETER_OWNER, this.getPlayers().getName(this.island.getOwner()),
                     Constants.PARAMETER_RECEIVER, String.valueOf(earnings));
 
-            if (this.<VisitAddon>getAddon().getSettings().isPaymentConfirmation() && (tax + earnings) > 0)
+            if (this.<VisitAddon>getAddon().getSettings().isPaymentConfirmation() && (tax + earnings) > 0 && !bypass)
             {
                 // If there is associated cost, then ask confirmation from user.
                 this.askConfirmation(user,
