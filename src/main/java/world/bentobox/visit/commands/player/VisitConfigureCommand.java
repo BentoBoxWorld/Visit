@@ -6,8 +6,12 @@
 package world.bentobox.visit.commands.player;
 
 
+import org.bukkit.Location;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import java.util.List;
+import java.util.Optional;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
@@ -50,7 +54,7 @@ public class VisitConfigureCommand extends CompositeCommand
     @Override
     public void setup()
     {
-        this.setPermission("configure");
+        this.setPermission("visit.configure");
         this.setParametersHelp(Constants.PLAYER_COMMANDS + "configure.parameters");
         this.setDescription(Constants.PLAYER_COMMANDS + "configure.description");
 

@@ -159,6 +159,21 @@ public class Constants
      */
     public static final String PARAMETER_NO_VISIT = "[no-visit]";
 
+    /**
+     * Reference string to tax parameter in translations.
+     */
+    public static final String PARAMETER_TAX = "[tax]";
+
+    /**
+     * Reference string to earn parameter in translations.
+     */
+    public static final String PARAMETER_RECEIVER = "[earn]";
+
+    /**
+     * Reference string to island parameter in translations.
+     */
+    public static final String PARAMETER_ISLAND = "[island]";
+
 // ---------------------------------------------------------------------
 // Section: Metadata
 // ---------------------------------------------------------------------

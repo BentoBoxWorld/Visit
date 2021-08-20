@@ -478,6 +478,9 @@ public class AdminPanel
 
                 break;
             }
+            case ENABLE_CONFIRMATION:
+                // TODO: need Implementing
+                return PanelItem.empty();
             default:
                 return PanelItem.empty();
         }
@@ -572,6 +575,10 @@ public class AdminPanel
          * Allows to disable economy part of the addon.
          */
         ENABLE_ECONOMY,
+        /**
+         * Allows to enable confirmation requirement before teleportation if cost is set.
+         */
+        ENABLE_CONFIRMATION,
     }
 
 

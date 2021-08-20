@@ -468,6 +468,28 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Is payment confirmation boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isPaymentConfirmation()
+    {
+        return paymentConfirmation;
+    }
+
+
+    /**
+     * Sets payment confirmation.
+     *
+     * @param paymentConfirmation the payment confirmation
+     */
+    public void setPaymentConfirmation(boolean paymentConfirmation)
+    {
+        this.paymentConfirmation = paymentConfirmation;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -625,6 +647,13 @@ public class Settings implements ConfigObject
     @ConfigComment("Island owner permission `visit.icon.[material]` can overwrite the icon.")
     @ConfigEntry(path = "gui.border-block-name")
     private String borderBlockName = " ";
+
+    /**
+     * The Player main command.
+     */
+    @ConfigComment("Option that allows to enable asking for confirmation before teleporting via command if there are associated cost for it.")
+    @ConfigEntry(path = "commands.player.ask-payment-confirmation")
+    private boolean paymentConfirmation = true;
 
     /**
      * The Player main command.

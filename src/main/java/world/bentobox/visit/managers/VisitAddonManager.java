@@ -108,7 +108,19 @@ public class VisitAddonManager
      */
     public double getIslandEarnings(Island island)
     {
-        return island.getMetaData(Constants.METADATA_PAYMENT).map(MetaDataValue::asDouble).orElse(this.addon.getSettings().getDefaultVisitingPayment());
+        if (this.addon.getSettings().isDisableEconomy() ||
+            this.addon.getVaultHook() == null ||
+            !this.addon.getVaultHook().hook())
+        {
+            // Return 0 if economy is disabled, vault hook does not exist or vault is not hooked int economy.
+            return 0;
+        }
+        else
+        {
+            return island.getMetaData(Constants.METADATA_PAYMENT).
+                map(MetaDataValue::asDouble).
+                orElse(this.addon.getSettings().getDefaultVisitingPayment());
+        }
     }
 
 
@@ -153,6 +165,27 @@ public class VisitAddonManager
     // ---------------------------------------------------------------------
     // Section: VaultHook methods
     // ---------------------------------------------------------------------
+
+
+    /**
+     * Returns tax amount value.
+     *
+     * @return the tax amount
+     */
+    public double getTaxAmount()
+    {
+        if (this.addon.getSettings().isDisableEconomy() ||
+            this.addon.getVaultHook() == null ||
+            !this.addon.getVaultHook().hook())
+        {
+            // Return 0 if economy is disabled, vault hook does not exist or vault is not hooked int economy.
+            return 0;
+        }
+        else
+        {
+            return this.addon.getSettings().getTaxAmount();
+        }
+    }
 
 
     /**
@@ -226,8 +259,7 @@ public class VisitAddonManager
      */
     public boolean preprocessTeleportation(User user, Island island)
     {
-        double payment = this.addon.getSettings().isDisableEconomy() ? 0 :
-            this.addon.getSettings().getTaxAmount() + this.getIslandEarnings(island);
+        double payment = this.getTaxAmount() + this.getIslandEarnings(island);
 
         if (Flags.PREVENT_TELEPORT_WHEN_FALLING.isSetForWorld(user.getWorld()) &&
                 user.getPlayer().getFallDistance() > 0)
@@ -286,10 +318,8 @@ public class VisitAddonManager
      */
     public void processTeleportation(User user, Island island)
     {
-        double earnedMoney = this.addon.getSettings().isDisableEconomy() ? 0 : this.getIslandEarnings(island);
-
-        double payment = this.addon.getSettings().isDisableEconomy() ? 0 :
-            earnedMoney + this.addon.getSettings().getTaxAmount();
+        double earnedMoney = this.getIslandEarnings(island);
+        double payment = earnedMoney + this.getTaxAmount();
 
         if (payment > 0 && !this.withdrawCredits(user, payment))
         {
@@ -303,11 +333,10 @@ public class VisitAddonManager
             !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
         {
             // error on depositing credits. Cancelling
-            this.depositCredits(user, earnedMoney + this.addon.getSettings().getTaxAmount());
+            this.depositCredits(user, payment);
 
-            Utils.sendMessage(user,
-                    user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
-                            Constants.PARAMETER_NUMBER, String.valueOf(earnedMoney)));
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
+                Constants.PARAMETER_NUMBER, String.valueOf(payment)));
             return;
         }
 

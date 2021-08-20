@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
- 
+
     <groupId>world.bentobox</groupId>
     <artifactId>visit</artifactId>
     <version>${revision}</version>
@@ -46,17 +46,17 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>16</java.version>
         <powermock.version>1.7.4</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.17-R0.1-SNAPSHOT</spigot.version>
         <!-- BentoBox API version -->
-        <bentobox.version>1.16.0</bentobox.version>
+        <bentobox.version>1.17.0</bentobox.version>
         <vault.version>1.7</vault.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- This allows to change between versions and snapshots. -->
-        <build.version>1.3.0</build.version>
+        <build.version>1.4.0</build.version>
         <build.number>-LOCAL</build.number>
     </properties>
 
@@ -145,6 +145,11 @@
             <artifactId>spigot-api</artifactId>
             <version>${spigot.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>plugin-annotations</artifactId>
+            <version>1.2.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>world.bentobox</groupId>

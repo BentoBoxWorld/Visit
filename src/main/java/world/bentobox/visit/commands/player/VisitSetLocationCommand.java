@@ -10,6 +10,7 @@ import org.bukkit.World;
 import java.util.List;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
@@ -52,7 +53,7 @@ public class VisitSetLocationCommand extends CompositeCommand
     @Override
     public void setup()
     {
-        this.setPermission("setlocation");
+        this.setPermission("visit.setlocation");
         this.setParametersHelp(Constants.PLAYER_COMMANDS + "set-location.parameters");
         this.setDescription(Constants.PLAYER_COMMANDS + "set-location.description");
 
@@ -83,26 +84,38 @@ public class VisitSetLocationCommand extends CompositeCommand
             user.sendMessage("general.errors.no-island");
             return false;
         }
-        else if (island.isAllowed(user, VisitAddon.VISIT_CONFIG_PERMISSION))
+        else if (!island.isAllowed(user, VisitAddon.VISIT_CONFIG_PERMISSION))
         {
             // No permission to edit.
+            Utils.sendMessage(user, user.getTranslation("general.errors.insufficient-rank",
+                TextVariables.RANK,
+                user.getTranslation(this.getPlugin().getRanksManager().
+                    getRank(VisitAddon.VISIT_CONFIG_PERMISSION.getDefaultRank()))));
             return false;
         }
-        else if (user.getLocation() == null || World.Environment.NORMAL.equals(user.getWorld().getEnvironment()))
+        else if (user.getLocation() == null || !World.Environment.NORMAL.equals(user.getWorld().getEnvironment()))
         {
             // User must be in overworld.
-            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS, "not-in-overworld"));
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-overworld"));
+            return false;
+        }
+        else if (user.getLocation().getWorld() != this.getWorld())
+        {
+            // User must be in gamemode world.
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-correct-world",
+                Constants.PARAMETER_GAMEMODE, Utils.getGameMode(this.getWorld())));
             return false;
         }
         else if (!island.getProtectionBoundingBox().contains(user.getLocation().toVector()))
         {
             // User must be in protected area.
-            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS, "not-in-protected-area"));
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-protected-area"));
+            return false;
         }
         else if (!this.getAddon().getIslands().isSafeLocation(user.getLocation()))
         {
             // Location must be safe.
-            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS, "not-safe-location"));
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-safe-location"));
             return false;
         }
 
@@ -128,6 +141,7 @@ public class VisitSetLocationCommand extends CompositeCommand
         {
             // Utilize island spawn point location.
             island.setSpawnPoint(World.Environment.NORMAL, user.getLocation());
+            Utils.sendMessage(user, user.getTranslation(Constants.CONVERSATIONS + "spawn-point-updated"));
         }
 
         return true;
