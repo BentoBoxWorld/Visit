@@ -223,6 +223,8 @@ visit:
       right-click-to-clear: "&e Right Click &7 to clear."
       click-to-select: "&e Click &7 to select."
       click-to-deselect: "&e Click &7 to deselect."
+      left-click-to-confirm: "&e Left Click &7 to confirm."
+      right-click-to-cancel: "&e Right Click &7 to cancel."
   errors:
     noone-is-online: '&r&c Noone from this island is online!'
     not-enough-credits: '&r&c You do not have enough credits to visit this island. Necessary [number] credits.'

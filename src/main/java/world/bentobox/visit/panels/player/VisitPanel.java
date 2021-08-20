@@ -545,10 +545,38 @@ public class VisitPanel
             split("\n")).
             collect(Collectors.toList());
 
-        // Add tooltips.
-        if (canVisit)
+        if (this.clickedIsland != null)
         {
-            this.user.getTranslationOrNothing(Constants.TIPS + "click-to-visit");
+            String confirm = this.user.getTranslationOrNothing(Constants.TIPS + "left-click-to-confirm");
+
+            if (!confirm.isBlank())
+            {
+                description.add("");
+                description.add(confirm);
+            }
+
+            String cancel = this.user.getTranslationOrNothing(Constants.TIPS + "right-click-to-cancel");
+
+            if (!cancel.isBlank())
+            {
+                if (confirm.isBlank())
+                {
+                    // If confirm was blank, add empty line.
+                    description.add("");
+                }
+
+                description.add(cancel);
+            }
+        }
+        else if (canVisit)
+        {
+            String toolTip = this.user.getTranslationOrNothing(Constants.TIPS + "click-to-visit");
+
+            if (!toolTip.isBlank())
+            {
+                description.add("");
+                description.add(toolTip);
+            }
         }
 
         builder.description(description);
