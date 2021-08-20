@@ -99,6 +99,13 @@ public class VisitSetLocationCommand extends CompositeCommand
             Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-overworld"));
             return false;
         }
+        else if (user.getLocation().getWorld() != this.getWorld())
+        {
+            // User must be in gamemode world.
+            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-correct-world",
+                Constants.PARAMETER_GAMEMODE, Utils.getGameMode(this.getWorld())));
+            return false;
+        }
         else if (!island.getProtectionBoundingBox().contains(user.getLocation().toVector()))
         {
             // User must be in protected area.

@@ -233,6 +233,7 @@ visit:
     not-in-overworld: '&rv You must be in overworld to change visitor spawn location! Operation is cancelled.'
     not-in-protected-area: '&r&c You must be in your island protected area! Operation is cancelled.'
     not-safe-location: '&r&c Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
+    not-in-correct-world: '&r&c You are not in [gamemode] world! Operation is cancelled.'
   conversations:
     # List of strings that are valid for confirming input. (separated with ,)
     confirm-string: "true, on, yes, confirm, y, valid, correct"
