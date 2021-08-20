@@ -235,6 +235,8 @@ public class VisitPanel
             clickHandler((panel, user, clickType, index) -> {
                 this.pageIndex = Math.max(0, this.pageIndex - 1);
                 this.build();
+                // reset clicked island
+                this.clickedIsland = null;
                 return true;
             }).
             build();
@@ -266,6 +268,8 @@ public class VisitPanel
             clickHandler((panel, user, clickType, index) -> {
                 this.pageIndex++;
                 this.build();
+                // reset clicked island
+                this.clickedIsland = null;
                 return true;
             }).
             build();
@@ -329,6 +333,9 @@ public class VisitPanel
                     this.user.getTranslation(Constants.CONVERSATIONS + "search-updated"));
             }
 
+            // reset clicked island
+            this.clickedIsland = null;
+
             return true;
         };
 
@@ -386,6 +393,9 @@ public class VisitPanel
                 this.activeFilter = Utils.getNextValue(Settings.Filter.values(), this.activeFilter);
             }
 
+            // reset clicked island
+            this.clickedIsland = null;
+
             // Update filters
             this.updateFilter();
             // Rebuild gui.
@@ -414,7 +424,7 @@ public class VisitPanel
         PanelItemBuilder builder = new PanelItemBuilder();
         User owner = User.getInstance(island.getOwner());
 
-        if (owner == null)
+        if (owner == null || this.clickedIsland != null && this.clickedIsland != island)
         {
             // return as island has no owner. Empty button will be created.
             return builder.build();
@@ -553,9 +563,30 @@ public class VisitPanel
         {
             if (canClick)
             {
-                user.performCommand(this.label + " visit " + island.getOwner());
-                // Close inventory
-                user.closeInventory();
+                if (this.clickedIsland != null && clickType.isRightClick())
+                {
+                    this.clickedIsland = null;
+                    this.build();
+                }
+                else if (this.addon.getSettings().isPaymentConfirmation() &&
+                    payment > 0 &&
+                    this.clickedIsland == null)
+                {
+                    this.clickedIsland = island;
+                    // rebuild gui with the only this icon.
+                    this.build();
+                }
+                else
+                {
+                    // Get first player command label.
+                    String command = this.addon.getSettings().getPlayerMainCommand().split(" ")[0];
+
+                    // Confirmation is done via GUI. Bypass.
+                    user.performCommand(this.label + " " + command + " " + island.getOwner() + " bypass");
+
+                    // Close inventory
+                    user.closeInventory();
+                }
             }
 
             return true;
@@ -689,6 +720,11 @@ public class VisitPanel
      * This variable stores filtered elements.
      */
     private List<Island> elementList;
+
+    /**
+     * This variable stores clicked island for the confirmation.
+     */
+    private Island clickedIsland = null;
 
     /**
      * This variable holds current pageIndex for multi-page island choosing.
