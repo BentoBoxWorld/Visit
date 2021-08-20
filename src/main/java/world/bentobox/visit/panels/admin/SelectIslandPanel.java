@@ -347,7 +347,7 @@ public class SelectIslandPanel
 
         // Payment for visiting island.
         double payment = VisitAddon.getInstance().getAddonManager().getIslandEarnings(island) +
-            VisitAddon.getInstance().getSettings().getTaxAmount();
+            VisitAddon.getInstance().getAddonManager().getTaxAmount();
 
         // Generate [payment] text
         String paymentText;

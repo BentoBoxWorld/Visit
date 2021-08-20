@@ -185,20 +185,8 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
         }
         else if (args.size() == 1 || bypass)
         {
-            double tax;
-            double earnings;
-
-            if (this.<VisitAddon>getAddon().getSettings().isDisableEconomy())
-            {
-                tax = 0;
-                earnings = 0;
-            }
-            else
-            {
-                // check tax and island earnings that if economy is enabled.
-                tax = this.<VisitAddon>getAddon().getSettings().getTaxAmount();
-                earnings = this.<VisitAddon>getAddon().getAddonManager().getIslandEarnings(this.island);
-            }
+            double tax = this.<VisitAddon>getAddon().getAddonManager().getTaxAmount();
+            double earnings = this.<VisitAddon>getAddon().getAddonManager().getIslandEarnings(this.island);
 
             String prefix = user.getTranslation(Constants.CONVERSATIONS + "prefix");
             String message = prefix +

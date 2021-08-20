@@ -509,7 +509,7 @@ public class VisitPanel
         }
 
         // Payment for visiting island.
-        double payment = this.manager.getIslandEarnings(island) + this.addon.getSettings().getTaxAmount();
+        double payment = this.manager.getIslandEarnings(island) + this.manager.getTaxAmount();
         // Generate [payment] text
         String paymentText;
 
