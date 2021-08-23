@@ -609,6 +609,7 @@ public class VisitPanel
                     // Get first player command label.
                     String command = this.addon.getSettings().getPlayerMainCommand().split(" ")[0];
 
+                    this.addon.log(user.getName() + " called: `" + this.label + " " + command + " " + island.getOwner() + " bypass`");
                     // Confirmation is done via GUI. Bypass.
                     user.performCommand(this.label + " " + command + " " + island.getOwner() + " bypass");
 
