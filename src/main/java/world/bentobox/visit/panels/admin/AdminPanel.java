@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import lv.id.bonne.panelutils.PanelUtils;
 import world.bentobox.bentobox.api.panels.PanelItem;
 import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
@@ -22,7 +23,6 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.configs.Settings;
 import world.bentobox.visit.panels.ConversationUtils;
-import world.bentobox.visit.panels.GuiUtils;
 import world.bentobox.visit.panels.player.ConfigurePanel;
 import world.bentobox.visit.utils.Constants;
 import world.bentobox.visit.utils.Utils;
@@ -60,7 +60,7 @@ public class AdminPanel
             name(this.user.getTranslation(Constants.TITLES + "main"));
 
         // Fill border
-        GuiUtils.fillBorder(panelBuilder, 5, Material.MAGENTA_STAINED_GLASS_PANE);
+        PanelUtils.fillBorder(panelBuilder, 5, Material.MAGENTA_STAINED_GLASS_PANE);
 
         panelBuilder.item(10, this.createButton(Button.MANAGE));
         panelBuilder.item(28, this.createButton(Button.RESET));
