@@ -59,6 +59,9 @@ public class VisitAddon extends Addon
             this.setState(State.DISABLED);
         }
 
+        // Save existing panels.
+        this.saveResource("panels/main_panel.yml", false);
+
         // Set up flag with correct default rank permission.
         VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.PUMPKIN).
             type(Flag.Type.PROTECTION).

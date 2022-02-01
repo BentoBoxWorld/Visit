@@ -225,7 +225,10 @@ visit:
       click-to-deselect: "&e Click &7 to deselect."
       left-click-to-confirm: "&e Left Click &7 to confirm."
       right-click-to-cancel: "&e Right Click &7 to cancel."
+      left-click-to-cycle: "&e Left Click &7 to cycle down."
+      right-click-to-cycle: "&e Right Click &7 to cycle up."
   errors:
+    no-islands: '&r&c There are no islands for visiting in [gamemode]!'
     noone-is-online: '&r&c Noone from this island is online!'
     not-enough-credits: '&r&c You do not have enough credits to visit this island. Necessary [number] credits.'
     cannot-withdraw-credits: '&r&c Cannot withdraw [number] from your account! Operation is cancelled.'

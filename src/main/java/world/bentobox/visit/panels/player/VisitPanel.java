@@ -9,14 +9,18 @@ package world.bentobox.visit.panels.player;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import world.bentobox.bentobox.api.panels.PanelItem;
-import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
+import world.bentobox.bentobox.api.panels.TemplatedPanel;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
+import world.bentobox.bentobox.api.panels.builders.TemplatedPanelBuilder;
+import world.bentobox.bentobox.api.panels.reader.ItemTemplateRecord;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.lists.Flags;
@@ -33,9 +37,9 @@ import world.bentobox.visit.utils.Utils;
  */
 public class VisitPanel
 {
-    // ---------------------------------------------------------------------
-    // Section: Constructor
-    // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Section: Constructor
+// ---------------------------------------------------------------------
 
 
     /**
@@ -57,12 +61,7 @@ public class VisitPanel
         this.label = label;
         this.searchString = null;
 
-        this.filtersEnabled = this.addon.getSettings().isFiltersEnabled();
-        this.filtersAtTheTop = this.addon.getSettings().isFiltersTopLine();
-        this.maxElements = this.filtersEnabled ? 45 : 54;
-        this.maxSlotIndex = !this.filtersEnabled || this.filtersAtTheTop ? 53 : 44;
-
-        this.borderBlock = this.createBorderBlock();
+        this.world = world;
 
         this.activeFilter = this.addon.getSettings().getDefaultFilter();
 
@@ -81,9 +80,9 @@ public class VisitPanel
             sorted((o1, o2) ->
             {
                 String o1Name = o1.getName() != null ? o1.getName() :
-                    Objects.requireNonNull(User.getInstance(o1.getOwner())).getName();
+                    User.getInstance(o1.getOwner()).getName();
                 String o2Name = o2.getName() != null ? o2.getName() :
-                    Objects.requireNonNull(User.getInstance(o2.getOwner())).getName();
+                    User.getInstance(o2.getOwner()).getName();
 
                 return o1Name.compareToIgnoreCase(o2Name);
             }).
@@ -93,33 +92,9 @@ public class VisitPanel
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
-
-
-    /**
-     * Create border block panel item.
-     *
-     * @return the panel item
-     */
-    private PanelItem createBorderBlock()
-    {
-        if (!this.filtersEnabled)
-        {
-            return new PanelItemBuilder().build();
-        }
-
-        ItemStack itemStack = new ItemStack(this.addon.getSettings().getBorderBlock());
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(this.addon.getSettings().getBorderBlockName());
-        itemStack.setItemMeta(meta);
-
-        return new PanelItemBuilder().
-            icon(itemStack).
-            name(this.addon.getSettings().getBorderBlockName()).
-            build();
-    }
+// ---------------------------------------------------------------------
+// Section: Methods
+// ---------------------------------------------------------------------
 
 
     /**
@@ -128,151 +103,199 @@ public class VisitPanel
      */
     private void build()
     {
-        // PanelBuilder is a BentoBox API that provides ability to easy create Panels.
-        PanelBuilder panelBuilder = new PanelBuilder().
-            user(this.user).
-            name(this.user.getTranslation(Constants.TITLES + "choose"));
-
-        // Create header
-        if (this.filtersEnabled && this.filtersAtTheTop)
+        // Do not open gui if there is no magic sticks.
+        if (this.islandList.isEmpty())
         {
-            this.createFilters(panelBuilder, 0);
+            this.addon.logError("There are no available islands for visiting!");
+            Utils.sendMessage(this.user, this.user.getTranslation(Constants.ERRORS + "no-islands",
+                Constants.PARAMETER_GAMEMODE, Utils.getGameMode(this.world)));
+            return;
         }
 
-        // Process island population.
-        int index;
+        // Start building panel.
+        TemplatedPanelBuilder panelBuilder = new TemplatedPanelBuilder();
 
-        if (this.pageIndex > 0)
-        {
-            panelBuilder.item(this.createPreviousPageButton());
-            // Multiple pages. Adjust index.
+        // Set main template.
+        panelBuilder.template("main_panel", new File(this.addon.getDataFolder(), "panels"));
+        panelBuilder.user(this.user);
+        panelBuilder.world(this.user.getWorld());
 
-            index = this.pageIndex * this.maxElements;
-        }
-        else
-        {
-            index = 0;
-        }
+        // Register button builders
+        panelBuilder.registerTypeBuilder("ISLAND", this::createIslandButton);
 
-        // Create island iterator for sublist that contains elements from index till list size.
-        Iterator<Island> islandIterator = this.elementList.subList(index, this.elementList.size()).iterator();
+        // Register next and previous builders
+        panelBuilder.registerTypeBuilder("NEXT", this::createNextButton);
+        panelBuilder.registerTypeBuilder("PREVIOUS", this::createPreviousButton);
+        panelBuilder.registerTypeBuilder("SEARCH", this::createSearchButton);
+        panelBuilder.registerTypeBuilder("FILTER", this::createFilterButton);
 
-        // Fill every free spot till last block is not used.
-        while (islandIterator.hasNext() && panelBuilder.nextSlot() < this.maxSlotIndex)
-        {
-            panelBuilder.item(this.createIslandButton(islandIterator.next()));
-        }
-
-        // Check if there is spot for last island
-        if (islandIterator.hasNext())
-        {
-            Island lastIsland = islandIterator.next();
-
-            if (islandIterator.hasNext())
-            {
-                // There is more then one island left in the list.
-                panelBuilder.item(this.createNextPageButton());
-            }
-            else
-            {
-                // This is the last island.. no need to create next page button.
-                panelBuilder.item(this.createIslandButton(lastIsland));
-            }
-        }
-
-        // Create footer.
-        if (this.filtersEnabled && !this.filtersAtTheTop)
-        {
-            this.createFilters(panelBuilder, 45);
-        }
-
-        // At the end we just call build method that creates and opens panel.
+        // Register unknown type builder.
         panelBuilder.build();
     }
 
 
+// ---------------------------------------------------------------------
+// Section: Buttons
+// ---------------------------------------------------------------------
+
+
     /**
-     * Create filter row for the gui.
+     * Create next button panel item.
      *
-     * @param panelBuilder the panel builder
-     * @param startIndex the start index
+     * @param template the template
+     * @param slot the slot
+     * @return the panel item
      */
-    private void createFilters(PanelBuilder panelBuilder, int startIndex)
+    @Nullable
+    private PanelItem createNextButton(@NotNull ItemTemplateRecord template, TemplatedPanel.ItemSlot slot)
     {
-        // Populate panel with border material.
-        for (int i = startIndex; i < startIndex + 9; i++)
+        int size = this.elementList.size();
+
+        if (size <= slot.amountMap().getOrDefault("ISLAND", 1) ||
+            1.0 * size / slot.amountMap().getOrDefault("ISLAND", 1) <= this.pageIndex + 1)
         {
-            panelBuilder.item(i, this.borderBlock);
+            // There are no next elements
+            return null;
         }
 
-        panelBuilder.item(startIndex + 4, this.createSearchButton());
-        panelBuilder.item(startIndex + 8, this.createFilterButton());
+        int nextPageIndex = this.pageIndex + 2;
+
+        PanelItemBuilder builder = new PanelItemBuilder();
+
+        if (template.icon() != null)
+        {
+            ItemStack clone = template.icon().clone();
+
+            if ((Boolean) template.dataMap().getOrDefault("indexing", false))
+            {
+                clone.setAmount(nextPageIndex);
+            }
+
+            builder.icon(clone);
+        }
+
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(this.world, template.title()));
+        }
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(this.world, template.description(),
+                Constants.PARAMETER_NUMBER, String.valueOf(nextPageIndex)));
+        }
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
+        {
+            template.actions().forEach(action -> {
+                if (clickType == action.clickType() && "NEXT".equalsIgnoreCase(action.actionType()))
+                {
+                    // Next button ignores click type currently.
+                    this.pageIndex++;
+                    this.build();
+                }
+            });
+
+            // Always return true.
+            return true;
+        });
+
+        // Collect tooltips.
+        List<String> tooltips = template.actions().stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(this.world, action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(template.actions().size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
     /**
-     * This method creates and returns button that switch to previous page in view mode.
+     * Create previous button panel item.
      *
-     * @return PanelItem that allows to select previous island view page.
+     * @param template the template
+     * @param slot the slot
+     * @return the panel item
      */
-    private PanelItem createPreviousPageButton()
+    @Nullable
+    private PanelItem createPreviousButton(@NotNull ItemTemplateRecord template, TemplatedPanel.ItemSlot slot)
     {
-        int page = this.pageIndex;
+        if (this.pageIndex == 0)
+        {
+            // There are no next elements
+            return null;
+        }
 
-        List<String> description = new ArrayList<>(3);
-        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "previous.description",
-            Constants.PARAMETER_NUMBER, String.valueOf(page)));
+        int previousPageIndex = this.pageIndex;
 
-        // add empty line
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-previous"));
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        return new PanelItemBuilder().
-            icon(Material.TIPPED_ARROW).
-            name(this.user.getTranslation(Constants.BUTTONS + "previous.name")).
-            description(description).
-            amount(page).
-            clickHandler((panel, user, clickType, index) -> {
-                this.pageIndex = Math.max(0, this.pageIndex - 1);
-                this.build();
-                // reset clicked island
-                this.clickedIsland = null;
-                return true;
-            }).
-            build();
-    }
+        if (template.icon() != null)
+        {
+            ItemStack clone = template.icon().clone();
 
+            if ((Boolean) template.dataMap().getOrDefault("indexing", false))
+            {
+                clone.setAmount(previousPageIndex);
+            }
 
-    /**
-     * This method creates and returns button that switch to next page in view mode.
-     *
-     * @return PanelItem that allows to select next island view page.
-     */
-    private PanelItem createNextPageButton()
-    {
-        int page = this.pageIndex + 2;
+            builder.icon(clone);
+        }
 
-        List<String> description = new ArrayList<>(3);
-        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "next.description",
-            Constants.PARAMETER_NUMBER, String.valueOf(page)));
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(this.world, template.title()));
+        }
 
-        // add empty line
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-next"));
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(this.world, template.description(),
+                Constants.PARAMETER_NUMBER, String.valueOf(previousPageIndex)));
+        }
 
-        return new PanelItemBuilder().
-            icon(Material.TIPPED_ARROW).
-            name(this.user.getTranslation(Constants.BUTTONS + "next.name")).
-            description(description).
-            amount(page).
-            clickHandler((panel, user, clickType, index) -> {
-                this.pageIndex++;
-                this.build();
-                // reset clicked island
-                this.clickedIsland = null;
-                return true;
-            }).
-            build();
+        // Add ClickHandler
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
+        {
+            template.actions().forEach(action -> {
+                if (clickType == action.clickType() && "PREVIOUS".equalsIgnoreCase(action.actionType()))
+                {
+                    // Next button ignores click type currently.
+                    this.pageIndex--;
+                    this.build();
+                }
+            });
+
+            // Always return true.
+            return true;
+        });
+
+        // Collect tooltips.
+        List<String> tooltips = template.actions().stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(this.world, action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(template.actions().size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
@@ -281,136 +304,270 @@ public class VisitPanel
      *
      * @return PanelItem that allows to change search value
      */
-    private PanelItem createSearchButton()
+    @Nullable
+    private PanelItem createSearchButton(@NotNull ItemTemplateRecord template, TemplatedPanel.ItemSlot slot)
     {
-        String name = this.user.getTranslation(Constants.BUTTONS + "search.name");
-        Material icon = Material.PAPER;
-        List<String> description = new ArrayList<>();
-        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "search.description"));
+        final String reference = Constants.BUTTONS + "search.";
 
-        if (this.searchString != null && !this.searchString.isEmpty())
+        PanelItemBuilder builder = new PanelItemBuilder();
+
+        if (template.icon() != null)
         {
-            description.add(this.user.getTranslation(Constants.BUTTONS + "search.search",
+            builder.icon(template.icon().clone());
+        }
+        else
+        {
+            builder.icon(Material.PAPER);
+        }
+
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(this.world, template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslationOrNothing(template.description(),
                 Constants.PARAMETER_VALUE, this.searchString));
         }
-
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "left-click-to-edit"));
-
-        // If there is search string, then add remove tooltip.
-        if (this.searchString != null && !this.searchString.isEmpty())
+        else
         {
-            description.add(this.user.getTranslation(Constants.TIPS + "right-click-to-clear"));
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
+
+            if (this.searchString != null && !this.searchString.isEmpty())
+            {
+                builder.description(this.user.getTranslationOrNothing(reference + "search",
+                    Constants.PARAMETER_VALUE, this.searchString));
+            }
         }
 
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
-            if (clickType.isRightClick())
-            {
-                // Clear string.
-                this.searchString = "";
-                this.updateFilter();
-                // Rebuild gui.
-                this.build();
-            }
-            else
-            {
-                // Create consumer that process description change
-                Consumer<String> consumer = value ->
+        // Filter valid actions
+        List<ItemTemplateRecord.ActionRecords> actions = template.actions().stream().
+            filter(action -> !"CLEAR".equalsIgnoreCase(action.actionType()) ||
+                (this.searchString != null && !this.searchString.isEmpty())).
+            collect(Collectors.toList());
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
+        {
+            actions.forEach(action -> {
+                if (clickType == action.clickType())
                 {
-                    if (value != null)
+                    if ("INPUT".equalsIgnoreCase(action.actionType()))
                     {
-                        this.searchString = value;
-                        this.updateFilter();
+                        Consumer<String> consumer = value ->
+                        {
+                            if (value != null)
+                            {
+                                this.searchString = value;
+                                this.updateFilter();
+                            }
+
+                            this.build();
+                        };
+
+                        // start conversation
+                        ConversationUtils.createStringInput(consumer,
+                            this.user,
+                            this.user.getTranslation(Constants.CONVERSATIONS + "write-search"),
+                            this.user.getTranslation(Constants.CONVERSATIONS + "search-updated"));
+
+                        this.clickedIsland = null;
                     }
+                    else if ("CLEAR".equalsIgnoreCase(action.actionType()))
+                    {
+                        // Clear string.
+                        this.searchString = "";
+                        this.updateFilter();
+                        // Rebuild gui.
+                        this.build();
 
-                    this.build();
-                };
+                        this.clickedIsland = null;
+                    }
+                }
+            });
 
-                // start conversation
-                ConversationUtils.createStringInput(consumer,
-                    this.user,
-                    this.user.getTranslation(Constants.CONVERSATIONS + "write-search"),
-                    this.user.getTranslation(Constants.CONVERSATIONS + "search-updated"));
-            }
-
-            // reset clicked island
-            this.clickedIsland = null;
-
+            // Always return true.
             return true;
-        };
+        });
 
-        return new PanelItemBuilder().
-            name(name).
-            description(description).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
+        // Collect tooltips.
+        List<String> tooltips = actions.stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(this.world, action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(actions.size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
     /**
-     * Create filter button panel item.
+     * This method creates and returns button that allows filter island.
      *
-     * @return the panel item
+     * @return PanelItem that allows to change filter value
      */
-    private PanelItem createFilterButton()
+    @Nullable
+    private PanelItem createFilterButton(@NotNull ItemTemplateRecord template, TemplatedPanel.ItemSlot slot)
     {
+        final String reference = Constants.BUTTONS + "filter.";
 
-        String name = this.user.getTranslation(Constants.BUTTONS + "filter.name");
-        Material icon;
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        switch (this.activeFilter)
+        if (template.icon() != null)
         {
-            case ONLINE_ISLANDS:
-                icon = Material.SANDSTONE_STAIRS;
-                break;
-            case CAN_VISIT:
-                icon = Material.SANDSTONE_STAIRS;
-                break;
-            default:
-                icon = Material.SMOOTH_SANDSTONE;
-                break;
+            builder.icon(template.icon().clone());
+        }
+        else
+        {
+            builder.icon(switch (this.activeFilter) {
+                case ONLINE_ISLANDS -> Material.SANDSTONE_STAIRS;
+                case CAN_VISIT -> Material.SANDSTONE_SLAB;
+                default -> Material.SMOOTH_SANDSTONE;
+            });
         }
 
-        List<String> description = new ArrayList<>();
-        description.add(this.user.getTranslationOrNothing(Constants.BUTTONS + "filter.description"));
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(this.world, template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
 
-        description.add(this.user.getTranslation(Constants.BUTTONS + "filter.value",
-            Constants.PARAMETER_VALUE,
-            this.user.getTranslation(Constants.BUTTONS + "filter." + this.activeFilter.name().toLowerCase())));
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslationOrNothing(template.description(),
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + this.activeFilter.name().toLowerCase())));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
 
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-switch"));
+            builder.description(this.user.getTranslationOrNothing(reference + "value",
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + this.activeFilter.name().toLowerCase())));
+        }
 
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) -> {
-            if (clickType.isRightClick())
-            {
-                // Clear string.
-                this.activeFilter = Utils.getPreviousValue(Settings.Filter.values(), this.activeFilter);
-            }
-            else
-            {
-                this.activeFilter = Utils.getNextValue(Settings.Filter.values(), this.activeFilter);
-            }
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
+        {
+            template.actions().forEach(action -> {
+                if (clickType == action.clickType())
+                {
+                    if ("UP".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.activeFilter = Utils.getPreviousValue(Settings.Filter.values(), this.activeFilter);
+                        this.clickedIsland = null;
 
-            // reset clicked island
-            this.clickedIsland = null;
+                        // Update filters
+                        this.updateFilter();
+                        // Rebuild gui.
+                        this.build();
+                    }
+                    else if ("DOWN".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.activeFilter = Utils.getNextValue(Settings.Filter.values(), this.activeFilter);
+                        this.clickedIsland = null;
 
-            // Update filters
-            this.updateFilter();
-            // Rebuild gui.
-            this.build();
+                        // Update filters
+                        this.updateFilter();
+                        // Rebuild gui.
+                        this.build();
+                    }
+                }
+            });
 
+            // Always return true.
             return true;
-        };
+        });
 
-        return new PanelItemBuilder().
-            name(name).
-            description(description).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
+        // Collect tooltips.
+        List<String> tooltips = template.actions().stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(this.world, action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(template.actions().size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
+
+
+    /**
+     * This method creates and returns island button.
+     *
+     * @return PanelItem that represents island button.
+     */
+    @Nullable
+    private PanelItem createIslandButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot slot)
+    {
+        if (this.elementList.isEmpty())
+        {
+            // Does not contain any sticks.
+            return null;
+        }
+
+        Island island;
+
+        // Check if that is a specific sticks
+        if (template.dataMap().containsKey("id"))
+        {
+            String id = (String) template.dataMap().get("id");
+
+            // Find a challenge with given id;
+            island = this.islandList.stream().
+                filter(biomeId -> biomeId.getUniqueId().equals(id)).
+                findFirst().
+                orElse(null);
+
+            if (island == null)
+            {
+                // There is no stick in the list with specific id.
+                return null;
+            }
+        }
+        else
+        {
+            int index = this.pageIndex * slot.amountMap().getOrDefault("ISLAND", 1) + slot.slot();
+
+            if (index >= this.elementList.size())
+            {
+                // Out of index.
+                return null;
+            }
+
+            island = this.elementList.get(index);
+        }
+
+        return this.createIslandButton(template, island);
+    }
+
+
+// ---------------------------------------------------------------------
+// Section: Other methods
+// ---------------------------------------------------------------------
 
 
     /**
@@ -418,46 +575,71 @@ public class VisitPanel
      *
      * @return PanelItem that allows to select next island view page.
      */
-    private PanelItem createIslandButton(Island island)
+    private PanelItem createIslandButton(ItemTemplateRecord template, Island island)
     {
-        // Get settings for island.
-        PanelItemBuilder builder = new PanelItemBuilder();
-        User owner = User.getInstance(island.getOwner());
-
-        if (owner == null || this.clickedIsland != null && this.clickedIsland != island)
+        if (island.getOwner() == null || this.clickedIsland != null && this.clickedIsland != island)
         {
             // return as island has no owner. Empty button will be created.
-            return builder.build();
+            return null;
         }
 
-        // Check owner for a specific icon
-        Material material = Material.matchMaterial(
-            Utils.getPermissionValue(owner, "visit.icon",
-                this.addon.getSettings().getIslandIcon().name()));
+        final String reference = Constants.BUTTONS + "island.";
+        User owner = User.getInstance(island.getOwner());
 
-        if (material == null)
-        {
-            // Set material to a default icon from settings.
-            material = this.addon.getSettings().getIslandIcon();
-        }
+        // Get settings for island.
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        if (material == Material.PLAYER_HEAD)
+        if (template.icon() != null)
         {
-            builder.icon(owner.getName());
+            if (template.icon().getType().equals(Material.PLAYER_HEAD))
+            {
+                builder.icon(owner.getName());
+            }
+            else
+            {
+                builder.icon(template.icon().clone());
+            }
         }
         else
         {
-            builder.icon(material);
+            // Check owner for a specific icon
+            Material material = Material.matchMaterial(
+                Utils.getPermissionValue(owner, "visit.icon",
+                    this.addon.getSettings().getIslandIcon().name()));
+
+            if (material == null)
+            {
+                // Set material to a default icon from settings.
+                material = this.addon.getSettings().getIslandIcon();
+            }
+
+            if (material == Material.PLAYER_HEAD)
+            {
+                builder.icon(owner.getName());
+            }
+            else
+            {
+                builder.icon(material);
+            }
         }
 
-        builder.name(this.user.getTranslation(Constants.BUTTONS + "island.name",
-            Constants.PARAMETER_NAME, island.getName() != null ?
-                island.getName() : owner.getName()));
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(this.world, template.title(),
+                Constants.PARAMETER_NAME, island.getName() != null ?
+                    island.getName() : owner.getName()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name",
+                Constants.PARAMETER_NAME, island.getName() != null ?
+                    island.getName() : owner.getName()));
+        }
 
         // Process Description of the button.
 
         // Generate [owner] text.
-        String ownerText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.owner",
+        String ownerText = this.user.getTranslationOrNothing(reference + "owner",
             Constants.PARAMETER_PLAYER, owner.getName());
 
         // Generate [members] text
@@ -466,24 +648,20 @@ public class VisitPanel
         if (island.getMemberSet().size() > 1)
         {
             StringBuilder memberBuilder = new StringBuilder(
-                this.user.getTranslationOrNothing(Constants.BUTTONS + "island.members-title"));
+                this.user.getTranslationOrNothing(reference + "members-title"));
 
-            for (UUID uuid : island.getMemberSet())
-            {
-                User user = User.getInstance(uuid);
+            island.getMemberSet().stream().
+                map(this.addon.getPlayers()::getName).
+                forEach(user -> {
+                    if (memberBuilder.length() > 0)
+                    {
+                        memberBuilder.append("\n");
+                    }
 
-                if (memberBuilder.length() > 0)
-                {
-                    memberBuilder.append("\n");
-                }
-
-                if (user != null)
-                {
                     memberBuilder.append(
-                        this.user.getTranslationOrNothing(Constants.BUTTONS + "island.member",
-                            Constants.PARAMETER_PLAYER, user.getName()));
-                }
-            }
+                        this.user.getTranslationOrNothing(reference + "member",
+                            Constants.PARAMETER_PLAYER, user));
+                });
 
             memberText = memberBuilder.toString();
         }
@@ -493,35 +671,33 @@ public class VisitPanel
         }
 
         // Boolean that indicate if visiting is allowed.
-        boolean canVisit = true;
+        final boolean canVisit;
 
         // Generate [noone-online] text
         String nooneOnlineText;
 
         if (!this.manager.canVisitOffline(island))
         {
-            nooneOnlineText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.noone-online");
+            nooneOnlineText = this.user.getTranslationOrNothing(reference + "noone-online");
             canVisit = false;
         }
         else
         {
             nooneOnlineText = "";
+
+            canVisit = this.manager.preprocessTeleportation(this.user, island, true);
         }
 
         // Payment for visiting island.
-        double payment = this.manager.getIslandEarnings(island) + this.manager.getTaxAmount();
+        final double payment = this.manager.getIslandEarnings(island) + this.manager.getTaxAmount();
+
         // Generate [payment] text
         String paymentText;
 
         if (payment > 0)
         {
-            paymentText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.payment",
+            paymentText = this.user.getTranslationOrNothing(reference + "payment",
                 Constants.PARAMETER_NUMBER, String.valueOf(payment));
-
-            if (!this.manager.hasCredits(this.user, payment))
-            {
-                canVisit = false;
-            }
         }
         else
         {
@@ -530,96 +706,103 @@ public class VisitPanel
 
         // Generate [no-visit] text;
         String noVisitText = canVisit ? "" :
-            this.user.getTranslationOrNothing(Constants.BUTTONS + "island.no-visit");
+            this.user.getTranslationOrNothing(reference + "no-visit");
 
-        // Generate full description text.
-        String descriptionText = this.user.getTranslationOrNothing(Constants.BUTTONS + "island.description",
-            Constants.PARAMETER_OWNER, ownerText,
-            Constants.PARAMETER_MEMBERS, memberText,
-            Constants.PARAMETER_NOONE_ONLINE, nooneOnlineText,
-            Constants.PARAMETER_PAYMENT, paymentText,
-            Constants.PARAMETER_NO_VISIT, noVisitText);
+        String descriptionText;
 
-        // Clean up description text and split it into parts.
-        List<String> description = Arrays.stream(descriptionText.replaceAll("(?m)^[ \\t]*\\r?\\n", "").
-            split("\n")).
+        if (template.description() != null)
+        {
+            descriptionText = this.user.getTranslationOrNothing(template.description(),
+                    Constants.PARAMETER_OWNER, ownerText,
+                    Constants.PARAMETER_MEMBERS, memberText,
+                    Constants.PARAMETER_NOONE_ONLINE, nooneOnlineText,
+                    Constants.PARAMETER_PAYMENT, paymentText,
+                    Constants.PARAMETER_NO_VISIT, noVisitText).
+                replaceAll("(?m)^[ \\t]*\\r?\\n", "").
+                replaceAll("(?<!\\\\)\\|", "\n").
+                replaceAll("\\\\\\|", "|");
+        }
+        else
+        {
+            descriptionText = this.user.getTranslationOrNothing(reference + "description",
+                Constants.PARAMETER_OWNER, ownerText,
+                Constants.PARAMETER_MEMBERS, memberText,
+                Constants.PARAMETER_NOONE_ONLINE, nooneOnlineText,
+                Constants.PARAMETER_PAYMENT, paymentText,
+                Constants.PARAMETER_NO_VISIT, noVisitText);
+
+            // Clean up description text and split it into parts.
+            descriptionText = descriptionText.replaceAll("(?m)^[ \\t]*\\r?\\n", "").
+                replaceAll("(?<!\\\\)\\|", "\n").
+                replaceAll("\\\\\\|", "|");
+        }
+
+        builder.description(descriptionText);
+
+        List<ItemTemplateRecord.ActionRecords> actions = template.actions().stream().
+            filter(action -> switch (action.actionType().toUpperCase()) {
+                case "VISIT" -> this.clickedIsland == null && canVisit;
+                case "CONFIRM", "CANCEL" -> this.clickedIsland != null;
+                default -> false;
+            }).
             collect(Collectors.toList());
-
-        if (this.clickedIsland != null)
-        {
-            String confirm = this.user.getTranslationOrNothing(Constants.TIPS + "left-click-to-confirm");
-
-            if (!confirm.isBlank())
-            {
-                description.add("");
-                description.add(confirm);
-            }
-
-            String cancel = this.user.getTranslationOrNothing(Constants.TIPS + "right-click-to-cancel");
-
-            if (!cancel.isBlank())
-            {
-                if (confirm.isBlank())
-                {
-                    // If confirm was blank, add empty line.
-                    description.add("");
-                }
-
-                description.add(cancel);
-            }
-        }
-        else if (canVisit)
-        {
-            String toolTip = this.user.getTranslationOrNothing(Constants.TIPS + "click-to-visit");
-
-            if (!toolTip.isBlank())
-            {
-                description.add("");
-                description.add(toolTip);
-            }
-        }
-
-        builder.description(description);
 
         // Glow icon if user can visit the island.
         builder.glow(canVisit);
 
-        // Final variable for clicking in clickHandler.
-        final boolean canClick = canVisit;
-
-        return builder.clickHandler((panel, user, clickType, index) ->
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
         {
-            if (canClick)
-            {
-                if (this.clickedIsland != null && clickType.isRightClick())
+            actions.forEach(action -> {
+                if (clickType == action.clickType())
                 {
-                    this.clickedIsland = null;
-                    this.build();
-                }
-                else if (this.addon.getSettings().isPaymentConfirmation() &&
-                    payment > 0 &&
-                    this.clickedIsland == null)
-                {
-                    this.clickedIsland = island;
-                    // rebuild gui with the only this icon.
-                    this.build();
-                }
-                else
-                {
-                    // Get first player command label.
-                    String command = this.addon.getSettings().getPlayerMainCommand().split(" ")[0];
+                    if ("CONFIRM".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.runCommandCall();
+                    }
+                    else if ("CANCEL".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.clickedIsland = null;
+                        this.build();
+                    }
+                    else if ("VISIT".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.clickedIsland = island;
 
-                    this.addon.log(user.getName() + " called: `" + this.label + " " + command + " " + island.getOwner() + " bypass`");
-                    // Confirmation is done via GUI. Bypass.
-                    user.performCommand(this.label + " " + command + " " + island.getOwner() + " bypass");
-
-                    // Close inventory
-                    user.closeInventory();
+                        if (this.addon.getSettings().isPaymentConfirmation() &&
+                            payment > 0)
+                        {
+                            // rebuild gui with the only this icon.
+                            this.build();
+                        }
+                        else
+                        {
+                            this.runCommandCall();
+                        }
+                    }
                 }
-            }
+            });
 
+            // Always return true.
             return true;
-        }).build();
+        });
+
+        // Collect tooltips.
+        List<String> tooltips = actions.stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(this.world, action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(actions.size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
@@ -630,25 +813,19 @@ public class VisitPanel
     {
         switch (this.activeFilter)
         {
-            case ONLINE_ISLANDS:
-                this.elementList = this.islandList.stream().
-                    filter(island -> island.getMemberSet().stream().
-                        map(User::getInstance).
-                        filter(Objects::nonNull).
-                        anyMatch(User::isOnline)).
-                    collect(Collectors.toList());
-                break;
-            case CAN_VISIT:
+            case ONLINE_ISLANDS -> this.elementList = this.islandList.stream().
+                filter(island -> island.getMemberSet().stream().
+                    map(User::getInstance).
+                    anyMatch(User::isOnline)).
+                collect(Collectors.toList());
+            case CAN_VISIT ->
                 // TODO: add balance and online check.
                 this.elementList = this.islandList.stream().
                     filter(island -> island.isAllowed(this.user, Flags.LOCK)).
                     filter(island -> island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG)).
                     filter(island -> !island.isBanned(this.user.getUniqueId())).
                     collect(Collectors.toList());
-
-                break;
-            default:
-                this.elementList = this.islandList;
+            default -> this.elementList = this.islandList;
         }
 
         // Apply searchedString filter.
@@ -659,7 +836,6 @@ public class VisitPanel
                     island.getName().toLowerCase().contains(this.searchString)).
                 filter(island -> island.getMemberSet().stream().
                     map(User::getInstance).
-                    filter(Objects::nonNull).
                     anyMatch(user -> user.getName().toLowerCase().contains(this.searchString))).
                 collect(Collectors.toList());
         }
@@ -668,9 +844,26 @@ public class VisitPanel
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Static methods
-    // ---------------------------------------------------------------------
+    /**
+     * This method runs command call that allows player to visit clicked island.
+     */
+    private void runCommandCall()
+    {
+        // Get first player command label.
+        String command = this.addon.getSettings().getPlayerMainCommand().split(" ")[0];
+
+        this.addon.log(this.user.getName() + " called: `" + this.label + " " + command + " " + this.clickedIsland.getOwner() + " bypass`");
+        // Confirmation is done via GUI. Bypass.
+        this.user.performCommand(this.label + " " + command + " " + this.clickedIsland.getOwner() + " bypass");
+
+        // Close inventory
+        this.user.closeInventory();
+    }
+
+
+// ---------------------------------------------------------------------
+// Section: Static methods
+// ---------------------------------------------------------------------
 
 
     /**
@@ -691,9 +884,10 @@ public class VisitPanel
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Variables
-    // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Section: Variables
+// ---------------------------------------------------------------------
+
 
     /**
      * This variable allows to access addon object.
@@ -711,34 +905,14 @@ public class VisitPanel
     private final User user;
 
     /**
+     * This variable holds world where panel is opened. Without it panel cannot be opened.
+     */
+    private final World world;
+
+    /**
      * This variable stores all islands in the given world.
      */
     private final List<Island> islandList;
-
-    /**
-     * This boolean indicate if filters line should be enabled.
-     */
-    private final boolean filtersEnabled;
-
-    /**
-     * Stores maximal allowed elements per page.
-     */
-    private final int maxElements;
-
-    /**
-     * Stores max island slot index.
-     */
-    private final int maxSlotIndex;
-
-    /**
-     * Indicates that filters should be located at the top or bottom line.
-     */
-    private final boolean filtersAtTheTop;
-
-    /**
-     * Border Block Item.
-     */
-    private final PanelItem borderBlock;
 
     /**
      * This variable holds top command label which opened current panel.

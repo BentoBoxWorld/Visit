@@ -257,47 +257,65 @@ public class VisitAddonManager
      * @param island Island where user need to be teleported.
      * @return {@code true} if teleportation can be performed, {@code false} otherwise.
      */
-    public boolean preprocessTeleportation(User user, Island island)
+    public boolean preprocessTeleportation(User user, Island island, boolean silent)
     {
         double payment = this.getTaxAmount() + this.getIslandEarnings(island);
 
         if (Flags.PREVENT_TELEPORT_WHEN_FALLING.isSetForWorld(user.getWorld()) &&
-                user.getPlayer().getFallDistance() > 0)
+            user.getPlayer().getFallDistance() > 0)
         {
-            // We're sending the "hint" to the player to tell them they cannot teleport while falling.
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // We're sending the "hint" to the player to tell them they cannot teleport while falling.
+                Utils.sendMessage(user,
                     user.getTranslation(Flags.PREVENT_TELEPORT_WHEN_FALLING.getHintReference()));
+            }
         }
         else if (island.isBanned(user.getUniqueId()))
         {
-            // Banned players are not allowed.
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // Banned players are not allowed.
+                Utils.sendMessage(user,
                     user.getTranslation("commands.island.ban.you-are-banned"));
+            }
         }
         else if (!island.isAllowed(user, Flags.LOCK))
         {
-            // Island is locked.
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // Island is locked.
+                Utils.sendMessage(user,
                     user.getTranslation("protection.locked"));
+            }
         }
         else if (!island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG))
         {
-            // Visits are disabled in settings.
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // Visits are disabled in settings.
+                Utils.sendMessage(user,
                     user.getTranslation(VisitAddon.ALLOW_VISITS_FLAG.getHintReference()));
+            }
         }
         else if (!this.canVisitOffline(island))
         {
-            // Send a message that noone is online from this island
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // Send a message that noone is online from this island
+                Utils.sendMessage(user,
                     user.getTranslation(Constants.ERRORS + "noone-is-online"));
+            }
         }
         else if (payment > 0 && !this.hasCredits(user, payment))
         {
-            // Send a message that player has not enough credits.
-            Utils.sendMessage(user,
+            if (!silent)
+            {
+                // Send a message that player has not enough credits.
+                Utils.sendMessage(user,
                     user.getTranslation(Constants.ERRORS + "not-enough-credits",
-                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                        Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+            }
         }
         else
         {

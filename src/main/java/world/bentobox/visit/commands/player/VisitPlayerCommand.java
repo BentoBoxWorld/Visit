@@ -156,7 +156,7 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
                 {
                     // Return preprocess result from teleportation.
                     return this.<VisitAddon>getAddon().getAddonManager().
-                        preprocessTeleportation(user, this.island);
+                        preprocessTeleportation(user, this.island, false);
                 }
             }
         }
