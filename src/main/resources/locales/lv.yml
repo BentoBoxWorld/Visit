@@ -1,0 +1,331 @@
+visit:
+  # This section contains translations which are used in commands.
+  commands:
+    # This section contains only admin commands translations.
+    admin:
+      main:
+        description: 'atver izvēlni ar administartora opcijām.'
+        parameters: '<player>'
+    # This section contains only player commands translations.
+    player:
+      main:
+        description: 'atver izvēlni ar spēlētāju salām.'
+        parameters: '<player>'
+      configure:
+        description: 'atver izvēlni ar salas iestatījumiem.'
+        parameters: ''
+      set-location:
+        description: 'ļauj mainīt salas apmeklēšanas teleporta vietu.'
+        parameters: ''
+  # This section contains translations for items inside GUI interfaces.
+  gui:
+    # This section contains titles for all GUIs.
+    titles:
+      # Title for User GUI that has a list of all islands that are available for visiting.
+      choose: '&0&l Izvēlies Salu'
+      # Title for User GUI that allows to configure island visiting settings.
+      configure: '&0&l Configurē Iestatījumus'
+      # Title for Admin GUI.
+      main: '&0&l Administratora Izvēlne'
+      # Title for Admin GUI which allows to select an island.
+      select-island: '&0&l Izvēlies Salu'
+      # Title for Admin GUI which allows to select a block.
+      select-block: '&0&l Izvēlies Bloku'
+    # This section contains all button names and lore (description)
+    buttons:
+      # List of buttons in Visit GUI
+      # Button that is used in multi-page GUIs which allows to return to previous page.
+      previous:
+        name: "&f&l Iepriekšējā Lapa"
+        description: |-
+          &7 Atgriezties uz [number] lapu
+      # Button that is used in multi-page GUIs which allows to go to next page.
+      next:
+        name: "&f&l Nākošā Lapa"
+        description: |-
+          &7 Doties uz [number] lapu
+      # Button for searching specific island.
+      search:
+        name: "&f&l Meklēt"
+        description: |-
+          &7 Mekēt elemenu.
+        search: "&b Vērtība: [value]"
+      # Button for allowing to change which islands are showed.
+      filter:
+        name: "&f&l Filtri"
+        description: |-
+          &7 Rādīt salas tikai
+          &7 pēc atlasītā filtra.
+        value: "&7 Aktīvais filtrs: [value]"
+        all_islands: "&b&o Nav"
+        online_islands: "&b&o Tiešsaitē"
+        can_visit: "&b&o Apmeklējamie"
+      # Button in User GUI for each island
+      island:
+        name: '&f&l [name]'
+        description: |-
+          [owner]
+          [members]
+          [noone-online]
+          [payment]
+          [no-visit]
+        # Text for [owner] in description.
+        owner: "&7&l Īpašnieks: &r&b [player]"
+        # Title before listing members for [members] in description
+        members-title: "&7&l Biedri:"
+        # List each member under the title for [members] in description
+        member: "&b - [player]"
+        # Name of unknown player.
+        unknown: "nezināms"
+        # Message that is showed if noone from island is online.
+        noone-online: |-
+          &7 Neviens no salas biedriem
+          &7 nav tiešsaitē.
+        # Message about cost for visiting island if that is enabled
+        payment: |-
+          &7 Apmeklējums izmaksās &e €[number]
+        # Message that indicates that island cannot be visited
+        no-visit: |-
+          &c Tu nevari apmeklēt
+          &c šo salu.
+      # List of buttons in Configure GUI
+      # Button that allows to change payment value.
+      payment:
+        name: "&f&l Maksājuma Vērtība"
+        description: |-
+          &7 Ļauj uzstādīt maksājuma
+          &7 vērtību par salas apmeklēšanu.
+          &7 Maksājums: &b&o €[number]
+      # Button that allows to change if players can visit while members are offline.
+      offline:
+        name: "&f&l Būt Tiešsaitē"
+        description: |-
+          &7 Ļauj pārslēgt vai
+          &7 salas apmeklēšana
+          &7 iespējama kamēr
+          &7 salas bieri ir
+          &7 tiešsaitē.
+        enabled: "&7 Jābūt tiešsaitē &a izslēgts"
+        disabled: "&7 Jābūt tiešsaitē &c ieslēgts"
+      # Button that allows to toggle if visits are allowed at all.
+      enabled:
+        name: '&f&l Apmeklēšana'
+        description: |-
+          &7 Ļauj pārslēgt vai
+          &7 apmeklēšana ir
+          &7 pieejama.
+        enabled: "&7 Apmeklēšana ir &a ieslēgta"
+        disabled: "&7 Apmeklēšana ir &c izslēgta"
+      # List of buttons in Admin GUI
+      # Button that opens All island GUI for admin.
+      manage:
+        name: '&f&l Manage Island Settings'
+        description: |-
+          &7 Allows to edit island
+          &7 visit settings for
+          &7 selected island.
+      # Button that allows to reset all island visit settings.
+      reset:
+        name: '&f&l Atjaunot Datus'
+        description: |-
+          &7 Atjauno visu salu datus
+          &7 uz noklusējuma vērtībām.
+      # Button that allows to change tax amount for visiting islands.
+      tax:
+        name: '&f&l Nodoklis'
+        description: |-
+          &7 Ļauj mainīt nodokli,
+          &7 ko papildus jānomaksā
+          &7 par salas apmeklēšanu.
+        value: "&7 Nodoklis: &b&o [number]"
+      # Button that allows to change default payment for visiting island.
+      default_payment:
+        name: '&f&l Maksājums'
+        description: |-
+          &7 Ļauj mainīt noklusējuma
+          &7 vērtību maksai par salas
+          &7 apmeklēšanu.
+        value: "&7 Vērtība: &b&o [number]"
+      # Button that allows to change default offline visiting value
+      default_offline:
+        name: '&f&l Būt Tiešsaitē'
+        description: |-
+          &7 Ļauj pārslēgt noklusējuma
+          &7 vērtību salas apmeklēšanai,
+          &7 kamēr salas bieri ir
+          &7 tiešsaitē.
+        enabled: |-
+          &7 Pēc noklusējuma
+          &7 apmeklēšana ir
+          &a ieslēgta
+        disabled: |-
+          &7 Pēc noklusējuma
+          &7 apmeklēšana ir
+          &c izslēgta
+      # Button that allows to change default visiting enabled value
+      default_enabled:
+        name: '&f&l Apmeklēšana'
+        description: |-
+          &7 Ļauj uzstādīt noklusējuma
+          &7 vērtību salas apmeklēšanai.
+        enabled: |-
+          &7 Pēc noklusējuma
+          &7 apmeklēšana ir
+          &a ieslēgta
+        disabled: |-
+          &7 Pēc noklusējuma
+          &7 apmeklēšana ir
+          &c izslēgta
+      # Button that allows to toggle economy
+      enable_economy:
+        name: '&f&l Ieslēgt Ekonomiku'
+        description: |-
+          &7 Ļauj pārslēgt, vai ekonomikas
+          &7 daļa ir ieslēgta.
+          &7 Vault papildinājums nepieciešams.
+        enabled: |-
+          &7 Ekonomika ir &a ieslēgta.
+        disabled: |-
+          &7 Ekonomika ir &c izslēgta.
+      use_bank:
+        name: '&f&l Izmantot Banku'
+        description: |-
+          &7 Ļauj pārslēgt, vai visi
+          &7 maksājumi notiek caur
+          &7 salas banku.
+          &7 Bankas paplašinājums nepieciešams.
+        enabled: |-
+          &7 Bankas izmantošana ir &a ieslēgta.
+        disabled: |-
+          &7 Bankas izmantošana ir &c izslēgta.
+      enable_confirmation:
+        name: '&f&l Maksājumu Apstiprināšana'
+        description: |-
+          &7 Ļauj uzstādīt vai maksājumi
+          &7 ir jāapstiprina.
+        enabled: |-
+          &7 Apstiprināšana ir &a ieslēgta.
+        disabled: |-
+          &7 Apstiprināšana ir &c izslēgta.
+      icon:
+        name: '&f&l Noklusējuma Ikona'
+        description: |-
+          &7 Ļauj uzstādīt noklusējuma
+          &7 ikonu salām.
+      max_value:
+        name: '&f&l Maksājuma Griezti'
+        description: |-
+          &7 Ļauj uzstādīt maksājuma
+          &7 grieztus, ko spēlētāji
+          &7 drīkst uzstādīt.
+          &7 0 vai mazāk nozīmē, ka
+          &7 griezti nav.
+        value: "&7 Lielākā vērtība: &b&o [number]"
+      cancel:
+        name: "&f&l Atcelt"
+        description: |-
+          &7 Atceļ un atgriežas.
+      material:
+        name: "&f&l [material]"
+        description: |-
+          &7 Materiāla ID: [id]
+    # This section contains all tip messages.
+    tips:
+      click-to-select: "&e Klikšķini, &7 lai atlasītu."
+      click-to-choose: "&e Klikšķini, &7 lai izvēlētos."
+      click-to-toggle: "&e Klikšķini, &7 lai pārslēgtu."
+      click-to-change: "&e Klikšķini, &7 lai mainītu."
+      left-click-to-cycle: |-
+        &e Kreisais klikšķis,
+        &7 pārslēgtu uz leju.
+      right-click-to-cycle: |-
+        &e Labais klikšķis,
+        &7 pārslēgtu uz augšu.
+      click-to-edit: "&e Klikšķini, &7 lai labotu."
+      click-to-deselect: |-
+        &e Klikšķini, &7 lai
+        &7 atceltu atzīmi.
+      left-click-to-edit: |-
+        &e Kreisais klikšķis,
+        &7 lai labotu.
+      right-click-to-clear: |-
+        &e Labais klikšķis,
+        &7 lai notīrītu.
+      click-to-previous: |-
+        &e Klikšķini, &7 lai
+        &7 skatītu iepriekšējo.
+      click-to-next: |-
+        &e Klikšķini, &7 lai
+        &7 skatītu nākošo.
+      click-to-switch: "&e Klikšķini, &7 lai mainītu."
+      click-to-visit: "&e Klikšķini, &7 lai apmeklētu."
+      click-to-reset: "&e Klikšķini, &7 lai atjauntu."
+      left-click-to-confirm: |-
+        &e Kreisais Klikšķis,
+        &7 lai apstiprinātu.
+      right-click-to-cancel: |-
+        &e Labais Klikšķis,
+        &7 lai atceltu.
+  errors:
+    no-islands: '&r&c [gamemode] nav salas, ko apmeklēt!'
+    noone-is-online: '&r&c Neviens no šīs salas biedriem nav tiešsaitē!'
+    not-enough-credits: '&r&c Tev nav pietiekoši daudz naudas. Apmeklēšana izmaksā &l&4 €[number].'
+    not-enough-credits-bank: '&r&c Tev nav pietiekoši daudz līdzekļi bankas kontā. Apmeklēšana izmaksā &l&4 €[number].'
+    cannot-withdraw-credits: '&r&c Neizdevās noņemt &l&4 €[number] &r&c no tava konta! Operācija atcelta.'
+    cannot-deposit-credits: '&r&c Neizdevās ieksaitīt &l&4 €[number] &r&c spēlētāja kontā! Operācija atcelta.'
+    not-in-overworld: '&rv Tev ir jābūt virspasaulē, lai mainītu apmeklēšanas lokāciju! Operācija atcelta.'
+    not-in-protected-area: '&r&c Tev ir jābūt savā aizsardzības zonā! Operācija atcelta.'
+    not-safe-location: '&r&c Šī vieta nav droša. Izvēlies citu! Operācija atcelta.'
+    not-in-correct-world: '&r&c Tu neesi [gamemode] pasaulē! Operācija atcelta.'
+  conversations:
+    # Prefix for messages that are send from server.
+    prefix: "&l&6 [BentoBox]: &r"
+    # List of strings that are valid for confirming input. (separated with ,)
+    confirm-string: "true, on, yes, confirm, y, valid, correct, jā, ja, apstiprinu, pareizi"
+    # List of strings that are valid for denying input. (separated with ,)
+    deny-string: "false, off, no, deny, n, invalid, incorrect, nē, ne, neapstiprinu, nepareizi"
+    # String that allows to cancel conversation. (can be only one)
+    cancel-string: "atcelt"
+    # List of strings that allows to exit conversation. (separated with ,)
+    exit-string: "cancel, exit, quit, atcelt, iziet"
+    # Message that is send to user when conversation is cancelled.
+    cancelled: "&c Saruna pārtraukta!"
+    # Message that appears when admin clicks on number editing button.
+    input-number: "&e Lūdzu ieraksti skaitli sarakstē!"
+    # Error message that is showed if user input a value that is not a number.
+    numeric-only: "&c Šis `[value]` nav skaitlis!"
+    # Error message that is showed if user input a number that is smaller or larger that allowed.
+    not-valid-value: "&c Ierakstītais skaitlis [value] nav derīgs. Skaitlis nedrīkst būt mazāks par [min] un lielāks par [max]!"
+    # Message that appears when admin clicks on island data deletion button.
+    confirm-island-data-deletion: "&e Apstiprini, ka vēlies dzēst lietotāju datus priekš [gamemode]."
+    # Message that confirms user data removing.
+    user-data-removed: "&a Visi lietotāju dati priekš [gamemode] ir dzēsti."
+    # Message that asks for search value input.
+    write-search: "&e Lūdzu ievadi meklēšanas vērtību. (vai 'atcelt', lai izietu)"
+    # Message that appears after updating search value.
+    search-updated: "&a Meklēšanas vērtība atjaunota."
+    # Message that appears when user updates spawn point.
+    spawn-point-updated: "&a Teleportēšanās punkts atjaunots!"
+    # Message that appears when user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-payment: "&l&6 [owner] &r&e salas apmeklēšana izmaksās &l&6 €[payment]."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid: "&e Tu samaksāji &l&6 €[payment]&r&e, lai apmeklētu &l&6 [owner] &r&e salu."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid-bank: "&e Tu samaksāji &l&6 €[payment] &r&e no bankas konta, lai apmeklētu &l&6 [owner] &r&e salu."
+    # Message that appears for user who receives payment.
+    visit-earn: "&l&6 [player] &r&e tev samaksāja &l&6 €[payment] &r&e par salas apmeklēšanu."
+    # Message that appears for user who receives payment.
+    visit-earn-bank: "&l&6 [player] &r&e ieskaitīja tavā bankas kontā &l&6 €[payment] &r&e par salas apmeklēšanu."
+# Protection flags that are used in current addon.
+protection:
+  flags:
+    ALLOW_VISITS_FLAG:
+      name: "Apmeklēšana"
+      description: |-
+        &a Pārslēdz vai spēlētāji var
+        &a apmeklēt salu.
+      hint: "&c Salas apmeklēšana ir izslēgta"
+      icon: PUMPKIN_PIE

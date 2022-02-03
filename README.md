@@ -19,4 +19,4 @@ More informatioin you can find in addon Wiki Page: [Visit Addon](https://docs.be
 
 ## Compatibility
 
-- [x] BentoBox 1.17.0+
+- [x] BentoBox 1.20.0+
