@@ -203,14 +203,14 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
                 this.askConfirmation(user,
                     message,
                     () -> this.delayCommand(user, () ->
-                        this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island)));
+                        this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island, this.getWorld())));
             }
             else
             {
                 // Execute teleportation without confirmation.
                 this.delayCommand(user,
                     (tax + earnings > 0) ? message : "",
-                    () -> this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island));
+                    () -> this.<VisitAddon>getAddon().getAddonManager().processTeleportation(user, this.island, this.getWorld()));
             }
         }
         else

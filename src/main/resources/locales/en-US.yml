@@ -230,9 +230,10 @@ visit:
   errors:
     no-islands: '&r&c There are no islands for visiting in [gamemode]!'
     noone-is-online: '&r&c Noone from this island is online!'
-    not-enough-credits: '&r&c You do not have enough credits to visit this island. Necessary [number] credits.'
-    cannot-withdraw-credits: '&r&c Cannot withdraw [number] from your account! Operation is cancelled.'
-    cannot-deposit-credits: '&r&c Cannot deposit [number] into island owner account! Operation is cancelled.'
+    not-enough-credits: '&r&c You do not have enough money. Visiting costs &l&4 $[number].'
+    not-enough-credits-bank: '&r&c You do not have enough money in your bank account. Visiting costs &l&4 $[number].'
+    cannot-withdraw-credits: '&r&c Cannot withdraw &l&4 $[number] &r&c from your account! Operation is cancelled.'
+    cannot-deposit-credits: '&r&c Cannot deposit &l&4 $[number] &r&c into island owner account! Operation is cancelled.'
     not-in-overworld: '&rv You must be in overworld to change visitor spawn location! Operation is cancelled.'
     not-in-protected-area: '&r&c You must be in your island protected area! Operation is cancelled.'
     not-safe-location: '&r&c Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
@@ -269,7 +270,17 @@ visit:
     spawn-point-updated: "&a Success, spawn point is changed!"
     # Message that appears when user process teleportation to the island with the associated cost.
     # [tax], [earn], [payment], [island] and [owner] are available variables.
-    visit-payment: "&e Visiting [owner] island will cost &l&6 $[payment]."
+    visit-payment: "&e Visiting &l&6 [owner] &r&e island will cost &l&6 $[payment]."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid: "&e You paid &l&6 $[payment] &r&e for visiting &l&6 [owner] &r&e island."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid-bank: "&e You paid &l&6 $[payment] &r&e from your bank account for visiting &l&6 [owner] &r&e island."
+    # Message that appears for user who receives payment.
+    visit-earn: "&l&6 [player] &r&e paid you &l&6 $[payment] &r&e for visiting your island."
+    # Message that appears for user who receives payment.
+    visit-earn-bank: "&l&6 [player] &r&e deposited in your bank &l&6 $[payment] &r&e for visiting your island."
 # Protection flags that are used in current addon.
 protection:
   flags:

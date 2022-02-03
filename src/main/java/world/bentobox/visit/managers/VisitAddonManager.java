@@ -9,9 +9,13 @@ package world.bentobox.visit.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.util.Vector;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import world.bentobox.bank.BankResponse;
+import world.bentobox.bank.data.Money;
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.metadata.MetaDataValue;
 import world.bentobox.bentobox.api.user.User;
@@ -82,7 +86,6 @@ public class VisitAddonManager
         return this.hasOfflineEnabled(island) ||
                 island.getMemberSet().stream().
                 map(User::getInstance).
-                filter(Objects::nonNull).
                 anyMatch(User::isOnline);
     }
 
@@ -132,7 +135,7 @@ public class VisitAddonManager
      */
     public void setIslandEarnings(Island island, double payment)
     {
-        if (island.getMetaData() == null)
+        if (island.getMetaData().isEmpty())
         {
             // Init new hashmap with 2 elements.
             island.setMetaData(new HashMap<>(2));
@@ -151,7 +154,7 @@ public class VisitAddonManager
      */
     public void setOfflineData(Island island, boolean newValue)
     {
-        if (island.getMetaData() == null)
+        if (island.getMetaData().isEmpty())
         {
             // Init new hashmap with 2 elements.
             island.setMetaData(new HashMap<>(2));
@@ -195,11 +198,23 @@ public class VisitAddonManager
      * @param credits Amount that must be checked.
      * @return {@code true} if vaultHook is enabled and player has enough credits, {@code false} otherwise
      */
-    public boolean hasCredits(User user, double credits)
+    public boolean hasCredits(User user, double credits, World world)
     {
-        return this.addon.getVaultHook() == null ||
+        if (this.addon.getSettings().isDisableEconomy() || credits <= 0)
+        {
+            return true;
+        }
+        else if (this.addon.getSettings().isUseIslandBank())
+        {
+            return this.addon.getBankHook() == null ||
+                this.addon.getBankHook().getBankManager().getBalance(user, world).getValue() >= credits;
+        }
+        else
+        {
+            return this.addon.getVaultHook() == null ||
                 !this.addon.getVaultHook().hook() ||
                 this.addon.getVaultHook().has(user, credits);
+        }
     }
 
 
@@ -208,18 +223,64 @@ public class VisitAddonManager
      *
      * @param user Targeted user.
      * @param credits Amount that must be deposited.
-     * @return {@code true} if vaultHook not enabled or transaction was successful, {@code false} otherwise
      */
-    public boolean depositCredits(User user, double credits)
+    public void depositCredits(User user,
+        double credits,
+        World world,
+        CompletableFuture<Boolean> deposit,
+        String message)
     {
-        if (this.addon.getVaultHook() != null &&
-                this.addon.getVaultHook().hook())
+        if (this.addon.getSettings().isDisableEconomy() || credits <= 0)
         {
-            return this.addon.getVaultHook().deposit(user, credits).transactionSuccess();
+            // Economy is disabled.
+            deposit.complete(true);
+        }
+        else if (this.addon.getSettings().isUseIslandBank())
+        {
+            // Process bank deposit.
+            if (this.addon.getBankHook() != null)
+            {
+                this.addon.getBankHook().getBankManager().
+                    deposit(user, new Money(credits), world).
+                    whenComplete(((bankResponse, throwable) -> {
+                        if (throwable != null)
+                        {
+                            deposit.completeExceptionally(new Throwable("FAILED_DEPOSIT"));
+                        }
+                        else if (bankResponse == BankResponse.SUCCESS)
+                        {
+                            Utils.sendMessage(user, message);
+                            deposit.complete(true);
+                        }
+                        else
+                        {
+                            deposit.completeExceptionally(new Throwable(bankResponse.name()));
+                        }
+                    }));
+            }
+            else
+            {
+                deposit.completeExceptionally(new Throwable("MISSING_BANK_ADDON"));
+                this.addon.logError("Missing Bank Addon. Cannot proceed with payments.");
+            }
+        }
+        else if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
+        {
+            // Process Vault deposit.
+            if (this.addon.getVaultHook().deposit(user, credits).transactionSuccess())
+            {
+                Utils.sendMessage(user, message);
+                deposit.complete(true);
+            }
+            else
+            {
+                deposit.complete(false);
+            }
         }
         else
         {
-            return true;
+            deposit.completeExceptionally(new Throwable("MISSING_VAULT"));
+            this.addon.logError("Missing Vault Plugin. Cannot proceed with payments.");
         }
     }
 
@@ -229,18 +290,66 @@ public class VisitAddonManager
      *
      * @param user Targeted user.
      * @param credits Amount that must be removed.
-     * @return {@code true} if vaultHook is not enabled or transaction was successful, {@code false} otherwise
+     * @param world the world
+     * @param withdraw the withdraw feature
      */
-    public boolean withdrawCredits(User user, double credits)
+    public void withdrawCredits(User user,
+        double credits,
+        World world,
+        CompletableFuture<Boolean> withdraw,
+        String message)
     {
-        if (this.addon.getVaultHook() != null &&
-                this.addon.getVaultHook().hook())
+        if (this.addon.getSettings().isDisableEconomy() || credits <= 0)
         {
-            return this.addon.getVaultHook().withdraw(user, credits).transactionSuccess();
+            // Economy is disabled.
+            withdraw.complete(true);
+        }
+        else if (this.addon.getSettings().isUseIslandBank())
+        {
+            // Process bank withdraw.
+            if (this.addon.getBankHook() != null)
+            {
+                this.addon.getBankHook().getBankManager().
+                    withdraw(user, new Money(credits), world).
+                    whenComplete(((bankResponse, throwable) -> {
+                        if (throwable != null)
+                        {
+                            withdraw.completeExceptionally(new Throwable("FAILED_WITHDRAW"));
+                        }
+                        else if (bankResponse == BankResponse.SUCCESS)
+                        {
+                            Utils.sendMessage(user, message);
+                            withdraw.complete(true);
+                        }
+                        else
+                        {
+                            withdraw.completeExceptionally(new Throwable(bankResponse.name()));
+                        }
+                    }));
+            }
+            else
+            {
+                withdraw.completeExceptionally(new Throwable("MISSING_BANK_ADDON"));
+                this.addon.logError("Missing Bank Addon. Cannot proceed with payments.");
+            }
+        }
+        else if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
+        {
+            if (this.addon.getVaultHook().withdraw(user, credits).transactionSuccess())
+            {
+                Utils.sendMessage(user, message);
+                // Process Vault withdraw.
+                withdraw.complete(true);
+            }
+            else
+            {
+                withdraw.complete(false);
+            }
         }
         else
         {
-            return true;
+            withdraw.completeExceptionally(new Throwable("MISSING_VAULT"));
+            this.addon.logError("Missing Vault Plugin. Cannot proceed with payments.");
         }
     }
 
@@ -307,14 +416,24 @@ public class VisitAddonManager
                     user.getTranslation(Constants.ERRORS + "noone-is-online"));
             }
         }
-        else if (payment > 0 && !this.hasCredits(user, payment))
+        else if (payment > 0 && !this.hasCredits(user, payment, island.getWorld()))
         {
             if (!silent)
             {
-                // Send a message that player has not enough credits.
-                Utils.sendMessage(user,
-                    user.getTranslation(Constants.ERRORS + "not-enough-credits",
-                        Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                if (this.addon.getSettings().isUseIslandBank())
+                {
+                    // Send a message that player has not enough credits.
+                    Utils.sendMessage(user,
+                        user.getTranslation(Constants.ERRORS + "not-enough-credits-bank",
+                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                }
+                else
+                {
+                    // Send a message that player has not enough credits.
+                    Utils.sendMessage(user,
+                        user.getTranslation(Constants.ERRORS + "not-enough-credits",
+                            Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+                }
             }
         }
         else
@@ -334,30 +453,94 @@ public class VisitAddonManager
      * @param user Targeted user who need to be teleported.
      * @param island Island where user need to be teleported.
      */
-    public void processTeleportation(User user, Island island)
+    public void processTeleportation(User user, Island island, World world)
     {
         double earnedMoney = this.getIslandEarnings(island);
         double payment = earnedMoney + this.getTaxAmount();
 
-        if (payment > 0 && !this.withdrawCredits(user, payment))
-        {
-            // error on withdrawing credits. Cancelling
-            Utils.sendMessage(user,
-                user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
-                    Constants.PARAMETER_NUMBER, String.valueOf(payment)));
-            return;
-        }
-        else if (earnedMoney > 0 &&
-            !this.depositCredits(User.getInstance(island.getOwner()), earnedMoney))
-        {
-            // error on depositing credits. Cancelling
-            this.depositCredits(user, payment);
+        final String paymentMessage;
+        final String receiveMessage;
 
-            Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
-                Constants.PARAMETER_NUMBER, String.valueOf(payment)));
-            return;
+        if (this.addon.getSettings().isUseIslandBank())
+        {
+            paymentMessage = user.getTranslation(Constants.CONVERSATIONS + "visit-paid-bank",
+                Constants.PARAMETER_PAYMENT, String.valueOf(payment),
+                Constants.PARAMETER_TAX, String.valueOf(this.getTaxAmount()),
+                Constants.PARAMETER_ISLAND, String.valueOf(island.getName()),
+                Constants.PARAMETER_OWNER, this.addon.getPlayers().getName(island.getOwner()),
+                Constants.PARAMETER_RECEIVER, String.valueOf(earnedMoney));
+            receiveMessage = user.getTranslation(Constants.CONVERSATIONS + "visit-earn-bank",
+                Constants.PARAMETER_PAYMENT, String.valueOf(earnedMoney),
+                Constants.PARAMETER_PLAYER, user.getName());
+        }
+        else
+        {
+            paymentMessage = user.getTranslation(Constants.CONVERSATIONS + "visit-paid",
+                Constants.PARAMETER_PAYMENT, String.valueOf(payment),
+                Constants.PARAMETER_TAX, String.valueOf(this.getTaxAmount()),
+                Constants.PARAMETER_ISLAND, String.valueOf(island.getName()),
+                Constants.PARAMETER_OWNER, this.addon.getPlayers().getName(island.getOwner()),
+                Constants.PARAMETER_RECEIVER, String.valueOf(earnedMoney));
+            receiveMessage = user.getTranslation(Constants.CONVERSATIONS + "visit-earn",
+                Constants.PARAMETER_PAYMENT, String.valueOf(earnedMoney),
+                Constants.PARAMETER_PLAYER, user.getName());
         }
 
+        // Depositing credits into visited island bank account.
+        CompletableFuture<Boolean> deposit = new CompletableFuture<>();
+        deposit.whenComplete((value, throwable) -> {
+            if (throwable != null)
+            {
+                this.depositCredits(user, payment, world, new CompletableFuture<>(),
+                    user.getTranslation(Constants.ERRORS + "cannot-deposit-credits",
+                        Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+            }
+            else if (value)
+            {
+                this.startTeleportation(user, island);
+            }
+        });
+
+        // Withdrawing credits from user island bank account.
+        CompletableFuture<Boolean> withdraw = new CompletableFuture<>();
+        withdraw.whenComplete((value, throwable) -> {
+            if (throwable != null || !value)
+            {
+                Utils.sendMessage(user,
+                    user.getTranslation(Constants.ERRORS + "cannot-withdraw-credits",
+                        Constants.PARAMETER_NUMBER, String.valueOf(payment)));
+            }
+            else
+            {
+                if (earnedMoney > 0 && island.getOwner() != null)
+                {
+                    this.depositCredits(
+                        User.getInstance(island.getOwner()),
+                        earnedMoney,
+                        world,
+                        deposit,
+                        receiveMessage);
+                }
+                else
+                {
+                    deposit.complete(true);
+                }
+            }
+        });
+
+        // Process withdraw.
+        this.withdrawCredits(user, payment, world, withdraw, paymentMessage);
+    }
+
+
+    /**
+     * Start teleportation sequence by firing bukkit event and building safe spot.
+     *
+     * @param user the user
+     * @param island the island
+     */
+    private void startTeleportation(User user, Island island)
+    {
         // Call visit event.
         VisitEvent event = new VisitEvent(user.getUniqueId(), island);
         Bukkit.getPluginManager().callEvent(event);

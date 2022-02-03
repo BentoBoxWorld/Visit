@@ -139,28 +139,6 @@ public class Settings implements ConfigObject
 
 
     /**
-     * Is filters enabled boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isFiltersEnabled()
-    {
-        return filtersEnabled;
-    }
-
-
-    /**
-     * Sets filters enabled.
-     *
-     * @param filtersEnabled the filters enabled
-     */
-    public void setFiltersEnabled(boolean filtersEnabled)
-    {
-        this.filtersEnabled = filtersEnabled;
-    }
-
-
-    /**
      * Gets default filter.
      *
      * @return the default filter
@@ -183,50 +161,6 @@ public class Settings implements ConfigObject
 
 
     /**
-     * Is search enabled boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isSearchEnabled()
-    {
-        return searchEnabled;
-    }
-
-
-    /**
-     * Sets search enabled.
-     *
-     * @param searchEnabled the search enabled
-     */
-    public void setSearchEnabled(boolean searchEnabled)
-    {
-        this.searchEnabled = searchEnabled;
-    }
-
-
-    /**
-     * Is top line boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isFiltersTopLine()
-    {
-        return filtersTopLine;
-    }
-
-
-    /**
-     * Sets top line.
-     *
-     * @param filtersTopLine the top line
-     */
-    public void setFiltersTopLine(boolean filtersTopLine)
-    {
-        this.filtersTopLine = filtersTopLine;
-    }
-
-
-    /**
      * Gets island icon.
      *
      * @return the island icon
@@ -245,50 +179,6 @@ public class Settings implements ConfigObject
     public void setIslandIcon(Material islandIcon)
     {
         this.islandIcon = islandIcon;
-    }
-
-
-    /**
-     * Gets border block.
-     *
-     * @return the border block
-     */
-    public Material getBorderBlock()
-    {
-        return borderBlock;
-    }
-
-
-    /**
-     * Sets border block.
-     *
-     * @param borderBlock the border block
-     */
-    public void setBorderBlock(Material borderBlock)
-    {
-        this.borderBlock = borderBlock;
-    }
-
-
-    /**
-     * Gets border block name.
-     *
-     * @return the border block name
-     */
-    public String getBorderBlockName()
-    {
-        return borderBlockName;
-    }
-
-
-    /**
-     * Sets border block name.
-     *
-     * @param borderBlockName the border block name
-     */
-    public void setBorderBlockName(String borderBlockName)
-    {
-        this.borderBlockName = borderBlockName;
     }
 
 
@@ -490,6 +380,28 @@ public class Settings implements ConfigObject
     }
 
 
+    /**
+     * Is use island bank boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isUseIslandBank()
+    {
+        return useIslandBank;
+    }
+
+
+    /**
+     * Sets use island bank.
+     *
+     * @param useIslandBank the use island bank
+     */
+    public void setUseIslandBank(boolean useIslandBank)
+    {
+        this.useIslandBank = useIslandBank;
+    }
+
+
 // ---------------------------------------------------------------------
 // Section: Enums
 // ---------------------------------------------------------------------
@@ -527,6 +439,15 @@ public class Settings implements ConfigObject
     @ConfigComment("It will disable taxation and ability to change visiting cost.")
     @ConfigEntry(path = "disable-economy")
     private boolean disableEconomy = false;
+
+    /**
+     * Disable economy.
+     */
+    @ConfigComment("")
+    @ConfigComment("Allows to toggle payments should be done via island Banks.")
+    @ConfigComment("Requires Bank Addon.")
+    @ConfigEntry(path = "use-bank")
+    private boolean useIslandBank = true;
 
     /**
      * The Tax amount.
@@ -588,14 +509,6 @@ public class Settings implements ConfigObject
     private int defaultConfigPermission = 900;
 
     /**
-     * The Filters enabled.
-     */
-    @ConfigComment("Allows to toggle if player GUI should show filter line.")
-    @ConfigComment("enabled (true) or disabled (false).")
-    @ConfigEntry(path = "gui.filters.enabled")
-    private boolean filtersEnabled = true;
-
-    /**
      * The Default filter.
      */
     @ConfigComment("Allows to switch default active filter for Player Visit GUI.")
@@ -606,22 +519,6 @@ public class Settings implements ConfigObject
     private Filter defaultFilter = Filter.ALL_ISLANDS;
 
     /**
-     * The Search enabled.
-     */
-    @ConfigComment("Allows to toggle if player GUI should show search button.")
-    @ConfigComment("enabled (true) or disabled (false).")
-    @ConfigEntry(path = "gui.filters.search")
-    private boolean searchEnabled = true;
-
-    /**
-     * The Filters top line.
-     */
-    @ConfigComment("Allows to toggle if filters line should be at the top or bottom.")
-    @ConfigComment("enabled (true) or disabled (false).")
-    @ConfigEntry(path = "gui.filters.top")
-    private boolean filtersTopLine = true;
-
-    /**
      * The Island icon.
      */
     @ConfigComment("Allows to change icon in the GUI for island selection.")
@@ -629,24 +526,6 @@ public class Settings implements ConfigObject
     @ConfigComment("Island owner permission `visit.icon.[material]` can overwrite the icon.")
     @ConfigEntry(path = "gui.island-icon")
     private Material islandIcon = Material.PLAYER_HEAD;
-
-    /**
-     * The Border block.
-     */
-    @ConfigComment("Allows to change icon in the GUI for island selection.")
-    @ConfigComment("PLAYER_HEAD will be transformed to island owner head.")
-    @ConfigComment("Island owner permission `visit.icon.[material]` can overwrite the icon.")
-    @ConfigEntry(path = "gui.border-block")
-    private Material borderBlock = Material.MAGENTA_STAINED_GLASS_PANE;
-
-    /**
-     * The Border block name.
-     */
-    @ConfigComment("Allows to change icon in the GUI for island selection.")
-    @ConfigComment("PLAYER_HEAD will be transformed to island owner head.")
-    @ConfigComment("Island owner permission `visit.icon.[material]` can overwrite the icon.")
-    @ConfigEntry(path = "gui.border-block-name")
-    private String borderBlockName = " ";
 
     /**
      * The Player main command.

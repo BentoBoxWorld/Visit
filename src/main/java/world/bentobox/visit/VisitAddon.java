@@ -8,8 +8,8 @@ package world.bentobox.visit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import java.util.Optional;
 
+import world.bentobox.bank.Bank;
 import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.flags.Flag;
@@ -27,11 +27,6 @@ import world.bentobox.visit.managers.VisitAddonManager;
  */
 public class VisitAddon extends Addon
 {
-    // ---------------------------------------------------------------------
-    // Section: Variables
-    // ---------------------------------------------------------------------
-
-
     /**
      * Executes code when loading the addon. This is called before {@link #onEnable()}. This <b>must</b> be used to
      * setup configuration, worlds and commands.
@@ -145,17 +140,14 @@ public class VisitAddon extends Addon
 
             INSTANCE = this;
         }
+    }
 
-        // BentoBox does not manage money, but it provides VaultHook that does it.
-        this.vaultHook = this.getPlugin().getVault();
 
-        // Even if Vault is installed, it does not mean that economy can be used. It is
-        // necessary to check it via VaultHook#hook() method.
-
-        if (!this.vaultHook.isPresent())
-        {
-            this.logWarning("Vault plugin not found. Economy will not work!");
-        }
+    @Override
+    public void allLoaded()
+    {
+        super.allLoaded();
+        this.hookExtensions();
     }
 
 
@@ -186,17 +178,53 @@ public class VisitAddon extends Addon
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Flags
-    // ---------------------------------------------------------------------
-
-
     /**
      * Executes code when disabling the addon.
      */
     @Override
     public void onDisable()
     {
+    }
+
+
+// ---------------------------------------------------------------------
+// Section: Methods
+// ---------------------------------------------------------------------
+
+
+    /**
+     * This method finds and hooks into visit addon extensions.
+     */
+    private void hookExtensions()
+    {
+        // Try to find Level addon and if it does not exist, display a warning
+        this.getAddonByName("Bank").ifPresentOrElse(addon ->
+        {
+            this.bankHook = (Bank) addon;
+            this.log("Visit Addon hooked into Bank addon.");
+        }, () ->
+        {
+            this.bankHook = null;
+        });
+
+        // Try to find Vault Plugin and if it does not exist, display a warning
+        this.getPlugin().getVault().ifPresentOrElse(hook ->
+        {
+            this.vaultHook = hook;
+
+            if (this.vaultHook.hook())
+            {
+                this.log("Visit Addon hooked into Economy.");
+            }
+            else
+            {
+                this.logWarning("Visit Addon could not hook into valid Economy.");
+            }
+        }, () ->
+        {
+            this.vaultHook = null;
+            this.logWarning("Vault plugin not found. Economy will not work!");
+        });
     }
 
 
@@ -220,13 +248,19 @@ public class VisitAddon extends Addon
      */
     public VaultHook getVaultHook()
     {
-        return this.vaultHook.orElse(null);
+        return this.vaultHook;
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
+    /**
+     * Gets bank hook.
+     *
+     * @return the bank hook
+     */
+    public Bank getBankHook()
+    {
+        return this.bankHook;
+    }
 
 
     /**
@@ -262,6 +296,10 @@ public class VisitAddon extends Addon
     }
 
 
+// ---------------------------------------------------------------------
+// Section: Variables
+// ---------------------------------------------------------------------
+
     /**
      * Settings object contains
      */
@@ -272,15 +310,15 @@ public class VisitAddon extends Addon
      */
     private VisitAddonManager addonManager;
 
-
-    // ---------------------------------------------------------------------
-    // Section: Getters
-    // ---------------------------------------------------------------------
+    /**
+     * Local variable that stores vault hook.
+     */
+    private VaultHook vaultHook;
 
     /**
-     * Local variable that stores if vaultHook is present.
+     * Local variable that stores bank addon hook.
      */
-    private Optional<VaultHook> vaultHook;
+    private Bank bankHook;
 
     /**
      * Stores instance of the addon.
