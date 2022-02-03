@@ -8,6 +8,7 @@ package world.bentobox.visit.panels.player;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -189,11 +190,14 @@ public class VisitPanel
         builder.clickHandler((panel, user, clickType, i) ->
         {
             template.actions().forEach(action -> {
-                if (clickType == action.clickType() && "NEXT".equalsIgnoreCase(action.actionType()))
+                if (clickType == action.clickType()  || action.clickType() == ClickType.UNKNOWN)
                 {
-                    // Next button ignores click type currently.
-                    this.pageIndex++;
-                    this.build();
+                    if ("NEXT".equalsIgnoreCase(action.actionType()))
+                    {
+                        // Next button ignores click type currently.
+                        this.pageIndex++;
+                        this.build();
+                    }
                 }
             });
 
@@ -268,11 +272,14 @@ public class VisitPanel
         builder.clickHandler((panel, user, clickType, i) ->
         {
             template.actions().forEach(action -> {
-                if (clickType == action.clickType() && "PREVIOUS".equalsIgnoreCase(action.actionType()))
+                if (clickType == action.clickType()  || action.clickType() == ClickType.UNKNOWN)
                 {
-                    // Next button ignores click type currently.
-                    this.pageIndex--;
-                    this.build();
+                    if ("PREVIOUS".equalsIgnoreCase(action.actionType()))
+                    {
+                        // Next button ignores click type currently.
+                        this.pageIndex--;
+                        this.build();
+                    }
                 }
             });
 
@@ -355,7 +362,7 @@ public class VisitPanel
         builder.clickHandler((panel, user, clickType, i) ->
         {
             actions.forEach(action -> {
-                if (clickType == action.clickType())
+                if (clickType == action.clickType() || action.clickType() == ClickType.UNKNOWN)
                 {
                     if ("INPUT".equalsIgnoreCase(action.actionType()))
                     {
@@ -467,7 +474,7 @@ public class VisitPanel
         builder.clickHandler((panel, user, clickType, i) ->
         {
             template.actions().forEach(action -> {
-                if (clickType == action.clickType())
+                if (clickType == action.clickType() || action.clickType() == ClickType.UNKNOWN)
                 {
                     if ("UP".equalsIgnoreCase(action.actionType()))
                     {
@@ -754,7 +761,7 @@ public class VisitPanel
         builder.clickHandler((panel, user, clickType, i) ->
         {
             actions.forEach(action -> {
-                if (clickType == action.clickType())
+                if (clickType == action.clickType() || action.clickType() == ClickType.UNKNOWN)
                 {
                     if ("CONFIRM".equalsIgnoreCase(action.actionType()))
                     {
