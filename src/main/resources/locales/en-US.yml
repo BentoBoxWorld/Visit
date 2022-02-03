@@ -334,10 +334,3 @@ protection:
         &a visited by anyone.
       hint: "&c Visits are disabled in this island"
       icon: PUMPKIN_PIE
-    VISIT_CONFIG_PERMISSION:
-      name: "Manage visitor config"
-      description: |-
-        &a Allows to switch who
-        &a can edit island visitor
-        &a configuration.
-      icon: PUMPKIN

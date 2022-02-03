@@ -13,9 +13,7 @@ import world.bentobox.bank.Bank;
 import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.flags.Flag;
-import world.bentobox.bentobox.api.flags.clicklisteners.CycleClick;
 import world.bentobox.bentobox.hooks.VaultHook;
-import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.visit.commands.admin.VisitAdminCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
@@ -56,15 +54,6 @@ public class VisitAddon extends Addon
 
         // Save existing panels.
         this.saveResource("panels/main_panel.yml", false);
-
-        // Set up flag with correct default rank permission.
-        VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.PUMPKIN).
-            type(Flag.Type.PROTECTION).
-            defaultRank(this.settings.getDefaultConfigPermission()).
-            clickHandler(new CycleClick("VISIT_CONFIG_PERMISSION",
-                RanksManager.MEMBER_RANK,
-                RanksManager.OWNER_RANK)).
-            build();
     }
 
 
@@ -109,7 +98,6 @@ public class VisitAddon extends Addon
             {
                 // Now we add GameModes to our Flags
                 ALLOW_VISITS_FLAG.addGameModeAddon(gameModeAddon);
-                VISIT_CONFIG_PERMISSION.addGameModeAddon(gameModeAddon);
 
                 // Each GameMode could have Player Command and Admin Command and we could
                 // want to integrate our Visit Command into these commands.
@@ -136,7 +124,6 @@ public class VisitAddon extends Addon
 
             ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
             this.registerFlag(ALLOW_VISITS_FLAG);
-            this.registerFlag(VISIT_CONFIG_PERMISSION);
 
             INSTANCE = this;
         }
@@ -324,12 +311,6 @@ public class VisitAddon extends Addon
      * Stores instance of the addon.
      */
     private static VisitAddon INSTANCE;
-
-    /**
-     * This flag allows to change who have access to modify island visitor config option. Owner can change it from
-     * member rank till owner rank. Default value is set to subowner.
-     */
-    public static Flag VISIT_CONFIG_PERMISSION;
 
     /**
      * Settings flags allows to modifying parameters of the island.

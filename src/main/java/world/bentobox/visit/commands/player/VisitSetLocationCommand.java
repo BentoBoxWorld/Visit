@@ -10,11 +10,9 @@ import org.bukkit.World;
 import java.util.List;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
-import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
-import world.bentobox.visit.panels.player.ConfigurePanel;
 import world.bentobox.visit.utils.Constants;
 import world.bentobox.visit.utils.Utils;
 
@@ -58,6 +56,8 @@ public class VisitSetLocationCommand extends CompositeCommand
         this.setDescription(Constants.PLAYER_COMMANDS + "set-location.description");
 
         this.setOnlyPlayer(true);
+        this.setConfigurableRankCommand();
+        this.setDefaultCommandRank(this.<VisitAddon>getAddon().getSettings().getDefaultConfigPermission());
     }
 
 
@@ -84,16 +84,7 @@ public class VisitSetLocationCommand extends CompositeCommand
             user.sendMessage("general.errors.no-island");
             return false;
         }
-        else if (!island.isAllowed(user, VisitAddon.VISIT_CONFIG_PERMISSION))
-        {
-            // No permission to edit.
-            Utils.sendMessage(user, user.getTranslation("general.errors.insufficient-rank",
-                TextVariables.RANK,
-                user.getTranslation(this.getPlugin().getRanksManager().
-                    getRank(VisitAddon.VISIT_CONFIG_PERMISSION.getDefaultRank()))));
-            return false;
-        }
-        else if (user.getLocation() == null || !World.Environment.NORMAL.equals(user.getWorld().getEnvironment()))
+        else if (!World.Environment.NORMAL.equals(user.getWorld().getEnvironment()))
         {
             // User must be in overworld.
             Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-in-overworld"));
