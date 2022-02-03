@@ -49,7 +49,7 @@ main_panel:
         data:
           type: PREVIOUS
           indexing: true
-        action:
+        actions:
           left:
             type: PREVIOUS
             tooltip: visit.gui.tips.click-to-previous
@@ -67,7 +67,7 @@ main_panel:
         data:
           type: NEXT
           indexing: true
-        action:
+        actions:
           left:
             type: NEXT
             tooltip: visit.gui.tips.click-to-next
