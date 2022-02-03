@@ -13,6 +13,7 @@ main_panel:
       5:
         icon: PAPER
         title: visit.gui.buttons.search.name
+        # description: visit.gui.buttons.search.description
         data:
           type: SEARCH
         actions:
@@ -23,7 +24,9 @@ main_panel:
             type: CLEAR
             tooltip: visit.gui.tips.right-click-to-clear
       9:
+        # icon: SANDSTONE
         title: visit.gui.buttons.filter.name
+        # description: visit.gui.buttons.filter.description
         data:
           type: FILTER
         actions:
