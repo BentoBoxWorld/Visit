@@ -11,6 +11,7 @@ import org.bukkit.event.HandlerList;
 import java.util.UUID;
 
 import world.bentobox.bentobox.api.events.BentoBoxEvent;
+import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 
 
@@ -31,7 +32,7 @@ public class VisitEvent extends BentoBoxEvent implements Cancellable
      * @param player of type UUID
      * @param island of type Island
      */
-    public VisitEvent(UUID player, Island island)
+    public VisitEvent(User player, Island island)
     {
         this.player = player;
         this.island = island;
@@ -74,40 +75,29 @@ public class VisitEvent extends BentoBoxEvent implements Cancellable
      */
     public Island getIsland()
     {
-        return island;
+        return this.island;
     }
 
 
     /**
-     * This method sets the island value.
+     * This method returns the player UUID.
      *
-     * @param island the island new value.
-     */
-    public void setIsland(Island island)
-    {
-        this.island = island;
-    }
-
-
-    /**
-     * This method returns the player value.
-     *
-     * @return the value of player.
+     * @return the UUID of player.
      */
     public UUID getPlayer()
     {
-        return player;
+        return this.player.getUniqueId();
     }
 
 
     /**
-     * This method sets the player value.
+     * This method returns the player.
      *
-     * @param player the player new value.
+     * @return the user
      */
-    public void setPlayer(UUID player)
+    public User getUser()
     {
-        this.player = player;
+        return this.player;
     }
 
 
@@ -156,7 +146,7 @@ public class VisitEvent extends BentoBoxEvent implements Cancellable
     /**
      * Variable that stores player who wants to visit an island.
      */
-    private UUID player;
+    private User player;
 
     /**
      * Event listener list for current

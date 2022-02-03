@@ -542,7 +542,7 @@ public class VisitAddonManager
     private void startTeleportation(User user, Island island)
     {
         // Call visit event.
-        VisitEvent event = new VisitEvent(user.getUniqueId(), island);
+        VisitEvent event = new VisitEvent(user, island);
         Bukkit.getPluginManager().callEvent(event);
 
         // If event is not cancelled, then teleport player.
