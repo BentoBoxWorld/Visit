@@ -197,7 +197,7 @@ visit:
           &7 Search button is &a enabled.
         disabled: |-
           &7 Search button is &c disabled.
-      # Button that allows to change location of filter row
+      # Button that allows to toggle economy
       enable_economy:
         name: '&f&l Enable Economy'
         description: |-
@@ -208,6 +208,49 @@ visit:
           &7 Economy is &a enabled.
         disabled: |-
           &7 Economy is &c disabled.
+      use_bank:
+        name: '&f&l Enable Bank'
+        description: |-
+          &7 Allows to toggle if all
+          &7 payments must be processed
+          &7 through island bank.
+          &7 Bank addon is required.
+        enabled: |-
+          &7 Bank Usage is &a enabled.
+        disabled: |-
+          &7 Bank Usage is &c disabled.
+      enable_confirmation:
+        name: '&f&l Payment Confirmation'
+        description: |-
+          &7 Allows to toggle if payments
+          &7 must be confirmed twice.
+        enabled: |-
+          &7 Confirmation is &a enabled.
+        disabled: |-
+          &7 Confirmation is &c disabled.
+      icon:
+        name: '&f&l Default Icon'
+        description: |-
+          &7 Allows to change default
+          &7 island icon.
+      max_value:
+        name: '&f&l Max Payment Value'
+        description: |-
+          &7 Allows to set max amount
+          &7 players can set as payment
+          &7 for visiting their island.
+          &7 0 or bellow disables any
+          &7 limitations.
+        value: "&7 Max value: &b&o [number]"
+      cancel:
+        name: "&f&l Cancel"
+        description: |-
+          &7 Cancel and return to
+          &7 previous menu.
+      material:
+        name: "&f&l [material]"
+        description: |-
+          &7 Material ID: [id]
     # This section contains all tip messages.
     tips:
       click-to-switch: "&e Click &7 to switch."
