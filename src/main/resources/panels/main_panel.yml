@@ -81,6 +81,9 @@ main_panel:
       8: island_button
   reusable:
     island_button:
+      # icon: PLAYER_HEAD
+      # title: visit.gui.buttons.island.name
+      # description: visit.gui.buttons.island.description
       data:
         type: ISLAND
       actions:

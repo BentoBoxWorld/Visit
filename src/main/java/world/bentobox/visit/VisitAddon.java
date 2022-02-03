@@ -54,6 +54,7 @@ public class VisitAddon extends Addon
 
         // Save existing panels.
         this.saveResource("panels/main_panel.yml", false);
+        this.saveResource("panels/manage_panel.yml", false);
     }
 
 
