@@ -366,6 +366,20 @@ public class VisitAddonManager
      * @param island Island where user need to be teleported.
      * @return {@code true} if teleportation can be performed, {@code false} otherwise.
      */
+    public boolean preprocessTeleportation(User user, Island island)
+    {
+        return this.preprocessTeleportation(user, island, false);
+    }
+
+
+    /**
+     * This method checks if teleportation can be performed.
+     *
+     * @param user Targeted user who need to be teleported.
+     * @param island Island where user need to be teleported.
+     * @param silent Should the message be sent to the player why teleportation is not possible.
+     * @return {@code true} if teleportation can be performed, {@code false} otherwise.
+     */
     public boolean preprocessTeleportation(User user, Island island, boolean silent)
     {
         double payment = this.getTaxAmount() + this.getIslandEarnings(island);
