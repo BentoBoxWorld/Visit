@@ -52,6 +52,11 @@ public class VisitAddon extends Addon
             this.setState(State.DISABLED);
         }
 
+        ALLOW_VISITS_FLAG = new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
+            type(Flag.Type.SETTING).
+            defaultRank(this.settings.isDefaultVisitingEnabled() ? 0 : -1).
+            build();
+
         // Save existing panels.
         this.saveResource("panels/main_panel.yml", false);
         this.saveResource("panels/manage_panel.yml", false);
@@ -122,8 +127,6 @@ public class VisitAddon extends Addon
         {
             // After we added all GameModes into flags, we need to register these flags
             // into BentoBox.
-
-            ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
             this.registerFlag(ALLOW_VISITS_FLAG);
 
             INSTANCE = this;
@@ -322,8 +325,5 @@ public class VisitAddon extends Addon
      * <p>
      * By default setting is set to false.
      */
-    public final static Flag ALLOW_VISITS_FLAG =
-        new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
-            type(Flag.Type.SETTING).
-            build();
+    public static Flag ALLOW_VISITS_FLAG;
 }
