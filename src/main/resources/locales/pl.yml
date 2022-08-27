@@ -12,7 +12,8 @@ visit:
         parameters: "<gracz>"
       configure:
         description: otwiera GUI, który pozwala zarządzać ustawieniami odwiedzin.
-      set-location: {}
+      set-location:
+        description: Pozwala zmienić lokalizację odradzania się odwiedzających.
   gui:
     titles:
       choose: "&0&l Wybierz wyspę"
