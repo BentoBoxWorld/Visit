@@ -242,6 +242,8 @@ visit:
     cancelled: "&c Rozmowa została anulowana!"
     prefix: "&l&6 [BentoBox]: &r"
     numeric-only: "&c Podana [wartość] nie jest liczbą!"
+    not-valid-value: "&e Proszę wpisać wartość wyszukiwania. (napisz „anuluj”, aby
+      wyjść)"
     write-search: "&e Proszę wpisać wartość wyszukiwania. (napisz „anuluj”, aby wyjść)"
     search-updated: "&a Zaktualizowano wartość wyszukiwania."
     input-number: "&e Wprowadź numer na czacie."
