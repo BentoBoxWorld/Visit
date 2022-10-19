@@ -113,6 +113,16 @@ visit:
           &7 visits are enabled.
         enabled: "&7 Visits are &a allowed"
         disabled: "&7 Visits are &c disallowed"
+      # Button that allows to toggle if visits are allowed at all.
+      messaging:
+        name: '&f&l Receive Visiting Messages'
+        description: |-
+          &7 Allows to change if island
+          &7 members should receive
+          &7 messages when someone
+          &7 visits the island.
+        enabled: "&7 Messaging is &a enabled"
+        disabled: "&7 Messaging is &c disabled"
       # List of buttons in Admin GUI
       # Button that opens All island GUI for admin.
       manage:
@@ -324,6 +334,8 @@ visit:
     visit-earn: "&l&6 [player] &r&e paid you &l&6 $[payment] &r&e for visiting your island."
     # Message that appears for user who receives payment.
     visit-earn-bank: "&l&6 [player] &r&e deposited in your bank &l&6 $[payment] &r&e for visiting your island."
+    # Message that appears when someone visits player island.
+    player-visiting-island: "&e Player &l&6 [player] &r&e visited your island."
 # Protection flags that are used in current addon.
 protection:
   flags:
@@ -334,3 +346,10 @@ protection:
         &a visited by anyone.
       hint: "&c Visits are disabled in this island"
       icon: PUMPKIN_PIE
+    RECEIVE_VISIT_MESSAGE_FLAG:
+      name: "Receive Visiting Messages"
+      description: |-
+        &a Toggle if members should
+        &a receive a message if someone
+        &a visits their island.
+      icon: PAPER

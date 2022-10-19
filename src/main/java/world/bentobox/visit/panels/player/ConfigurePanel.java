@@ -66,6 +66,7 @@ public class ConfigurePanel
         panelBuilder.registerTypeBuilder("PAYMENT", this::createValueButton);
         panelBuilder.registerTypeBuilder("OFFLINE", this::createOfflineOnlyButton);
         panelBuilder.registerTypeBuilder("ALLOWED", this::createEnableButton);
+        panelBuilder.registerTypeBuilder("MESSAGING", this::createMessagingButton);
 
         // Register unknown type builder.
         panelBuilder.build();
@@ -308,6 +309,93 @@ public class ConfigurePanel
                     if ("TOGGLE".equalsIgnoreCase(action.actionType()))
                     {
                         this.island.setSettingsFlag(VisitAddon.ALLOW_VISITS_FLAG, !value);
+                        this.build();
+                    }
+                }
+            });
+
+            return true;
+        });
+
+        // Collect tooltips.
+        List<String> tooltips = actions.stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(actions.size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        builder.glow(value);
+
+        return builder.build();
+    }
+
+
+    /**
+     * This method creates toggleable button that allows to switch if visiting is enabled or not.
+     *
+     * @param template the template
+     * @param itemSlot the item slot
+     * @return PanelItem button.
+     */
+    private PanelItem createMessagingButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot itemSlot)
+    {
+        final String reference = Constants.BUTTONS + "messaging.";
+
+        PanelItemBuilder builder = new PanelItemBuilder();
+
+        if (template.icon() != null)
+        {
+            builder.icon(template.icon().clone());
+        }
+        else
+        {
+            builder.icon(Material.PUMPKIN_PIE);
+        }
+
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        final boolean value = this.island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG);
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(template.description(),
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + (value ? "enabled" : "disabled"))));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
+            builder.description(this.user.getTranslationOrNothing(reference + (value ? "enabled" : "disabled")));
+        }
+
+        List<ItemTemplateRecord.ActionRecords> actions = template.actions().stream().
+            filter(action -> this.island.isAllowed(this.user, Flags.CHANGE_SETTINGS)).
+            collect(Collectors.toList());
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, slot) ->
+        {
+            actions.forEach(action -> {
+                if (action.clickType() == clickType || action.clickType() == ClickType.UNKNOWN)
+                {
+                    if ("TOGGLE".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.island.setSettingsFlag(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG, !value);
                         this.build();
                     }
                 }

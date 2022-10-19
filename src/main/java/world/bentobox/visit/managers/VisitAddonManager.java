@@ -9,9 +9,7 @@ package world.bentobox.visit.managers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import world.bentobox.bank.BankResponse;
@@ -582,6 +580,22 @@ public class VisitAddonManager
                     location(location == null ? island.getProtectionCenter() : location).
                     failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
                     build();
+            }
+
+            if (island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG))
+            {
+                // Send message that player is visiting the island.
+                island.getMemberSet().forEach(uuid ->
+                {
+                    User member = User.getInstance(uuid);
+
+                    if (member.isOnline())
+                    {
+                        Utils.sendMessage(member,
+                            member.getTranslation(Constants.CONVERSATIONS + "player-visiting-island",
+                                Constants.PARAMETER_PLAYER, user.getName()));
+                    }
+                });
             }
         }
     }

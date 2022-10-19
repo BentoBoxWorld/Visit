@@ -27,6 +27,16 @@ manage_panel:
           left:
             type: TOGGLE
             tooltip: visit.gui.tips.click-to-toggle
+      4:
+        icon: PAPER
+        title: visit.gui.buttons.messaging.name
+        # description: visit.gui.buttons.enabled.description
+        data:
+          type: MESSAGING
+        actions:
+          toggle:
+            click-type: UNKNOWN
+            tooltip: visit.gui.tips.click-to-toggle
       5:
         icon: PUMPKIN_PIE
         title: visit.gui.buttons.enabled.name

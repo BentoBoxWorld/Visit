@@ -57,6 +57,11 @@ public class VisitAddon extends Addon
             defaultRank(this.settings.isDefaultVisitingEnabled() ? 0 : -1).
             build();
 
+        RECEIVE_VISIT_MESSAGE_FLAG = new Flag.Builder("RECEIVE_VISIT_MESSAGE_FLAG", Material.PAPER).
+            type(Flag.Type.SETTING).
+            defaultRank(0).
+            build();
+
         // Save existing panels.
         this.saveResource("panels/main_panel.yml", false);
         this.saveResource("panels/manage_panel.yml", false);
@@ -104,6 +109,7 @@ public class VisitAddon extends Addon
             {
                 // Now we add GameModes to our Flags
                 ALLOW_VISITS_FLAG.addGameModeAddon(gameModeAddon);
+                RECEIVE_VISIT_MESSAGE_FLAG.addGameModeAddon(gameModeAddon);
 
                 // Each GameMode could have Player Command and Admin Command and we could
                 // want to integrate our Visit Command into these commands.
@@ -128,6 +134,7 @@ public class VisitAddon extends Addon
             // After we added all GameModes into flags, we need to register these flags
             // into BentoBox.
             this.registerFlag(ALLOW_VISITS_FLAG);
+            this.registerFlag(RECEIVE_VISIT_MESSAGE_FLAG);
 
             INSTANCE = this;
         }
@@ -326,4 +333,9 @@ public class VisitAddon extends Addon
      * By default setting is set to false.
      */
     public static Flag ALLOW_VISITS_FLAG;
+
+    /**
+     * This flag allows to toggle if player should receive message that someone visits his island.
+     */
+    public static Flag RECEIVE_VISIT_MESSAGE_FLAG;
 }
