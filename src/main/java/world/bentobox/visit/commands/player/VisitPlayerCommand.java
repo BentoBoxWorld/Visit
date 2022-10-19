@@ -232,10 +232,14 @@ public class VisitPlayerCommand extends DelayedTeleportCommand
      * @return List of strings that could be used to complete this command.
      */
     @Override
-    public Optional<List<String>> tabComplete(User user, String alias, List<String> args)
-    {
-        // TODO: nice addition would be to autocomplete user names.
-        return super.tabComplete(user, alias, args);
+    public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
+        String lastArg = !args.isEmpty() ? args.get(args.size()-1) : "";
+        if (lastArg.isEmpty()) {
+            // Don't show every player on the server. Require at least the first letter
+            return Optional.empty();
+        }
+        List<String> options = new ArrayList<>(Util.getOnlinePlayerList(user));
+        return Optional.of(Util.tabLimit(options, lastArg));
     }
 
 
