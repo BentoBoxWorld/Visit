@@ -176,37 +176,6 @@ visit:
         disabled: |-
           &7 By default visits
           &7 are &c disabled
-      # Button that allows to change location of filter row
-      at_top:
-        name: '&f&l Filter Row At Top'
-        description: |-
-          &7 Allows to change if filter
-          &7 row is located at the top
-          &7 or bottom.
-        enabled: |-
-          &7 Filter row is at the &a top.
-        disabled: |-
-          &7 Filter row is at the &a bottom.
-      # Button that allows to toggle filter row.
-      toggle_filters:
-        name: '&f&l Toggle Filters'
-        description: |-
-          &7 Allows to toggle filter
-          &7 row in User GUI.
-        enabled: |-
-          &7 Filter row is &a enabled.
-        disabled: |-
-          &7 Filter row is &c disabled.
-      # Button that allows to toggle search button.
-      toggle_search:
-        name: '&f&l Toggle Search'
-        description: |-
-          &7 Allows to toggle search
-          &7 button in User GUI.
-        enabled: |-
-          &7 Search button is &a enabled.
-        disabled: |-
-          &7 Search button is &c disabled.
       # Button that allows to toggle economy
       enable_economy:
         name: '&f&l Enable Economy'
