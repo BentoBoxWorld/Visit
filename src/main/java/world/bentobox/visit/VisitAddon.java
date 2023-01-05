@@ -8,17 +8,16 @@ package world.bentobox.visit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import java.util.Optional;
 
+import world.bentobox.bank.Bank;
 import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.flags.Flag;
-import world.bentobox.bentobox.api.flags.clicklisteners.CycleClick;
 import world.bentobox.bentobox.hooks.VaultHook;
-import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.visit.commands.admin.VisitAdminCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
+import world.bentobox.visit.listeners.IslandLeaveListener;
 import world.bentobox.visit.managers.VisitAddonManager;
 
 
@@ -27,11 +26,6 @@ import world.bentobox.visit.managers.VisitAddonManager;
  */
 public class VisitAddon extends Addon
 {
-    // ---------------------------------------------------------------------
-    // Section: Variables
-    // ---------------------------------------------------------------------
-
-
     /**
      * Executes code when loading the addon. This is called before {@link #onEnable()}. This <b>must</b> be used to
      * setup configuration, worlds and commands.
@@ -59,14 +53,19 @@ public class VisitAddon extends Addon
             this.setState(State.DISABLED);
         }
 
-        // Set up flag with correct default rank permission.
-        VISIT_CONFIG_PERMISSION = new Flag.Builder("VISIT_CONFIG_PERMISSION", Material.PUMPKIN).
-            type(Flag.Type.PROTECTION).
-            defaultRank(this.settings.getDefaultConfigPermission()).
-            clickHandler(new CycleClick("VISIT_CONFIG_PERMISSION",
-                RanksManager.MEMBER_RANK,
-                RanksManager.OWNER_RANK)).
+        ALLOW_VISITS_FLAG = new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
+            type(Flag.Type.SETTING).
+            defaultRank(this.settings.isDefaultVisitingEnabled() ? 0 : -1).
             build();
+
+        RECEIVE_VISIT_MESSAGE_FLAG = new Flag.Builder("RECEIVE_VISIT_MESSAGE_FLAG", Material.PAPER).
+            type(Flag.Type.SETTING).
+            defaultRank(0).
+            build();
+
+        // Save existing panels.
+        this.saveResource("panels/main_panel.yml", false);
+        this.saveResource("panels/manage_panel.yml", false);
     }
 
 
@@ -111,7 +110,7 @@ public class VisitAddon extends Addon
             {
                 // Now we add GameModes to our Flags
                 ALLOW_VISITS_FLAG.addGameModeAddon(gameModeAddon);
-                VISIT_CONFIG_PERMISSION.addGameModeAddon(gameModeAddon);
+                RECEIVE_VISIT_MESSAGE_FLAG.addGameModeAddon(gameModeAddon);
 
                 // Each GameMode could have Player Command and Admin Command and we could
                 // want to integrate our Visit Command into these commands.
@@ -135,24 +134,21 @@ public class VisitAddon extends Addon
         {
             // After we added all GameModes into flags, we need to register these flags
             // into BentoBox.
-
-            ALLOW_VISITS_FLAG.setDefaultSetting(this.settings.isDefaultVisitingEnabled());
             this.registerFlag(ALLOW_VISITS_FLAG);
-            this.registerFlag(VISIT_CONFIG_PERMISSION);
+            this.registerFlag(RECEIVE_VISIT_MESSAGE_FLAG);
+
+            this.registerListener(new IslandLeaveListener(this));
 
             INSTANCE = this;
         }
+    }
 
-        // BentoBox does not manage money, but it provides VaultHook that does it.
-        this.vaultHook = this.getPlugin().getVault();
 
-        // Even if Vault is installed, it does not mean that economy can be used. It is
-        // necessary to check it via VaultHook#hook() method.
-
-        if (!this.vaultHook.isPresent())
-        {
-            this.logWarning("Vault plugin not found. Economy will not work!");
-        }
+    @Override
+    public void allLoaded()
+    {
+        super.allLoaded();
+        this.hookExtensions();
     }
 
 
@@ -183,17 +179,53 @@ public class VisitAddon extends Addon
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Flags
-    // ---------------------------------------------------------------------
-
-
     /**
      * Executes code when disabling the addon.
      */
     @Override
     public void onDisable()
     {
+    }
+
+
+// ---------------------------------------------------------------------
+// Section: Methods
+// ---------------------------------------------------------------------
+
+
+    /**
+     * This method finds and hooks into visit addon extensions.
+     */
+    private void hookExtensions()
+    {
+        // Try to find Level addon and if it does not exist, display a warning
+        this.getAddonByName("Bank").ifPresentOrElse(addon ->
+        {
+            this.bankHook = (Bank) addon;
+            this.log("Visit Addon hooked into Bank addon.");
+        }, () ->
+        {
+            this.bankHook = null;
+        });
+
+        // Try to find Vault Plugin and if it does not exist, display a warning
+        this.getPlugin().getVault().ifPresentOrElse(hook ->
+        {
+            this.vaultHook = hook;
+
+            if (this.vaultHook.hook())
+            {
+                this.log("Visit Addon hooked into Economy.");
+            }
+            else
+            {
+                this.logWarning("Visit Addon could not hook into valid Economy.");
+            }
+        }, () ->
+        {
+            this.vaultHook = null;
+            this.logWarning("Vault plugin not found. Economy will not work!");
+        });
     }
 
 
@@ -217,13 +249,19 @@ public class VisitAddon extends Addon
      */
     public VaultHook getVaultHook()
     {
-        return this.vaultHook.orElse(null);
+        return this.vaultHook;
     }
 
 
-    // ---------------------------------------------------------------------
-    // Section: Methods
-    // ---------------------------------------------------------------------
+    /**
+     * Gets bank hook.
+     *
+     * @return the bank hook
+     */
+    public Bank getBankHook()
+    {
+        return this.bankHook;
+    }
 
 
     /**
@@ -259,6 +297,10 @@ public class VisitAddon extends Addon
     }
 
 
+// ---------------------------------------------------------------------
+// Section: Variables
+// ---------------------------------------------------------------------
+
     /**
      * Settings object contains
      */
@@ -269,26 +311,20 @@ public class VisitAddon extends Addon
      */
     private VisitAddonManager addonManager;
 
-
-    // ---------------------------------------------------------------------
-    // Section: Getters
-    // ---------------------------------------------------------------------
+    /**
+     * Local variable that stores vault hook.
+     */
+    private VaultHook vaultHook;
 
     /**
-     * Local variable that stores if vaultHook is present.
+     * Local variable that stores bank addon hook.
      */
-    private Optional<VaultHook> vaultHook;
+    private Bank bankHook;
 
     /**
      * Stores instance of the addon.
      */
     private static VisitAddon INSTANCE;
-
-    /**
-     * This flag allows to change who have access to modify island visitor config option. Owner can change it from
-     * member rank till owner rank. Default value is set to subowner.
-     */
-    public static Flag VISIT_CONFIG_PERMISSION;
 
     /**
      * Settings flags allows to modifying parameters of the island.
@@ -299,8 +335,10 @@ public class VisitAddon extends Addon
      * <p>
      * By default setting is set to false.
      */
-    public final static Flag ALLOW_VISITS_FLAG =
-        new Flag.Builder("ALLOW_VISITS_FLAG", Material.PUMPKIN_PIE).
-            type(Flag.Type.SETTING).
-            build();
+    public static Flag ALLOW_VISITS_FLAG;
+
+    /**
+     * This flag allows to toggle if player should receive message that someone visits his island.
+     */
+    public static Flag RECEIVE_VISIT_MESSAGE_FLAG;
 }

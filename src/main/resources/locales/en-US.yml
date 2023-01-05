@@ -113,6 +113,16 @@ visit:
           &7 visits are enabled.
         enabled: "&7 Visits are &a allowed"
         disabled: "&7 Visits are &c disallowed"
+      # Button that allows to toggle if visits are allowed at all.
+      messaging:
+        name: '&f&l Receive Visiting Messages'
+        description: |-
+          &7 Allows to change if island
+          &7 members should receive
+          &7 messages when someone
+          &7 visits the island.
+        enabled: "&7 Messaging is &a enabled"
+        disabled: "&7 Messaging is &c disabled"
       # List of buttons in Admin GUI
       # Button that opens All island GUI for admin.
       manage:
@@ -166,38 +176,7 @@ visit:
         disabled: |-
           &7 By default visits
           &7 are &c disabled
-      # Button that allows to change location of filter row
-      at_top:
-        name: '&f&l Filter Row At Top'
-        description: |-
-          &7 Allows to change if filter
-          &7 row is located at the top
-          &7 or bottom.
-        enabled: |-
-          &7 Filter row is at the &a top.
-        disabled: |-
-          &7 Filter row is at the &a bottom.
-      # Button that allows to toggle filter row.
-      toggle_filters:
-        name: '&f&l Toggle Filters'
-        description: |-
-          &7 Allows to toggle filter
-          &7 row in User GUI.
-        enabled: |-
-          &7 Filter row is &a enabled.
-        disabled: |-
-          &7 Filter row is &c disabled.
-      # Button that allows to toggle search button.
-      toggle_search:
-        name: '&f&l Toggle Search'
-        description: |-
-          &7 Allows to toggle search
-          &7 button in User GUI.
-        enabled: |-
-          &7 Search button is &a enabled.
-        disabled: |-
-          &7 Search button is &c disabled.
-      # Button that allows to change location of filter row
+      # Button that allows to toggle economy
       enable_economy:
         name: '&f&l Enable Economy'
         description: |-
@@ -208,6 +187,49 @@ visit:
           &7 Economy is &a enabled.
         disabled: |-
           &7 Economy is &c disabled.
+      use_bank:
+        name: '&f&l Enable Bank'
+        description: |-
+          &7 Allows to toggle if all
+          &7 payments must be processed
+          &7 through island bank.
+          &7 Bank addon is required.
+        enabled: |-
+          &7 Bank Usage is &a enabled.
+        disabled: |-
+          &7 Bank Usage is &c disabled.
+      enable_confirmation:
+        name: '&f&l Payment Confirmation'
+        description: |-
+          &7 Allows to toggle if payments
+          &7 must be confirmed twice.
+        enabled: |-
+          &7 Confirmation is &a enabled.
+        disabled: |-
+          &7 Confirmation is &c disabled.
+      icon:
+        name: '&f&l Default Icon'
+        description: |-
+          &7 Allows to change default
+          &7 island icon.
+      max_value:
+        name: '&f&l Max Payment Value'
+        description: |-
+          &7 Allows to set max amount
+          &7 players can set as payment
+          &7 for visiting their island.
+          &7 0 or bellow disables any
+          &7 limitations.
+        value: "&7 Max value: &b&o [number]"
+      cancel:
+        name: "&f&l Cancel"
+        description: |-
+          &7 Cancel and return to
+          &7 previous menu.
+      material:
+        name: "&f&l [material]"
+        description: |-
+          &7 Material ID: [id]
     # This section contains all tip messages.
     tips:
       click-to-switch: "&e Click &7 to switch."
@@ -225,11 +247,15 @@ visit:
       click-to-deselect: "&e Click &7 to deselect."
       left-click-to-confirm: "&e Left Click &7 to confirm."
       right-click-to-cancel: "&e Right Click &7 to cancel."
+      left-click-to-cycle: "&e Left Click &7 to cycle down."
+      right-click-to-cycle: "&e Right Click &7 to cycle up."
   errors:
+    no-islands: '&r&c There are no islands for visiting in [gamemode]!'
     noone-is-online: '&r&c Noone from this island is online!'
-    not-enough-credits: '&r&c You do not have enough credits to visit this island. Necessary [number] credits.'
-    cannot-withdraw-credits: '&r&c Cannot withdraw [number] from your account! Operation is cancelled.'
-    cannot-deposit-credits: '&r&c Cannot deposit [number] into island owner account! Operation is cancelled.'
+    not-enough-credits: '&r&c You do not have enough money. Visiting costs &l&4 $[number].'
+    not-enough-credits-bank: '&r&c You do not have enough money in your bank account. Visiting costs &l&4 $[number].'
+    cannot-withdraw-credits: '&r&c Cannot withdraw &l&4 $[number] &r&c from your account! Operation is cancelled.'
+    cannot-deposit-credits: '&r&c Cannot deposit &l&4 $[number] &r&c into island owner account! Operation is cancelled.'
     not-in-overworld: '&rv You must be in overworld to change visitor spawn location! Operation is cancelled.'
     not-in-protected-area: '&r&c You must be in your island protected area! Operation is cancelled.'
     not-safe-location: '&r&c Cannot set this location, it is not safe for teleportation! Operation is cancelled.'
@@ -266,7 +292,21 @@ visit:
     spawn-point-updated: "&a Success, spawn point is changed!"
     # Message that appears when user process teleportation to the island with the associated cost.
     # [tax], [earn], [payment], [island] and [owner] are available variables.
-    visit-payment: "&e Visiting [owner] island will cost &l&6 $[payment]."
+    visit-payment: "&e Visiting &l&6 [owner] &r&e island will cost &l&6 $[payment]."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid: "&e You paid &l&6 $[payment] &r&e for visiting &l&6 [owner] &r&e island."
+    # Message that appears after user process teleportation to the island with the associated cost.
+    # [tax], [earn], [payment], [island] and [owner] are available variables.
+    visit-paid-bank: "&e You paid &l&6 $[payment] &r&e from your bank account for visiting &l&6 [owner] &r&e island."
+    # Message that appears for user who receives payment.
+    visit-earn: "&l&6 [player] &r&e paid you &l&6 $[payment] &r&e for visiting your island."
+    # Message that appears for user who receives payment.
+    visit-earn-bank: "&l&6 [player] &r&e deposited in your bank &l&6 $[payment] &r&e for visiting your island."
+    # Message that appears when someone visits player island.
+    player-visiting-island: "&e Player &l&6 [player] &r&e visited your island."
+    # Message that appears when visitor leaves player island.
+    player-leaves-island: "&e Player &l&6 [player] &r&e leaved your island."
 # Protection flags that are used in current addon.
 protection:
   flags:
@@ -277,10 +317,10 @@ protection:
         &a visited by anyone.
       hint: "&c Visits are disabled in this island"
       icon: PUMPKIN_PIE
-    VISIT_CONFIG_PERMISSION:
-      name: "Manage visitor config"
+    RECEIVE_VISIT_MESSAGE_FLAG:
+      name: "Receive Visiting Messages"
       description: |-
-        &a Allows to switch who
-        &a can edit island visitor
-        &a configuration.
-      icon: PUMPKIN
+        &a Toggle if members should
+        &a receive a message if someone
+        &a visits their island.
+      icon: PAPER

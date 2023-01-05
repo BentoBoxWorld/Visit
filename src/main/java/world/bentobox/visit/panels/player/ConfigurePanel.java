@@ -7,18 +7,22 @@ package world.bentobox.visit.panels.player;
 
 
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.Nullable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import world.bentobox.bentobox.api.panels.Panel;
 import world.bentobox.bentobox.api.panels.PanelItem;
-import world.bentobox.bentobox.api.panels.builders.PanelBuilder;
+import world.bentobox.bentobox.api.panels.TemplatedPanel;
 import world.bentobox.bentobox.api.panels.builders.PanelItemBuilder;
+import world.bentobox.bentobox.api.panels.builders.TemplatedPanelBuilder;
+import world.bentobox.bentobox.api.panels.reader.ItemTemplateRecord;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.lists.Flags;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.managers.VisitAddonManager;
 import world.bentobox.visit.panels.ConversationUtils;
@@ -52,171 +56,372 @@ public class ConfigurePanel
      */
     private void build()
     {
-        // PanelBuilder is a BentoBox API that provides ability to easy create Panels.
-        PanelBuilder panelBuilder = new PanelBuilder().
-            user(this.user).
-            name(this.user.getTranslation(Constants.TITLES + "configure")).
-            type(Panel.Type.HOPPER);
+        TemplatedPanelBuilder panelBuilder = new TemplatedPanelBuilder();
 
-        if (this.island == null)
-        {
-            // Nothing to open as user do not have island anymore.
-            return;
-        }
+        panelBuilder.user(this.user);
+        panelBuilder.world(this.island.getWorld());
 
-        if (this.addon.getVaultHook() != null &&
-            this.addon.getVaultHook().hook() &&
-            !this.addon.getSettings().isDisableEconomy())
-        {
-            // Add value button only if vault is enabled.
-            panelBuilder.item(0, this.createValueButton());
-        }
+        panelBuilder.template("manage_panel", new File(this.addon.getDataFolder(), "panels"));
 
-        panelBuilder.item(2, this.createOfflineOnlyButton());
-        panelBuilder.item(4, this.createEnableButton(this.island));
+        panelBuilder.registerTypeBuilder("PAYMENT", this::createValueButton);
+        panelBuilder.registerTypeBuilder("OFFLINE", this::createOfflineOnlyButton);
+        panelBuilder.registerTypeBuilder("ALLOWED", this::createEnableButton);
+        panelBuilder.registerTypeBuilder("MESSAGING", this::createMessagingButton);
 
-        // At the end we just call build method that creates and opens panel.
+        // Register unknown type builder.
         panelBuilder.build();
     }
 
 
     /**
-     * This method creates input button that allows to write any number in chat.
+     * Create value button panel item.
      *
-     * @return PanelItem button that allows to change payment value.
+     * @param template the template
+     * @param itemSlot the item slot
+     * @return the panel item
      */
-    private PanelItem createValueButton()
+    private PanelItem createValueButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot itemSlot)
     {
-        String name = this.user.getTranslation(Constants.BUTTONS + "payment.name");
-        List<String> description = new ArrayList<>(3);
+        final String reference = Constants.BUTTONS + "payment.";
 
-        description.add(this.user.getTranslation(Constants.BUTTONS + "payment.description",
-            Constants.PARAMETER_NUMBER, Double.toString(this.addon.getAddonManager().getIslandEarnings(this.island))));
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-change"));
-
-        ItemStack icon = new ItemStack(Material.ANVIL);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
+        if (template.icon() != null)
         {
-            Consumer<Number> numberConsumer = number -> {
-                if (number != null)
+            builder.icon(template.icon().clone());
+        }
+        else
+        {
+            builder.icon(Material.ANVIL);
+        }
+
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(template.description(),
+                Constants.PARAMETER_NUMBER,
+                Double.toString(this.addon.getAddonManager().getIslandEarnings(this.island))));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description",
+                Constants.PARAMETER_NUMBER,
+                Double.toString(this.addon.getAddonManager().getIslandEarnings(this.island))));
+        }
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, i) ->
+        {
+            template.actions().forEach(action -> {
+                if (action.clickType() == clickType || action.clickType() == ClickType.UNKNOWN)
                 {
-                    this.manager.setIslandEarnings(this.island, number.doubleValue());
+                    if ("CHANGE".equalsIgnoreCase(action.actionType()))
+                    {
+                        Consumer<Number> numberConsumer = number -> {
+                            if (number != null)
+                            {
+                                this.manager.setIslandEarnings(this.island, number.doubleValue());
+                            }
+
+                            // reopen panel
+                            this.build();
+                        };
+
+                        final double maxAmount = this.addon.getSettings().getMaxAmount();
+
+                        ConversationUtils.createNumericInput(numberConsumer,
+                            this.user,
+                            this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
+                            0,
+                            maxAmount > 0 ? maxAmount : Double.MAX_VALUE);
+                    }
                 }
-
-                // reopen panel
-                this.build();
-            };
-
-            final double maxAmount = this.addon.getSettings().getMaxAmount();
-
-            ConversationUtils.createNumericInput(numberConsumer,
-                this.user,
-                this.user.getTranslation(Constants.CONVERSATIONS + "input-number"),
-                0,
-                maxAmount > 0 ? maxAmount : Double.MAX_VALUE);
+            });
 
             return true;
-        };
+        });
 
-        return new PanelItemBuilder().
-            name(name).
-            description(description).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
+        // Collect tooltips.
+        List<String> tooltips = template.actions().stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(template.actions().size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
     /**
      * This method creates toggleable button that allows to switch between only online/ offline button.
      *
+     * @param template the template
+     * @param itemSlot the item slot
      * @return PanelItem button.
      */
-    private PanelItem createOfflineOnlyButton()
+    private PanelItem createOfflineOnlyButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot itemSlot)
     {
-        String name = this.user.getTranslation(Constants.BUTTONS + "offline.name");
-        List<String> description = new ArrayList<>(5);
-        description.add(this.user.getTranslation(Constants.BUTTONS + "offline.description"));
+        final String reference = Constants.BUTTONS + "offline.";
 
-        ItemStack icon;
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        final boolean value = this.manager.hasOfflineEnabled(this.island);
-
-        if (value)
+        if (template.icon() != null)
         {
-            description.add(this.user.getTranslation(Constants.BUTTONS + "offline.enabled"));
-            icon = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
+            builder.icon(template.icon().clone());
         }
         else
         {
-            description.add(this.user.getTranslation(Constants.BUTTONS + "offline.disabled"));
-            icon = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+            builder.icon(Material.REDSTONE_LAMP);
         }
 
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
-
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
+        if (template.title() != null)
         {
-            this.manager.setOfflineData(this.island, !value);
-            panel.getInventory().setItem(slot, this.createOfflineOnlyButton().getItem());
+            builder.name(this.user.getTranslation(template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        final boolean value = this.manager.hasOfflineEnabled(this.island);
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(template.description(),
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + (value ? "enabled" : "disabled"))));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
+            builder.description(this.user.getTranslationOrNothing(reference + (value ? "enabled" : "disabled")));
+        }
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, slot) ->
+        {
+            template.actions().forEach(action -> {
+                if (action.clickType() == clickType || action.clickType() == ClickType.UNKNOWN)
+                {
+                    if ("TOGGLE".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.manager.setOfflineData(this.island, !value);
+                        this.build();
+                    }
+                }
+            });
 
             return true;
-        };
+        });
 
-        return new PanelItemBuilder().
-            name(name).
-            description(description).
-            icon(icon).
-            clickHandler(clickHandler).
-            build();
+        builder.glow(value);
+
+        // Collect tooltips.
+        List<String> tooltips = template.actions().stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(template.actions().size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        return builder.build();
     }
 
 
     /**
      * This method creates toggleable button that allows to switch if visiting is enabled or not.
      *
+     * @param template the template
+     * @param itemSlot the item slot
      * @return PanelItem button.
      */
-    private PanelItem createEnableButton(Island island)
+    private PanelItem createEnableButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot itemSlot)
     {
-        boolean isAllowed = island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG);
+        final String reference = Constants.BUTTONS + "enabled.";
 
-        String name = this.user.getTranslation(Constants.BUTTONS + "enabled.name");
-        List<String> description = new ArrayList<>(5);
-        description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.description"));
+        PanelItemBuilder builder = new PanelItemBuilder();
 
-        if (isAllowed)
+        if (template.icon() != null)
         {
-            description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.enabled"));
+            builder.icon(template.icon().clone());
         }
         else
         {
-            description.add(this.user.getTranslation(Constants.BUTTONS + "enabled.disabled"));
+            builder.icon(Material.PUMPKIN_PIE);
         }
 
-        description.add("");
-        description.add(this.user.getTranslation(Constants.TIPS + "click-to-toggle"));
-
-
-        ItemStack icon = new ItemStack(Material.PUMPKIN_PIE);
-        PanelItem.ClickHandler clickHandler = (panel, user, clickType, slot) ->
+        if (template.title() != null)
         {
-            island.setSettingsFlag(VisitAddon.ALLOW_VISITS_FLAG, !isAllowed);
-            this.build();
+            builder.name(this.user.getTranslation(template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        final boolean value = island.isAllowed(VisitAddon.ALLOW_VISITS_FLAG);
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(template.description(),
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + (value ? "enabled" : "disabled"))));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
+            builder.description(this.user.getTranslationOrNothing(reference + (value ? "enabled" : "disabled")));
+        }
+
+        List<ItemTemplateRecord.ActionRecords> actions = template.actions().stream().
+            filter(action -> this.island.isAllowed(this.user, Flags.CHANGE_SETTINGS)).
+            collect(Collectors.toList());
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, slot) ->
+        {
+            actions.forEach(action -> {
+                if (action.clickType() == clickType || action.clickType() == ClickType.UNKNOWN)
+                {
+                    if ("TOGGLE".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.island.setSettingsFlag(VisitAddon.ALLOW_VISITS_FLAG, !value);
+                        this.build();
+                    }
+                }
+            });
 
             return true;
-        };
+        });
 
-        return new PanelItemBuilder().
-            name(name).
-            description(description).
-            icon(icon).
-            clickHandler(clickHandler).
-            glow(isAllowed).
-            build();
+        // Collect tooltips.
+        List<String> tooltips = actions.stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(actions.size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        builder.glow(value);
+
+        return builder.build();
+    }
+
+
+    /**
+     * This method creates toggleable button that allows to switch if visiting is enabled or not.
+     *
+     * @param template the template
+     * @param itemSlot the item slot
+     * @return PanelItem button.
+     */
+    private PanelItem createMessagingButton(ItemTemplateRecord template, TemplatedPanel.ItemSlot itemSlot)
+    {
+        final String reference = Constants.BUTTONS + "messaging.";
+
+        PanelItemBuilder builder = new PanelItemBuilder();
+
+        if (template.icon() != null)
+        {
+            builder.icon(template.icon().clone());
+        }
+        else
+        {
+            builder.icon(Material.PUMPKIN_PIE);
+        }
+
+        if (template.title() != null)
+        {
+            builder.name(this.user.getTranslation(template.title()));
+        }
+        else
+        {
+            builder.name(this.user.getTranslation(reference + "name"));
+        }
+
+        final boolean value = this.island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG);
+
+        if (template.description() != null)
+        {
+            builder.description(this.user.getTranslation(template.description(),
+                Constants.PARAMETER_VALUE,
+                this.user.getTranslation(reference + (value ? "enabled" : "disabled"))));
+        }
+        else
+        {
+            builder.description(this.user.getTranslationOrNothing(reference + "description"));
+            builder.description(this.user.getTranslationOrNothing(reference + (value ? "enabled" : "disabled")));
+        }
+
+        List<ItemTemplateRecord.ActionRecords> actions = template.actions().stream().
+            filter(action -> this.island.isAllowed(this.user, Flags.CHANGE_SETTINGS)).
+            collect(Collectors.toList());
+
+        // Add ClickHandler
+        builder.clickHandler((panel, user, clickType, slot) ->
+        {
+            actions.forEach(action -> {
+                if (action.clickType() == clickType || action.clickType() == ClickType.UNKNOWN)
+                {
+                    if ("TOGGLE".equalsIgnoreCase(action.actionType()))
+                    {
+                        this.island.setSettingsFlag(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG, !value);
+                        this.build();
+                    }
+                }
+            });
+
+            return true;
+        });
+
+        // Collect tooltips.
+        List<String> tooltips = actions.stream().
+            filter(action -> action.tooltip() != null).
+            map(action -> this.user.getTranslation(action.tooltip())).
+            filter(text -> !text.isBlank()).
+            collect(Collectors.toCollection(() -> new ArrayList<>(actions.size())));
+
+        // Add tooltips.
+        if (!tooltips.isEmpty())
+        {
+            // Empty line and tooltips.
+            builder.description("");
+            builder.description(tooltips);
+        }
+
+        builder.glow(value);
+
+        return builder.build();
     }
 
 

@@ -6,12 +6,8 @@
 package world.bentobox.visit.commands.player;
 
 
-import org.bukkit.Location;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import java.util.List;
-import java.util.Optional;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
@@ -59,6 +55,8 @@ public class VisitConfigureCommand extends CompositeCommand
         this.setDescription(Constants.PLAYER_COMMANDS + "configure.description");
 
         this.setOnlyPlayer(true);
+        this.setConfigurableRankCommand();
+        this.setDefaultCommandRank(this.<VisitAddon>getAddon().getSettings().getDefaultConfigPermission());
     }
 
 
@@ -85,7 +83,7 @@ public class VisitConfigureCommand extends CompositeCommand
             return false;
         }
 
-        return island.isAllowed(user, VisitAddon.VISIT_CONFIG_PERMISSION);
+        return true;
     }
 
 
