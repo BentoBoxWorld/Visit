@@ -17,6 +17,7 @@ import world.bentobox.bentobox.hooks.VaultHook;
 import world.bentobox.visit.commands.admin.VisitAdminCommand;
 import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
+import world.bentobox.visit.listeners.IslandLeaveListener;
 import world.bentobox.visit.managers.VisitAddonManager;
 
 
@@ -135,6 +136,8 @@ public class VisitAddon extends Addon
             // into BentoBox.
             this.registerFlag(ALLOW_VISITS_FLAG);
             this.registerFlag(RECEIVE_VISIT_MESSAGE_FLAG);
+
+            this.registerListener(new IslandLeaveListener(this));
 
             INSTANCE = this;
         }

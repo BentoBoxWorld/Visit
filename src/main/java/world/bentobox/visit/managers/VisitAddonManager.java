@@ -23,6 +23,7 @@ import world.bentobox.bentobox.util.Util;
 import world.bentobox.bentobox.util.teleport.SafeSpotTeleport;
 import world.bentobox.visit.VisitAddon;
 import world.bentobox.visit.events.VisitEvent;
+import world.bentobox.visit.listeners.IslandLeaveListener;
 import world.bentobox.visit.utils.Constants;
 import world.bentobox.visit.utils.Utils;
 
@@ -581,6 +582,11 @@ public class VisitAddonManager
                     failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
                     build();
             }
+
+            // Add visitor to the tracked player set after 1 second.
+            Bukkit.getScheduler().runTaskLater(this.addon.getPlugin(),
+                () -> IslandLeaveListener.trackedPlayerSet.add(user.getUniqueId()),
+                20L);
 
             if (island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG))
             {
