@@ -10,6 +10,7 @@ import org.bukkit.World;
 import java.util.List;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
@@ -107,6 +108,16 @@ public class VisitSetLocationCommand extends CompositeCommand
         {
             // Location must be safe.
             Utils.sendMessage(user, user.getTranslation(Constants.ERRORS + "not-safe-location"));
+            return false;
+        }
+
+        int rank = island.getRank(user);
+
+        if (rank < island.getRankCommand(this.getUsage()))
+        {
+            user.sendMessage("general.errors.insufficient-rank",
+                TextVariables.RANK,
+                user.getTranslation(this.getPlugin().getRanksManager().getRank(rank)));
             return false;
         }
 

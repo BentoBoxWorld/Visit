@@ -9,6 +9,7 @@ package world.bentobox.visit.commands.player;
 import java.util.List;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.visit.VisitAddon;
@@ -80,6 +81,16 @@ public class VisitConfigureCommand extends CompositeCommand
         if (island == null)
         {
             user.sendMessage("general.errors.no-island");
+            return false;
+        }
+
+        int rank = island.getRank(user);
+
+        if (rank < island.getRankCommand(this.getUsage()))
+        {
+            user.sendMessage("general.errors.insufficient-rank",
+                TextVariables.RANK,
+                user.getTranslation(this.getPlugin().getRanksManager().getRank(rank)));
             return false;
         }
 
