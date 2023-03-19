@@ -248,8 +248,8 @@ public class VisitAddonManager
                         }
                         else if (bankResponse == BankResponse.SUCCESS)
                         {
-                            Utils.sendMessage(user, message);
                             deposit.complete(true);
+                            Utils.sendMessage(user, message);
                         }
                         else
                         {
@@ -554,56 +554,60 @@ public class VisitAddonManager
      */
     private void startTeleportation(User user, Island island)
     {
-        // Call visit event.
-        VisitEvent event = new VisitEvent(user, island);
-        Bukkit.getPluginManager().callEvent(event);
+        // Schedule task in next tick, because bank is async task. Event calling can be done only
+        // via main thread.
+        Bukkit.getScheduler().runTask(this.addon.getPlugin(), () -> {
+            // Call visit event.
+            VisitEvent event = new VisitEvent(user, island);
+            Bukkit.getPluginManager().callEvent(event);
 
-        // If event is not cancelled, then teleport player.
-        if (!event.isCancelled())
-        {
-            Location location = island.getSpawnPoint(World.Environment.NORMAL);
-
-            // There is a possibility that location may be out of protected area. These locations should
-            // not be valid for teleporting.
-            if (location != null &&
-                island.getProtectionBoundingBox().contains(location.toVector()) &&
-                this.addon.getIslands().isSafeLocation(location))
+            // If event is not cancelled, then teleport player.
+            if (!event.isCancelled())
             {
-                // Teleport player async to island spawn point.
-                Util.teleportAsync(user.getPlayer(), location);
-            }
-            else
-            {
-                // Use SafeSpotTeleport builder to avoid issues with players spawning in
-                // bad spot.
-                new SafeSpotTeleport.Builder(this.addon.getPlugin()).
-                    entity(user.getPlayer()).
-                    location(location == null ? island.getProtectionCenter() : location).
-                    failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
-                    build();
-            }
+                Location location = island.getSpawnPoint(World.Environment.NORMAL);
 
-            // Add visitor to the tracked player set after 1 second.
-            Bukkit.getScheduler().runTaskLater(this.addon.getPlugin(),
-                () -> IslandLeaveListener.trackedPlayerSet.add(user.getUniqueId()),
-                20L);
-
-            if (island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG))
-            {
-                // Send message that player is visiting the island.
-                island.getMemberSet().forEach(uuid ->
+                // There is a possibility that location may be out of protected area. These locations should
+                // not be valid for teleporting.
+                if (location != null &&
+                    island.getProtectionBoundingBox().contains(location.toVector()) &&
+                    this.addon.getIslands().isSafeLocation(location))
                 {
-                    User member = User.getInstance(uuid);
+                    // Teleport player async to island spawn point.
+                    Util.teleportAsync(user.getPlayer(), location);
+                }
+                else
+                {
+                    // Use SafeSpotTeleport builder to avoid issues with players spawning in
+                    // bad spot.
+                    new SafeSpotTeleport.Builder(this.addon.getPlugin()).
+                        entity(user.getPlayer()).
+                        location(location == null ? island.getProtectionCenter() : location).
+                        failureMessage(user.getTranslation("general.errors.no-safe-location-found")).
+                        build();
+                }
 
-                    if (member.isOnline())
+                // Add visitor to the tracked player set after 1 second.
+                Bukkit.getScheduler().runTaskLater(this.addon.getPlugin(),
+                    () -> IslandLeaveListener.trackedPlayerSet.add(user.getUniqueId()),
+                    20L);
+
+                if (island.isAllowed(VisitAddon.RECEIVE_VISIT_MESSAGE_FLAG))
+                {
+                    // Send message that player is visiting the island.
+                    island.getMemberSet().forEach(uuid ->
                     {
-                        Utils.sendMessage(member,
-                            member.getTranslation(Constants.CONVERSATIONS + "player-visiting-island",
-                                Constants.PARAMETER_PLAYER, user.getName()));
-                    }
-                });
+                        User member = User.getInstance(uuid);
+
+                        if (member.isOnline())
+                        {
+                            Utils.sendMessage(member,
+                                member.getTranslation(Constants.CONVERSATIONS + "player-visiting-island",
+                                    Constants.PARAMETER_PLAYER, user.getName()));
+                        }
+                    });
+                }
             }
-        }
+        });
     }
 
 
