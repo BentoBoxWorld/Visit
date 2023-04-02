@@ -12,6 +12,7 @@ import org.bukkit.World;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+import net.milkbowl.vault.economy.EconomyResponse;
 import world.bentobox.bank.BankResponse;
 import world.bentobox.bank.data.Money;
 import world.bentobox.bentobox.api.addons.GameModeAddon;
@@ -266,7 +267,7 @@ public class VisitAddonManager
         else if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
         {
             // Process Vault deposit.
-            if (this.addon.getVaultHook().deposit(user, credits).transactionSuccess())
+            if (this.addon.getVaultHook().deposit(user, credits, world).transactionSuccess())
             {
                 Utils.sendMessage(user, message);
                 deposit.complete(true);
@@ -334,7 +335,7 @@ public class VisitAddonManager
         }
         else if (this.addon.getVaultHook() != null && this.addon.getVaultHook().hook())
         {
-            if (this.addon.getVaultHook().withdraw(user, credits).transactionSuccess())
+            if (this.addon.getVaultHook().withdraw(user, credits, world).transactionSuccess())
             {
                 Utils.sendMessage(user, message);
                 // Process Vault withdraw.
