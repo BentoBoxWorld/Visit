@@ -59,7 +59,7 @@
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- This allows to change between versions and snapshots. -->
-        <build.version>1.5.0</build.version>
+        <build.version>1.6.0</build.version>
         <build.number>-LOCAL</build.number>
     </properties>
 
@@ -148,11 +148,6 @@
             <artifactId>spigot-api</artifactId>
             <version>${spigot.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>plugin-annotations</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>world.bentobox</groupId>

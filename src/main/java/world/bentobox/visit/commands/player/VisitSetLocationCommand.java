@@ -110,6 +110,16 @@ public class VisitSetLocationCommand extends CompositeCommand
             return false;
         }
 
+        int rank = island.getRank(user);
+
+        if (rank < island.getRankCommand(this.getUsage()))
+        {
+            user.sendMessage("general.errors.insufficient-rank",
+                TextVariables.RANK,
+                user.getTranslation(this.getPlugin().getRanksManager().getRank(rank)));
+            return false;
+        }
+
         return true;
     }
 
