@@ -1,0 +1,71 @@
+---
+visit:
+  commands:
+    admin:
+      main:
+        description: ouvre le menu qui permet de modifier les paramètres d'île par
+          défaut ou ciblés.
+    player:
+      main:
+        description: ouvre le menu ou visite l'île du joueur ciblé.
+      configure:
+        description: ouvre le menu qui permet de gérer les paramètres de visite.
+      set-location: {}
+  gui:
+    titles: {}
+    buttons:
+      previous: {}
+      next: {}
+      search:
+        description: |-
+          &7 Rechercher une
+          &7 île.
+      filter: {}
+      island:
+        noone-online: |-
+          &7 Aucun des membres de l'île
+          &7 n'est en ligne.
+        payment: |-
+          &7 Cela coûte [nombre] pour visiter
+          &7 cette île.
+      payment:
+        name: "&f&l Prix"
+        description: |-
+          &7 Permet de modifier le prix
+          &7 pour visiter votre île.
+          &7 Pix actuel : &b&o [nombre]
+      offline:
+        description: |-
+          &7 Permet de changer si les joueurs
+          &7 peuvent visiter l'île pendant que tous
+          &7 les membres sont hors ligne.
+      enabled:
+        description: |-
+          &7 Permet de changer si les
+          &7 visites sont activées.
+      messaging: {}
+      manage:
+        name: "&f&l Gérer les paramètres de l'île"
+      reset: {}
+      tax: {}
+      default_payment: {}
+      default_offline:
+        description: |-
+          &7 Permet de changer si les joueurs
+          &7 peuvent visiter l'île pendant que tous les
+          &7 membres sont hors ligne.
+      default_enabled: {}
+      enable_economy: {}
+      use_bank: {}
+      enable_confirmation: {}
+      icon: {}
+      max_value: {}
+      cancel: {}
+      material: {}
+    tips: {}
+  errors: {}
+  conversations: {}
+protection:
+  flags:
+    ALLOW_VISITS_FLAG: {}
+    RECEIVE_VISIT_MESSAGE_FLAG: {}
