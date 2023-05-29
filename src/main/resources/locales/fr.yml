@@ -1,0 +1,269 @@
+---
+visit:
+  commands:
+    admin:
+      main:
+        description: ouvre le menu qui permet de modifier les paramètres d'île par
+          défaut ou ciblés.
+        parameters: "<joueur>"
+    player:
+      main:
+        description: ouvre le menu ou visite l'île du joueur ciblé.
+        parameters: "<joueur>"
+      configure:
+        description: ouvre le menu qui permet de gérer les paramètres de visite.
+      set-location:
+        description: permet de changer l'emplacement d'apparition des visiteurs.
+  gui:
+    titles:
+      choose: "&0&l Choisir l'île"
+      configure: "&0&l Configurer l'accès"
+      main: "&0&l Panneau d'administration"
+      select-island: "&0&l Sélectionner une île"
+      select-block: "&0&l Sélectionner un bloc"
+    buttons:
+      previous:
+        name: "&f&l Page précédente"
+        description: "&7 Passer à la page [numéro]"
+      next:
+        name: "&f&l Page suivante"
+        description: "&7 Passer à la page [numéro]"
+      search:
+        name: "&f&l Rechercher"
+        description: |-
+          &7 Rechercher une
+          &7 île.
+        search: "&b Valeur : [valeur]"
+      filter:
+        name: "&f&l Filtre"
+        description: |-
+          &7 Permet d'afficher uniquement
+          &7 îles filtrées.
+        value: "&7 Filtre actif : [valeur]"
+        all_islands: "&b&o aucun"
+        online_islands: "&b&o en ligne"
+        can_visit: "&b&o visitable"
+      island:
+        name: "&f&l [nom]"
+        description: |-
+          [propriétaire]
+          [membres]
+          [personne en ligne]
+          [paiement]
+          [pas de visite]
+        owner: "&7&l Propriétaire : &r&b [joueur]"
+        members-title: "&7&l Membres :"
+        member: "&b - [joueur]"
+        unknown: inconnu
+        noone-online: |-
+          &7 Aucun des membres de l'île
+          &7 n'est en ligne.
+        payment: |-
+          &7 Cela coûte [nombre] pour visiter
+          &7 cette île.
+        no-visit: "&c Vous ne pouvez pas visiter l'île."
+      payment:
+        name: "&f&l Prix"
+        description: |-
+          &7 Permet de modifier le prix
+          &7 pour visiter votre île.
+          &7 Pix actuel : &b&o [nombre]
+      offline:
+        name: "&f&l Visites hors ligne"
+        description: |-
+          &7 Permet de changer si les joueurs
+          &7 peuvent visiter l'île pendant que tous
+          &7 les membres sont hors ligne.
+        enabled: "&7 Visites hors ligne &a activées"
+        disabled: "&7 Visites hors ligne &c désactivées"
+      enabled:
+        name: "&f&l Autoriser les visites"
+        description: |-
+          &7 Permet de changer si les
+          &7 visites sont activées.
+        enabled: "&7 Les visites sont &a autorisées"
+        disabled: "&7 Les visites sont &c interdites"
+      messaging:
+        name: "&f&l Recevoir des messages de visite"
+        description: |-
+          &7 Permet de changer si îlot
+          &7 membres devraient recevoir
+          &7 messages lorsque quelqu'un
+          &7 visite l'île.
+        enabled: "&7 La messagerie est &a activée"
+        disabled: "&7 La messagerie est &c désactivée"
+      manage:
+        name: "&f&l Gérer les paramètres de l'île"
+        description: |-
+          &7 Permet de modifier l'îlot
+          &7 paramètres de visite pour
+          &7 île sélectionnée.
+      reset:
+        name: "&f&l Réinitialiser par défaut"
+        description: |-
+          &7 Réinitialise toutes les visites d'île
+          &7 paramètres aux valeurs par défaut.
+      tax:
+        name: "&f&l Gérer les taxes"
+        description: |-
+          &7 Permet de définir le montant de la taxe
+          & 7 pour visiter l'île.
+        value: "&7 Taxe actuelle : &b&o [nombre]"
+      default_payment:
+        name: "&f&l Paiement par défaut"
+        description: |-
+          &7 Permet de modifier le paiement
+          &7 valeur.
+        value: "&7 Paiement en cours : &b&o [nombre]"
+      default_offline:
+        name: "&f&l Déconnecté par défaut"
+        description: |-
+          &7 Permet de changer si les joueurs
+          &7 peuvent visiter l'île pendant que tous les
+          &7 membres sont hors ligne.
+        enabled: |-
+          &7 Visites hors ligne par défaut
+          &7 sont &a activés
+        disabled: |-
+          &7 Visites hors ligne par défaut
+          &7 sont &c désactivés
+      default_enabled:
+        name: "&f&l Visite par défaut"
+        description: |-
+          &7 Permet de changer si visites
+          &7 par défaut sont activés.
+        enabled: |-
+          &7 Visites par défaut
+          &7 sont &a activés
+        disabled: |-
+          &7 Visites par défaut
+          &7 sont &c désactivés
+      enable_economy:
+        name: "&f&l Activer l'économie"
+        description: |-
+          &7 Permet de basculer la partie économique
+          &7 addon si le plugin Vault est
+          &7 est présent.
+        enabled: "&7 L'économie est &a activée."
+        disabled: "&7 L'économie est &c désactivée."
+      use_bank:
+        name: "&f&l Activer la banque"
+        description: |-
+          &7 Permet de basculer si tous
+          &7 les paiements doivent être traités
+          &7 à travers la banque de l'île.
+          &7 L'extension bancaire est requise.
+        enabled: "&7 L'utilisation de la banque est &a activée."
+        disabled: "&7 L'utilisation de la banque est &c désactivée."
+      enable_confirmation:
+        name: "&f&l Confirmation de paiement"
+        description: |-
+          &7 Permet de basculer si les paiements
+          &7 doit être confirmé deux fois.
+        enabled: "&7 La confirmation est &a activée."
+        disabled: "&7 La confirmation est &c désactivée."
+      icon:
+        name: "&f&l Icône par défaut"
+        description: |-
+          &7 Permet de changer la valeur par défaut
+          &7 icône de l'île.
+      max_value:
+        name: "&f&l Valeur de paiement maximale"
+        description: |-
+          &7 Permet de définir le montant maximum
+          & 7 joueurs peuvent définir comme paiement
+          &7 pour visiter leur île.
+          &7 0 ou ci-dessous désactive tout
+          &7 limitations.
+        value: "&7 Valeur maximale : &b&o [nombre]"
+      cancel:
+        name: "&f&l Annuler"
+        description: |-
+          &7 Annuler et revenir à
+          &7 menu précédent.
+      material:
+        name: "&f&l [matériel]"
+        description: "&7 Identifiant du matériau : [identifiant]"
+    tips:
+      click-to-switch: "&e Cliquez sur &7 pour changer."
+      click-to-previous: "&e Cliquez sur &7 pour afficher la page précédente."
+      click-to-next: "&e Cliquez sur &7 pour afficher la page suivante."
+      click-to-visit: "&e Cliquez sur &7 pour visiter."
+      click-to-toggle: "&e Cliquez sur &7 pour basculer."
+      click-to-change: "&e Cliquez sur &7 pour modifier."
+      click-to-edit: "&e Cliquez sur &7 pour modifier."
+      click-to-choose: "&e Cliquez sur &7 pour choisir."
+      click-to-reset: "&e Cliquez sur &7 pour réinitialiser."
+      left-click-to-edit: "&e Clic gauche &7 pour éditer."
+      right-click-to-clear: "&e Clic droit &7 pour effacer."
+      click-to-select: "&e Cliquez sur &7 pour sélectionner."
+      click-to-deselect: "&e Cliquez sur &7 pour désélectionner."
+      left-click-to-confirm: "&e Clic gauche &7 pour confirmer."
+      right-click-to-cancel: "&e Clic droit &7 pour annuler."
+      left-click-to-cycle: "&e Clic gauche &7 pour faire défiler vers le bas."
+      right-click-to-cycle: "&e Clic droit &7 pour remonter."
+  errors:
+    no-islands: "&r&c Il n'y a pas d'îles à visiter dans [gamemode] !"
+    noone-is-online: "&r&c Personne de cette île n'est en ligne !"
+    not-enough-credits: "&r&c Vous n'avez pas assez d'argent. Frais de visite &l&4
+      $[nombre]."
+    not-enough-credits-bank: "&r&c Vous n'avez pas assez d'argent sur votre compte
+      bancaire. Frais de visite &l&4 $[nombre]."
+    cannot-withdraw-credits: "&r&c Impossible de retirer &l&4 $[nombre] &r&c de votre
+      compte ! L'opération est annulée."
+    cannot-deposit-credits: "&r&c Impossible de déposer &l&4 $ [nombre] &r&c sur le
+      compte du propriétaire de l'île ! L'opération est annulée."
+    not-in-overworld: "&rv Vous devez être dans l'overworld pour changer le lieu d'apparition
+      des visiteurs ! L'opération est annulée."
+    not-in-protected-area: "&r&c Vous devez être dans la zone protégée de votre île !
+      L'opération est annulée."
+    not-safe-location: "&r&c Impossible de définir cet emplacement, il n'est pas sûr
+      pour la téléportation ! L'opération est annulée."
+    not-in-correct-world: "&r&c Vous n'êtes pas dans le monde [gamemode] ! L'opération
+      est annulée."
+  conversations:
+    confirm-string: vrai, sur, oui, confirmer, y, valide, correct
+    deny-string: faux, désactivé, non, nier, n, invalide, incorrect
+    cancel-string: Annuler
+    exit-string: annuler, quitter, quitter
+    cancelled: "&c Conversation annulée !"
+    prefix: "&l&6 [BentoBox] : &r"
+    numeric-only: "&c La [valeur] donnée n'est pas un nombre !"
+    not-valid-value: "&c Le nombre donné [valeur] n'est pas valide. Elle doit être
+      supérieure à [min] et inférieure à [max] !"
+    write-search: "&e Veuillez saisir une valeur de recherche. (écrire 'annuler' pour
+      quitter)"
+    search-updated: "&a Valeur de recherche mise à jour."
+    input-number: "&e Veuillez saisir un numéro dans le chat."
+    confirm-island-data-deletion: "&e Confirmez que vous souhaitez supprimer toutes
+      les données utilisateur de la base de données pour [gamemode]."
+    user-data-removed: "&a Succès, toutes les données utilisateur pour [gamemode]
+      ont été supprimées !"
+    spawn-point-updated: "&a Succès, le point d'apparition est modifié !"
+    visit-payment: "&e Visiter &l&6 [propriétaire] &r&e l'île coûtera &l&6 $[paiement]."
+    visit-paid: "&e Vous avez payé &l&6 $[paiement] &r&e pour visiter &l&6 [propriétaire]
+      &r&e l'île."
+    visit-paid-bank: "&e Vous avez payé &l&6 $[paiement] &r&e depuis votre compte
+      bancaire pour visiter &l&6 [propriétaire] &r&e l'île."
+    visit-earn: "&l&6 [joueur] &r&e vous a payé &l&6 $[paiement] &r&e pour visiter
+      votre île."
+    visit-earn-bank: "&l&6 [joueur] &r&e déposé dans votre banque &l&6 $[paiement]
+      &r&e pour visiter votre île."
+    player-visiting-island: "&e Joueur &l&6 [joueur] &r&e a visité votre île."
+    player-leaves-island: "&e Joueur &l&6 [joueur] &r&e a quitté votre île."
+protection:
+  flags:
+    ALLOW_VISITS_FLAG:
+      name: Protection contre les visites
+      description: |-
+        &a Basculer si l'îlot peut être
+        &a visité par n'importe qui.
+      hint: "&c Les visites sont désactivées dans cette île"
+      icon: TARTE À LA CITROUILLE
+    RECEIVE_VISIT_MESSAGE_FLAG:
+      name: Recevoir des messages de visite
+      description: |-
+        &a Basculer si les membres doivent
+        &a recevoir un message si quelqu'un
+        &a visite leur île.
+      icon: PAPIER
