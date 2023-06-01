@@ -242,7 +242,6 @@ public class VisitAddon extends Addon
             }
         }, () -> {
             this.essentials = null;
-            this.logWarning("Essentials plugin not found!");
         });
     }
 
