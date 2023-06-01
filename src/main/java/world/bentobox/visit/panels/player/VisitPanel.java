@@ -837,7 +837,7 @@ public class VisitPanel
                         if (this.user.hasPermission("essentials.vanish.see")) return true;
 
                         /* If the owner is online, and is vanished filter them out */
-                        OfflinePlayer owner = Bukkit.getOfflinePlayer(Objects.requireNonNull(island.getOwner()));
+                        User owner = User.getInstance(Objects.requireNonNull(island.getOwner()));
                         /* If the owner is not online for some reason, bail */
                         if (!owner.isOnline()) return false;
 
