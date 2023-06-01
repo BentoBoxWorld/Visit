@@ -345,7 +345,7 @@ public class VisitAddon extends Addon
     private VaultHook vaultHook;
 
     /**
-     * Local variable that stores vault hook.
+     * Local variable that stores essentials hook.
      */
     private Essentials essentials;
 
