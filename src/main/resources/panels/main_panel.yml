@@ -46,7 +46,7 @@ main_panel:
       8: island_button
     3:
       1:
-        icon: TIPPED_ARROW:INSTANT_HEAL::::1
+        icon: tipped_arrow{CustomPotionColor:11546150}
         title: visit.gui.buttons.previous.name
         description: visit.gui.buttons.previous.description
         data:
@@ -64,7 +64,7 @@ main_panel:
       7: island_button
       8: island_button
       9:
-        icon: TIPPED_ARROW:JUMP::::1
+        icon: tipped_arrow{CustomPotionColor:8439583}
         title: visit.gui.buttons.next.name
         description: visit.gui.buttons.next.description
         data:
