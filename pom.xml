@@ -49,7 +49,7 @@
         <java.version>16</java.version>
         <powermock.version>1.7.4</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.20-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.20.4-R0.1-SNAPSHOT</spigot.version>
         <!-- BentoBox API version -->
         <bentobox.version>2.0.0-SNAPSHOT</bentobox.version>
         <bank.version>1.4.0</bank.version>
