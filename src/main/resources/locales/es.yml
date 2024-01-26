@@ -1,0 +1,166 @@
+---
+visit:
+  commands:
+    admin:
+      main:
+        description: abre la GUI que permite editar la configuración de la isla predeterminada
+          o de destino.
+        parameters: "<jugador>"
+    player:
+      main:
+        parameters: "<jugador>"
+      configure: {}
+      set-location: {}
+  gui:
+    titles: {}
+    buttons:
+      previous: {}
+      next: {}
+      search:
+        name: "& f & l Buscar"
+        description: |-
+          & 7 Busque un
+          & 7 isla.
+        search: "& b Valor: [valor]"
+      filter:
+        name: "& f & l Filtro"
+        description: |-
+          & 7 Permite mostrar solo
+          & 7 islas filtradas.
+        value: "& 7 Filtro activo: [valor]"
+        all_islands: "& b & o ninguno"
+        online_islands: "& b & o en línea"
+        can_visit: "& b & o visitable"
+      island:
+        description: |-
+          [dueño]
+          [miembros]
+          [nadie en línea]
+          [pago]
+          [sin visita]
+        owner: "& 7 & l Propietario: & r & b [jugador]"
+        members-title: "& 7 & l Miembros:"
+        member: "& b - [jugador]"
+        unknown: desconocido
+        noone-online: |-
+          & 7 Ninguno de los miembros de la isla
+          & 7 están en línea.
+        payment: |-
+          & 7 Cuesta [número] visitar
+          & 7 esta isla.
+        no-visit: "& c No puedes visitar la isla."
+      payment:
+        name: "& f & l Valor de pago"
+        description: |-
+          & 7 Permite cambiar el pago
+          & 7 para visitar tu isla.
+          & 7 Valor actual: & b & o [número]
+      offline:
+        name: "& f & l Visitas sin conexión"
+        description: |-
+          & 7 Permite cambiar si los jugadores
+          & 7 pueden visitar la isla mientras todos
+          & 7 miembros están desconectados.
+        enabled: "& 7 visitas sin conexión y una habilitada"
+        disabled: "& 7 visitas sin conexión & c discapacitados"
+      enabled:
+        name: "& f & l Permitir visitas"
+        description: |-
+          & 7 Permite cambiar si
+          & 7 visitas están habilitadas.
+        enabled: "& 7 Visitas & a permitidas"
+        disabled: "& 7 Visitas & c no permitidas"
+      messaging: {}
+      manage:
+        name: "& f & l Administrar la configuración de la isla"
+        description: |-
+          & 7 Permite editar isla
+          & 7 configuraciones de visita para
+          & 7 isla seleccionada.
+      reset:
+        name: "& f & l Restablecer valores predeterminados"
+      tax:
+        name: "& f & l Gestionar impuestos"
+        description: |-
+          & 7 Permite establecer la cantidad de impuestos
+          Y 7 para visitar la isla.
+        value: "& 7 Impuesto actual: & b & o [número]"
+      default_payment:
+        name: "& f & l Pago predeterminado"
+        description: |-
+          & 7 Permite cambiar el pago
+          & 7 valor.
+      default_offline:
+        name: "& f & l Por defecto sin conexión"
+        description: |-
+          & 7 Permite cambiar si los jugadores
+          & 7 pueden visitar la isla mientras todos
+          & 7 miembros están desconectados.
+        enabled: |-
+          & 7 Visitas sin conexión predeterminadas
+          & 7 son & a habilitados
+        disabled: |-
+          & 7 Visitas sin conexión predeterminadas
+          & 7 están & c desactivados
+      default_enabled:
+        name: "& f & l Visita predeterminada"
+        description: |-
+          & 7 Permite cambiar si visitas
+          & 7 por defecto están habilitados.
+        enabled: |-
+          & 7 Visitas predeterminadas
+          & 7 son & a habilitados
+        disabled: |-
+          & 7 Visitas predeterminadas
+          & 7 están & c desactivados
+      enable_economy:
+        name: "& f & l Activar economía"
+        description: |-
+          & 7 Permite alternar la parte económica
+          & 7 complemento si el complemento Vault es
+          & 7 está presente.
+        enabled: "& 7 La economía está & a habilitada."
+        disabled: "& 7 Economía está & c deshabilitada."
+      use_bank: {}
+      enable_confirmation: {}
+      icon: {}
+      max_value: {}
+      cancel: {}
+      material: {}
+    tips:
+      click-to-next: "& e Haga clic en & 7 para ver la página siguiente."
+      click-to-visit: "& e Haga clic en & 7 para visitar."
+      click-to-toggle: "& e Haga clic en & 7 para alternar."
+      click-to-reset: "& e Haga clic en & 7 para restablecer."
+      left-click-to-edit: "& e Clic izquierdo & 7 para editar."
+      right-click-to-clear: "& e Haga clic con el botón derecho del ratón & 7 para
+        borrar."
+      click-to-select: "& e Haga clic en & 7 para seleccionar."
+      click-to-deselect: "& e Haga clic en & 7 para anular la selección."
+  errors:
+    noone-is-online: "& r & c ¡Nadie de esta isla está en línea!"
+    not-enough-credits: "& r & c No tienes suficientes créditos para visitar esta
+      isla. [Número] créditos necesarios."
+    cannot-withdraw-credits: "& r & c ¡No se puede retirar [número] de su cuenta!
+      Se cancela la operación."
+    cannot-deposit-credits: "& r & c ¡No se puede depositar [número] en la cuenta
+      del propietario de la isla! Se cancela la operación."
+    not-in-overworld: "& rv ¡Debes estar en el mundo para cambiar la ubicación de
+      generación de visitantes! Se cancela la operación."
+    not-in-protected-area: "& r & c ¡Debes estar en el área protegida de tu isla!
+      Se cancela la operación."
+    not-safe-location: "& r & c No se puede establecer esta ubicación, ¡no es seguro
+      para la teletransportación! Se cancela la operación."
+  conversations:
+    confirm-string: verdadero, encendido, sí, confirmar, y, válido, correcto
+    deny-string: falso, desactivado, no, denegar, n, inválido, incorrecto
+    cancel-string: cancelar
+    exit-string: cancelar, salir, salir
+    cancelled: "& c ¡Conversación cancelada!"
+    prefix: "& l & 6 [BentoBox]: & r"
+    numeric-only: "& c ¡El [valor] dado no es un número!"
+    input-number: "& e Introduzca un número en el chat."
+protection:
+  flags:
+    ALLOW_VISITS_FLAG: {}
+    RECEIVE_VISIT_MESSAGE_FLAG: {}
