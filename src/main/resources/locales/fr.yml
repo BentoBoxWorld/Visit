@@ -250,7 +250,7 @@ visit:
     visit-earn-bank: "&l&6 [joueur] &r&e déposé dans votre banque &l&6 $[paiement]
       &r&e pour visiter votre île."
     player-visiting-island: "&e Joueur &l&6 [joueur] &r&e a visité votre île."
-    player-leaves-island: "&e Joueur &l&6 [joueur] &r&e a quitté votre île."
+    player-leaves-island: "&e Joueur &l&6 [player] &r&e a quitté votre île."
 protection:
   flags:
     ALLOW_VISITS_FLAG:
