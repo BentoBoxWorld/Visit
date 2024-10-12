@@ -49,17 +49,17 @@
         <java.version>16</java.version>
         <powermock.version>1.7.4</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.17-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.20.4-R0.1-SNAPSHOT</spigot.version>
         <!-- BentoBox API version -->
-        <bentobox.version>1.21.0</bentobox.version>
+        <bentobox.version>2.0.0-SNAPSHOT</bentobox.version>
         <bank.version>1.4.0</bank.version>
         <vault.version>1.7</vault.version>
         <!-- Panel Utils version -->
-        <panelutils.version>1.1.0</panelutils.version>
+        <panelutils.version>1.2.0</panelutils.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- This allows to change between versions and snapshots. -->
-        <build.version>1.6.0</build.version>
+        <build.version>1.7.0</build.version>
         <build.number>-LOCAL</build.number>
     </properties>
 
@@ -137,8 +137,12 @@
             <url>https://repo.codemc.io/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>essentials-repo</id>
+            <url>https://repo.essentialsx.net/releases/</url>
         </repository>
     </repositories>
 
@@ -176,6 +180,12 @@
             <groupId>lv.id.bonne</groupId>
             <artifactId>panelutils</artifactId>
             <version>${panelutils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.essentialsx</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.19.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -272,7 +282,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.1-SNAPSHOT</version>
+                <version>3.4.1</version>
                 <configuration>
                     <minimizeJar>true</minimizeJar>
                     <artifactSet>
@@ -309,7 +319,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
+                <version>0.8.10</version>
                 <configuration>
                     <append>true</append>
                     <excludes>

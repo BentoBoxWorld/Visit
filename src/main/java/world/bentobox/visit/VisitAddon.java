@@ -6,9 +6,11 @@
 package world.bentobox.visit;
 
 
+import com.earth2me.essentials.Essentials;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
+import org.bukkit.plugin.Plugin;
 import world.bentobox.bank.Bank;
 import world.bentobox.bentobox.api.addons.Addon;
 import world.bentobox.bentobox.api.configuration.Config;
@@ -19,6 +21,8 @@ import world.bentobox.visit.commands.player.VisitPlayerCommand;
 import world.bentobox.visit.configs.Settings;
 import world.bentobox.visit.listeners.IslandLeaveListener;
 import world.bentobox.visit.managers.VisitAddonManager;
+
+import java.util.Optional;
 
 
 /**
@@ -226,6 +230,19 @@ public class VisitAddon extends Addon
             this.vaultHook = null;
             this.logWarning("Vault plugin not found. Economy will not work!");
         });
+
+        Optional<Plugin> essentials = Optional.ofNullable(Bukkit.getPluginManager().getPlugin("Essentials"));
+        essentials.ifPresentOrElse(hook -> {
+            this.essentials = (Essentials) hook;
+            if (this.essentials.isEnabled()) {
+                this.log("Visit Addon hooked into Essentials.");
+            }
+            else {
+                this.logWarning("Visit Addon could not hook into Essentials.");
+            }
+        }, () -> {
+            this.essentials = null;
+        });
     }
 
 
@@ -252,6 +269,16 @@ public class VisitAddon extends Addon
         return this.vaultHook;
     }
 
+    /**
+     * This getter will allow to access to Essentials. It is written so that it could return null, if Essentials is not
+     * present.
+     *
+     * @return {@code Essentials} if it is present, {@code null} otherwise.
+     */
+    public Essentials getEssentials()
+    {
+        return this.essentials;
+    }
 
     /**
      * Gets bank hook.
@@ -315,6 +342,11 @@ public class VisitAddon extends Addon
      * Local variable that stores vault hook.
      */
     private VaultHook vaultHook;
+
+    /**
+     * Local variable that stores essentials hook.
+     */
+    private Essentials essentials;
 
     /**
      * Local variable that stores bank addon hook.
