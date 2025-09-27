@@ -7,3 +7,5 @@ authors: [BONNe]
 contributors: ["The BentoBoxWorld Community"]
 website: https://bentobox.world
 description: ${project.description}
+
+softdepend: [Essentials]

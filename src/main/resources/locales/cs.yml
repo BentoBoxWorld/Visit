@@ -1,0 +1,266 @@
+---
+visit:
+  commands:
+    admin:
+      main:
+        description: otevře GUI, které umožňuje upravit výchozí nebo cílená nastavení
+          ostrova.
+        parameters: "<přehrávač>"
+    player:
+      main:
+        description: otevře GUI nebo navštíví ostrov cíleného hráče.
+        parameters: "<přehrávač>"
+      configure:
+        description: otevře GUI, které umožňuje spravovat nastavení návštěv.
+      set-location:
+        description: umožňuje změnit umístění spawn návštěvníků.
+  gui:
+    titles:
+      choose: "&0&l Vyberte ostrov"
+      configure: "&0&l Konfigurovat přístup"
+      main: "&0&l Administrační panel"
+      select-island: "&0&l Vyberte ostrov"
+      select-block: "&0&l Vyberte Blokovat"
+    buttons:
+      previous:
+        name: "&f&l Předchozí stránka"
+        description: "&7 Přepnout na stránku [číslo]"
+      next:
+        name: "&f&l Další stránka"
+        description: "&7 Přepnout na stránku [číslo]"
+      search:
+        name: "&f&l Hledat"
+        description: |-
+          &7 Vyhledejte konkrétní
+          Ostrov &7.
+        search: "&b Hodnota: [value]"
+      filter:
+        name: "&f&l Filtr"
+        description: |-
+          &7 Umožňuje pouze zobrazit
+          &7 filtrovaných ostrovů.
+        value: "&7 Aktivní filtr: [hodnota]"
+        all_islands: "&b&o žádné"
+        online_islands: "&b&o online"
+        can_visit: "&b&o navštívit"
+      island:
+        name: "&f&l [jméno]"
+        description: |-
+          [majitel]
+          [členové]
+          [nikdo-online]
+          [Způsob platby]
+          [bez návštěvy]
+        owner: "&7&l Vlastník: &r&b [hráč]"
+        members-title: 'Členové &7&l:'
+        member: "&b - [hráč]"
+        unknown: neznámý
+        noone-online: |-
+          &7 Žádný z členů ostrova
+          &7 jsou online.
+        payment: |-
+          &7 Návštěva stojí [číslo]
+          &7 tento ostrov.
+        no-visit: "&c Nemůžete navštívit ostrov."
+      payment:
+        name: "&f&l Hodnota platby"
+        description: |-
+          &7 Umožňuje změnit platbu
+          &7 za návštěvu vašeho ostrova.
+          &7 Aktuální hodnota: &b&o [číslo]
+      offline:
+        name: "&f&l Offline návštěvy"
+        description: |-
+          &7 Umožňuje změnit hráče
+          &7 může navštívit ostrov, zatímco všichni
+          &7 členů je offline.
+        enabled: "&7 Offline návštěvy &a povoleno"
+        disabled: "&7 Offline návštěvy &c zakázány"
+      enabled:
+        name: "&f&l Povolit návštěvy"
+        description: |-
+          &7 Umožňuje změnit pokud
+          &7 návštěv je povoleno.
+        enabled: "&7 Návštěvy jsou &a povoleny"
+        disabled: "&7 Návštěvy jsou &c zakázány"
+      messaging:
+        name: "&f&l Přijímat zprávy o návštěvě"
+        description: |-
+          &7 Umožňuje změnit ostrov
+          &7 členové by měli dostat
+          &7 zpráv, když někdo
+          &7 navštíví ostrov.
+        enabled: "&7 Zprávy jsou &a povoleny"
+        disabled: "&7 Zasílání zpráv je zakázáno"
+      manage:
+        name: "&f&l Spravovat nastavení ostrova"
+        description: |-
+          &7 Umožňuje upravit ostrov
+          &7 nastavení návštěv pro
+          &7 vybraného ostrova.
+      reset:
+        name: "&f&l Obnovit výchozí"
+        description: |-
+          &7 Resetuje všechny návštěvy ostrova
+          &7 na výchozí hodnoty.
+      tax:
+        name: "&f&l Správa daní"
+        description: |-
+          &7 Umožňuje nastavit výši daně
+          &7 za návštěvu ostrova.
+        value: "&7 Aktuální daň: &b&o [číslo]"
+      default_payment:
+        name: "&f&l Výchozí platba"
+        description: |-
+          &7 Umožňuje změnit platbu
+          Hodnota &7.
+        value: "&7 Aktuální platba: &b&o [číslo]"
+      default_offline:
+        name: "&f&l Výchozí režim offline"
+        description: |-
+          &7 Umožňuje změnit hráče
+          &7 může navštívit ostrov, zatímco všichni
+          &7 členů je offline.
+        enabled: |-
+          &7 Ve výchozím nastavení offline návštěvy
+          &7 jsou &a povoleny
+        disabled: |-
+          &7 Ve výchozím nastavení offline návštěvy
+          &7 jsou &c zakázány
+      default_enabled:
+        name: "&f&l Výchozí návštěva"
+        description: |-
+          &7 Umožňuje změnit počet návštěv
+          &7 jsou ve výchozím nastavení povoleny.
+        enabled: |-
+          &7 Ve výchozím nastavení návštěv
+          &7 jsou &a povoleny
+        disabled: |-
+          &7 Ve výchozím nastavení návštěv
+          &7 jsou &c zakázány
+      enable_economy:
+        name: "&f&l Povolit úsporu"
+        description: |-
+          &7 Umožňuje přepínat ekonomickou část
+          &7 addon, pokud je plugin Vault
+          &7 je přítomen.
+        enabled: "&7 Economy je &a povoleno."
+        disabled: "&7 Economy je &c zakázáno."
+      use_bank:
+        name: "&f&l Povolit banku"
+        description: |-
+          &7 Umožňuje přepínat, pokud vše
+          Platby &7 musí být zpracovány
+          &7 přes ostrovní břeh.
+          Je vyžadován doplněk banky &7.
+        enabled: "&7 Použití banky je &a povoleno."
+        disabled: "&7 Použití banky je &c zakázáno."
+      enable_confirmation:
+        name: "&f&l Potvrzení platby"
+        description: |-
+          &7 Umožňuje přepínat mezi platbami
+          &7 musí být potvrzeno dvakrát.
+        enabled: "&7 Potvrzení je &a povoleno."
+        disabled: "&7 Potvrzení je &c zakázáno."
+      icon:
+        name: "&f&l Výchozí ikona"
+        description: |-
+          &7 Umožňuje změnit výchozí nastavení
+          Ikona ostrova &7.
+      max_value:
+        name: "&f&l Maximální hodnota platby"
+        description: |-
+          &7 Umožňuje nastavit maximální množství
+          &7 hráči mohou nastavit jako platbu
+          &7 za návštěvu jejich ostrova.
+          &7 0 nebo níže zakáže jakékoli
+          &7 omezení.
+        value: "&7 Maximální hodnota: &b&o [číslo]"
+      cancel:
+        name: "&f&l Zrušit"
+        description: |-
+          &7 Zrušit a vrátit se na
+          &7 předchozí menu.
+      material:
+        name: "&f&l [materiál]"
+        description: "&7 ID materiálu: [id]"
+    tips:
+      click-to-switch: "&e Klepnutím na &7 přepnete."
+      click-to-previous: "&e Klepnutím na &7 zobrazíte předchozí stránku."
+      click-to-next: "&e Klepnutím na &7 zobrazíte další stránku."
+      click-to-visit: "&e Klikněte na &7 pro návštěvu."
+      click-to-toggle: "&e Klepnutím na &7 přepnete."
+      click-to-change: "&e Klikněte na &7 pro změnu."
+      click-to-edit: "&e Klepnutím na &7 upravte."
+      click-to-choose: "&e Klepnutím na &7 vyberte."
+      click-to-reset: "&e Klepnutím na &7 resetujte."
+      left-click-to-edit: "&e Levým tlačítkem myši &7 upravíte."
+      right-click-to-clear: "&e Klikněte pravým tlačítkem na &7 pro vymazání."
+      click-to-select: "&e Klepnutím na &7 vyberte."
+      click-to-deselect: "&e Klepnutím na &7 zrušte výběr."
+      left-click-to-confirm: "&e Levým tlačítkem klikněte na &7 pro potvrzení."
+      right-click-to-cancel: "&e Klikněte pravým tlačítkem na &7 pro zrušení."
+      left-click-to-cycle: "&e Levým kliknutím &7 přejdete dolů."
+      right-click-to-cycle: "&e Klikněte pravým tlačítkem na &7 pro přechod nahoru."
+  errors:
+    no-islands: "&r&c V [herní režim] nejsou žádné ostrovy k návštěvě!"
+    noone-is-online: "&r&c Nikdo z tohoto ostrova není online!"
+    not-enough-credits: "&r&c Nemáte dost peněz. Náklady na návštěvu &l&4 $[číslo]."
+    not-enough-credits-bank: "&r&c Na svém bankovním účtu nemáte dostatek peněz. Náklady
+      na návštěvu &l&4 $[číslo]."
+    cannot-withdraw-credits: "&r&c Nelze vybrat &l&4 $[number] &r&c z vašeho účtu!
+      Provoz je zrušen."
+    cannot-deposit-credits: "&r&c Nelze vložit &l&4 $[číslo] &r&c na účet vlastníka
+      ostrova! Provoz je zrušen."
+    not-in-overworld: "&rv Chcete-li změnit umístění návštěvníka, musíte být ve světě!
+      Provoz je zrušen."
+    not-in-protected-area: "&r&c Musíte být ve své ostrovní chráněné oblasti! Provoz
+      je zrušen."
+    not-safe-location: "&r&c Toto umístění nelze nastavit, není bezpečné pro teleportaci!
+      Provoz je zrušen."
+    not-in-correct-world: "&r&c Nejste ve světě [herní režim]! Provoz je zrušen."
+  conversations:
+    confirm-string: pravda, na, ano, potvrdit, y, platný, správný
+    deny-string: nepravdivý, vypnutý, ne, popřít, n, neplatný, nesprávný
+    cancel-string: zrušení
+    exit-string: zrušit, odejít, ukončit
+    cancelled: "&c Konverzace zrušena!"
+    prefix: "&l&6 [BentoBox]: &r"
+    numeric-only: "&c Daná [hodnota] není číslo!"
+    not-valid-value: "&c Dané číslo [hodnota] není platné. Musí být větší než [min]
+      a menší než [max]!"
+    write-search: "&e Napište prosím hodnotu hledání. (pro ukončení napište 'zrušit')"
+    search-updated: "&a Hodnota vyhledávání byla aktualizována."
+    input-number: "&e Zadejte prosím číslo do chatu."
+    confirm-island-data-deletion: "&e Potvrďte, že chcete smazat všechna uživatelská
+      data z databáze pro [gamemode]."
+    user-data-removed: "&a Úspěch, všechna uživatelská data pro [herní režim] byla
+      odstraněna!"
+    spawn-point-updated: "&a Úspěch, bod spawnování je změněn!"
+    visit-payment: "&e Návštěva ostrova &l&6 [vlastník] &r&e bude stát &l&6 $[platba]."
+    visit-paid: "&e Zaplatili jste &l&6 $[platba] &r&e za návštěvu ostrova &l&6 [vlastník]
+      &r&e."
+    visit-paid-bank: "&e Za návštěvu ostrova &l&6 [vlastník] &r&e jste ze svého bankovního
+      účtu zaplatili &l&6 $[platba] &r&e."
+    visit-earn: "&l&6 [hráč] &r&e vám zaplatil &l&6 $[platba] &r&e za návštěvu vašeho
+      ostrova."
+    visit-earn-bank: "&l&6 [hráč] &r&e uloženo ve vaší bance &l&6 $[platba] &r&e za
+      návštěvu vašeho ostrova."
+    player-visiting-island: "&e Hráč &l&6 [hráč] &r&e navštívil váš ostrov."
+    player-leaves-island: "&e Hráč &l&6 [hráč] &r&e opustil váš ostrov."
+protection:
+  flags:
+    ALLOW_VISITS_FLAG:
+      name: Navštivte ochranu
+      description: |-
+        &a Přepnout, pokud může být ostrov
+        &a navštíveno kýmkoli.
+      hint: "&c Návštěvy jsou na tomto ostrově zakázány"
+      icon: DÝŇOVÝ KOLÁČ
+    RECEIVE_VISIT_MESSAGE_FLAG:
+      name: Přijímat zprávy o návštěvách
+      description: |-
+        &a Přepnout, pokud by členové měli
+        &a přijmout zprávu, pokud někdo
+        &a navštíví jejich ostrov.
+      icon: PAPÍR

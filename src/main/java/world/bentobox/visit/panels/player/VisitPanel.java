@@ -6,8 +6,12 @@
 package world.bentobox.visit.panels.player;
 
 
+import com.earth2me.essentials.Essentials;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -824,6 +828,22 @@ public class VisitPanel
                 filter(island -> island.getMemberSet().stream().
                     map(User::getInstance).
                     anyMatch(User::isOnline)).
+                    filter(island -> {
+                        /* If essentials is not hooked, this filter doesn't apply */
+                        Essentials essentials = VisitAddon.getInstance().getEssentials();
+                        if (essentials == null) return true;
+
+                        /* If user can see vanished players, this filter does not apply */
+                        if (this.user.hasPermission("essentials.vanish.see")) return true;
+
+                        /* If the owner is online, and is vanished filter them out */
+                        User owner = User.getInstance(Objects.requireNonNull(island.getOwner()));
+                        /* If the owner is not online for some reason, bail */
+                        if (!owner.isOnline()) return false;
+
+                        /* If the target owner is vanished, do not include them as "online" */
+                        return !essentials.getVanishedPlayersNew().contains(owner.getName());
+                    }).
                 collect(Collectors.toList());
             case CAN_VISIT ->
                 // TODO: add balance and online check.

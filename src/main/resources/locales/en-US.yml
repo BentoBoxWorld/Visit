@@ -306,7 +306,7 @@ visit:
     # Message that appears when someone visits player island.
     player-visiting-island: "&e Player &l&6 [player] &r&e visited your island."
     # Message that appears when visitor leaves player island.
-    player-leaves-island: "&e Player &l&6 [player] &r&e leaved your island."
+    player-leaves-island: "&e Player &l&6 [player] &r&e left your island."
 # Protection flags that are used in current addon.
 protection:
   flags:
