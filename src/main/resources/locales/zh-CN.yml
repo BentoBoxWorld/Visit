@@ -200,7 +200,7 @@ visit:
     # 可用以下字符退出对话. (用“,”分隔开)
     exit-string: cancel, exit, quit
     cancelled: '&c 对话取消!'
-    prefix: '&d幻&7零&f空岛 &b>> '
+    prefix: '&l&6 [BentoBox]: &r'
     numeric-only: '&c 输入的 [value] 值不是一个数字!'
     not-valid-value: '&c 输入的 [value] 值无效. 其必须大于 [min] 且小于 [max]!'
     write-search: '&e 请输入要搜索的内容. (输入 ''cancel'' 以取消)'
