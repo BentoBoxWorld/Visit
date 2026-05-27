@@ -180,35 +180,35 @@ visit:
           &R &R
           &F现用 &C个人金库&R
       enable_confirmation:
-        name: '&L付款确认&R'
+        name: '&l付款确认&r'
         description: |-
-          &R &R
-          &F切换 付款 二次 确认&R
+          &r &r
+          &f切换 付款 二次 确认&r
         enabled: |-
-          &R &R
-          &F当前&R &A需要&R &F确认&R
+          &r &r
+          &f当前&r &a需要&r &f确认&r
         disabled: |-
-          &R &R
-          &F当前&R &C无需&R &F确认&R
+          &r &r
+          &f当前&r &c无需&r &f确认&r
       icon:
-        name: '&L默认图标&R'
+        name: '&l默认图标&r'
         description: |-
-          &R &R
-          &F点击选择默认图标&R
+          &r &r
+          &f点击选择默认图标&r
       max_value:
-        name: '&L最大支付款'
+        name: '&l最大支付款'
         description: |-
-          &R &R
-          &F限制岛屿门票费&R
-          &F小于等于0 无限制&R
+          &r &r
+          &f限制岛屿门票费&r
+          &f小于等于0 无限制&r
         value: |-
-          &R &R
-          &F最大&R &B[number]&R
+          &r &r
+          &f最大&r &b[number]&r
       cancel:
-        name: '&L取消&R'
+        name: '&l取消&r'
         description: |-
-          &R &R
-          &R返回
+          &r &r
+          &r返回
     tips:
       click-to-switch: '&e 点击 &7 切换.'
       click-to-previous: '&e 点击 &7查看上一页.'
