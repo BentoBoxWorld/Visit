@@ -48,9 +48,9 @@ visit:
           &7 显示过滤后
           &7 的岛屿.
         value: '&7 启用的过滤器: [value]'
-        all_islands: '&b&o 无'
-        online_islands: '&b&o 在线'
-        can_visit: '&b&o 可访问的'
+        all_islands: '&b 无'
+        online_islands: '&b 在线'
+        can_visit: '&b 可访问的'
       island:
         name: '&f&l [name]'
         description: |-
@@ -106,13 +106,13 @@ visit:
         description: |-
           &7 设置付费访问岛屿
           &7 的税收.
-        value: '&7 当前税收: &b&o [number]'
+        value: '&7 当前税收: &b [number]'
       default_payment:
         name: '&f&l 默认付款方式'
         description: |-
           &7 更改默认的
           &7 付款方式.
-        value: '&7 当前付款方式: &b&o [number]'
+        value: '&7 当前付款方式: &b [number]'
       default_offline:
         name: '&f&l 默认允许离线访问'
         description: |-
@@ -165,6 +165,50 @@ visit:
           &7 用户是否能使用收费功能.
         enabled: '&7 收费功能 &a启用.'
         disabled: '&7 收费功能 &c禁用.' # 所有提示信息.
+      use_bank:
+        name: '&L银行过手'
+        description: |-
+          &R &R
+          &F所有 互访支付 通过 岛屿银行 处理&R
+          &R &R
+          &C需&R &E银行附属&R
+          &EBank addon&R
+        enabled: |-
+          &R &R
+          &F现用 &A岛屿银行&R
+        disabled: |-
+          &R &R
+          &F现用 &C个人金库&R
+      enable_confirmation:
+        name: '&l付款确认&r'
+        description: |-
+          &r &r
+          &f切换 付款 二次 确认&r
+        enabled: |-
+          &r &r
+          &f当前&r &a需要&r &f确认&r
+        disabled: |-
+          &r &r
+          &f当前&r &c无需&r &f确认&r
+      icon:
+        name: '&l默认图标&r'
+        description: |-
+          &r &r
+          &f点击选择默认图标&r
+      max_value:
+        name: '&l最大支付款'
+        description: |-
+          &r &r
+          &f限制岛屿门票费&r
+          &f小于等于0 无限制&r
+        value: |-
+          &r &r
+          &f最大&r &b[number]&r
+      cancel:
+        name: '&l取消&r'
+        description: |-
+          &r &r
+          &r返回
     tips:
       click-to-switch: '&e 点击 &7 切换.'
       click-to-previous: '&e 点击 &7查看上一页.'
@@ -181,6 +225,8 @@ visit:
       click-to-deselect: '&e 点击 &7取消选择.'
       left-click-to-confirm: '&e 左击 &7确认.'
       right-click-to-cancel: '&e 右击 &7取消.'
+      left-click-to-cycle: '&E左键 &7下一项&R'
+      right-click-to-cycle: '&E右键 &7上一项&R'
   errors:
     noone-is-online: '&r&c 该岛屿没有成员在线!'
     not-enough-credits: '&r&c 您没有足够的余额访问该岛屿. 至少要有 [number].'
@@ -200,7 +246,7 @@ visit:
     # 可用以下字符退出对话. (用“,”分隔开)
     exit-string: cancel, exit, quit
     cancelled: '&c 对话取消!'
-    prefix: '&l&6 [BentoBox]: &r'
+    prefix: '&l&6 [访客系统]: &r'
     numeric-only: '&c 输入的 [value] 值不是一个数字!'
     not-valid-value: '&c 输入的 [value] 值无效. 其必须大于 [min] 且小于 [max]!'
     write-search: '&e 请输入要搜索的内容. (输入 ''cancel'' 以取消)'
@@ -212,6 +258,8 @@ visit:
     # 用户即将传送到要付费才能访问的岛屿时的提示.
     # 可用的参数: [tax], [earn], [payment], [island] 和 [owner].
     visit-payment: '&e 访问 [owner] 的岛屿将花费 &l&6 $[payment].'
+    # Message that appears when someone visits player island.
+    player-visiting-island: '&E玩家&R &6&L[player]&R &E正 访问 你 岛屿.'
 # 当前 addon 中的保护 flag 值.
 protection:
   flags:
