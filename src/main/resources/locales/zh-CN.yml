@@ -136,7 +136,7 @@ visit:
         disabled: |-
           &7 默认允许访问
           &c 禁用
-      # 更改过滤器位置的按钮
+# 更改过滤器位置的按钮
       at_top:
         name: '&f&l 过滤器置顶或置底'
         description: |-
@@ -225,6 +225,8 @@ visit:
       click-to-deselect: '&e 点击 &7取消选择.'
       left-click-to-confirm: '&e 左击 &7确认.'
       right-click-to-cancel: '&e 右击 &7取消.'
+      left-click-to-cycle: '&E左键 &7下一项&R'
+      right-click-to-cycle: '&E右键 &7上一项&R'
   errors:
     noone-is-online: '&r&c 该岛屿没有成员在线!'
     not-enough-credits: '&r&c 您没有足够的余额访问该岛屿. 至少要有 [number].'
