@@ -1,4 +1,8 @@
 # Visit Addon
+
+<!-- BentoBox stats badges: https://download.bentobox.world/admin (Badges tab) -->
+[![Servers](https://download.bentobox.world/badge/Visit/servers.svg)](https://download.bentobox.world/) [![Downloads](https://download.bentobox.world/badge/Visit/downloads.svg)](https://download.bentobox.world/) [![Minecraft](https://download.bentobox.world/badge/Visit/mc.svg)](https://download.bentobox.world/)
+
 [![Discord](https://img.shields.io/discord/272499714048524288.svg?logo=discord)](https://discord.bentobox.world)
 [![Build Status](https://ci.codemc.io/buildStatus/icon?job=BentoBoxWorld/Visit)](https://ci.codemc.io/job/BentoBoxWorld/job/Visit/)
 
